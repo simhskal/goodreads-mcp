@@ -1,0 +1,40 @@
+{
+  "name": "goodreads-mcp",
+  "version": "0.1.0",
+  "description": "A local Goodreads library MCP server",
+  "type": "module",
+  "bin": {
+    "goodreads-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "pretypecheck": "pnpm --filter @goodreads-mcp/core build",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@goodreads-mcp/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "keywords": [
+    "goodreads",
+    "mcp",
+    "model-context-protocol"
+  ]
+}
