@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@goodreads-mcp/core": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.17.0",
-    "zod": "^3.25.0"
+    "@modelcontextprotocol/sdk": "1.26.0",
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
