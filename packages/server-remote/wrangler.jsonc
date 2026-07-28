@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "goodreads-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "MCP_OBJECT", "class_name": "GoodreadsMcp" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GoodreadsMcp"] }],
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "REPLACE_WITH_OAUTH_KV_ID",
+      "preview_id": "REPLACE_WITH_OAUTH_KV_PREVIEW_ID",
+    },
+    {
+      "binding": "CACHE",
+      "id": "REPLACE_WITH_CACHE_KV_ID",
+      "preview_id": "REPLACE_WITH_CACHE_KV_PREVIEW_ID",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "goodreads-mcp",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "observability": { "enabled": true },
+}

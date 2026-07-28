@@ -1,0 +1,28 @@
+{
+  "name": "@goodreads-mcp/server-remote",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply goodreads-mcp --local",
+    "db:migrate": "wrangler d1 migrations apply goodreads-mcp --remote"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.8.2",
+    "@goodreads-mcp/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "agents": "^0.20.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.11.1",
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "wrangler": "4.56.0"
+  }
+}
