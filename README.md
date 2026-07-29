@@ -83,6 +83,11 @@ PKCE, refresh tokens, and protected-resource metadata for compatible clients.
 
 ## Deploy a personal server to Vercel
 
+The canonical hosted deployment is available at
+[goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/), with its
+Streamable HTTP MCP endpoint at
+[`https://goodreads-mcp-chi.vercel.app/mcp`](https://goodreads-mcp-chi.vercel.app/mcp).
+
 The Vercel deployment exposes the same RSS-backed tools at `/mcp`. Configure
 `GOODREADS_USER_ID` with the numeric ID in your Goodreads profile URL and, for
 private feeds, configure `GOODREADS_RSS_KEY` with the key from a shelf's RSS
@@ -102,8 +107,8 @@ vercel --prod
 Then connect a Streamable HTTP client:
 
 ```sh
-claude mcp add --transport http goodreads https://YOUR_PROJECT.vercel.app/mcp
-codex mcp add goodreads --url https://YOUR_PROJECT.vercel.app/mcp
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/mcp
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/mcp
 ```
 
 This deployment is intended for one Goodreads account and does not add OAuth.
