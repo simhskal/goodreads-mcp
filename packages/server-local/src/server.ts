@@ -30,12 +30,10 @@ function tool(handler: () => Promise<unknown>) {
   };
 }
 
-export function createServer(library: LibraryTools): McpServer {
-  const server = new McpServer({
-    name: "goodreads-mcp",
-    version: "0.1.0",
-  });
-
+export function registerTools<T extends Pick<McpServer, "registerTool">>(
+  server: T,
+  library: LibraryTools,
+): T {
   server.registerTool(
     "list_shelves",
     {
@@ -178,4 +176,14 @@ export function createServer(library: LibraryTools): McpServer {
   );
 
   return server;
+}
+
+export function createServer(library: LibraryTools): McpServer {
+  return registerTools(
+    new McpServer({
+      name: "goodreads-mcp",
+      version: "0.1.0",
+    }),
+    library,
+  );
 }
