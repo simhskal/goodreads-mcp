@@ -3,17 +3,687 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Goodreads MCP</title>
+    <meta
+      name="description"
+      content="Connect your Goodreads shelves to Codex or Claude with Goodreads MCP."
+    />
+    <title>Goodreads MCP — Setup guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #24211b;
+        --muted: #716b61;
+        --paper: #f5f1e8;
+        --card: rgba(255, 253, 248, 0.88);
+        --line: #d9d1c2;
+        --accent: #2f6f55;
+        --accent-dark: #22513f;
+        --accent-soft: #dcece3;
+        --code: #1e2722;
+        --shadow: 0 24px 70px rgba(55, 47, 35, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 80% 5%, #e2eadb 0, transparent 30rem),
+          linear-gradient(180deg, #fbf9f4 0, var(--paper) 100%);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.55;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 74px;
+        border-bottom: 1px solid rgba(100, 91, 75, 0.14);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        font-weight: 720;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+      }
+
+      .mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 10px;
+        color: white;
+        background: var(--accent);
+        box-shadow: 0 8px 18px rgba(47, 111, 85, 0.24);
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 64px;
+        align-items: center;
+        padding: 88px 0 72px;
+      }
+
+      .eyebrow,
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+      }
+
+      .eyebrow::before,
+      .status::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      h1 {
+        max-width: 720px;
+        margin: 18px 0 20px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(48px, 7vw, 82px);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 0.98;
+      }
+
+      .lede {
+        max-width: 650px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(18px, 2.3vw, 22px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 18px;
+        border: 1px solid var(--accent);
+        border-radius: 12px;
+        color: white;
+        background: var(--accent);
+        font-weight: 700;
+        text-decoration: none;
+        transition:
+          transform 150ms ease,
+          background 150ms ease;
+      }
+
+      .button:hover {
+        background: var(--accent-dark);
+        transform: translateY(-1px);
+      }
+
+      .button.secondary {
+        border-color: var(--line);
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.54);
+      }
+
+      .endpoint-card {
+        min-width: 0;
+        padding: 28px;
+        border: 1px solid rgba(121, 108, 85, 0.17);
+        border-radius: 24px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .status {
+        color: var(--accent);
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .endpoint-card h2 {
+        margin: 18px 0 8px;
+        font-size: 17px;
+      }
+
+      .endpoint-card p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .copy-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 6px 6px 14px;
+        border-radius: 12px;
+        color: #e8f0eb;
+        background: var(--code);
+      }
+
+      .copy-row code {
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .copy {
+        min-width: 66px;
+        padding: 7px 10px;
+        border: 0;
+        border-radius: 8px;
+        color: var(--ink);
+        background: #f4f1e9;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 48px;
+        align-items: end;
+        margin-bottom: 34px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(30px, 4vw, 44px);
+        letter-spacing: -0.04em;
+        line-height: 1.06;
+      }
+
+      .section-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .steps {
+        display: grid;
+        gap: 16px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 20px;
+        padding: 26px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 253, 248, 0.67);
+      }
+
+      .number {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-weight: 800;
+      }
+
+      .step h3 {
+        margin: 2px 0 6px;
+        font-size: 19px;
+      }
+
+      .step > div,
+      .command-card {
+        min-width: 0;
+      }
+
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .step a {
+        color: var(--accent-dark);
+        font-weight: 650;
+      }
+
+      .helper {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .helper input {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        outline: none;
+        background: white;
+      }
+
+      .helper input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(47, 111, 85, 0.12);
+      }
+
+      .result {
+        min-height: 24px;
+        margin-top: 8px !important;
+        font-size: 14px;
+      }
+
+      .commands {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .command-card {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--card);
+      }
+
+      .command-card h3 {
+        margin: 0 0 6px;
+      }
+
+      .command-card p {
+        min-height: 44px;
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .notice {
+        margin-top: 18px;
+        padding: 18px 20px;
+        border-left: 4px solid #bc7a24;
+        border-radius: 4px 12px 12px 4px;
+        background: #fff4df;
+        color: #654818;
+      }
+
+      .notice strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 36px 0 48px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      footer p {
+        margin: 0;
+      }
+
+      footer a {
+        color: var(--ink);
+        font-weight: 650;
+      }
+
+      @media (max-width: 760px) {
+        nav a:not(.github) {
+          display: none;
+        }
+
+        .hero,
+        .section-heading,
+        .commands {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          gap: 40px;
+          padding: 62px 0 48px;
+        }
+
+        .section {
+          padding: 52px 0;
+        }
+
+        .section-heading {
+          gap: 14px;
+        }
+
+        .step {
+          grid-template-columns: 42px minmax(0, 1fr);
+          gap: 14px;
+          padding: 20px;
+        }
+
+        .helper {
+          grid-template-columns: 1fr;
+        }
+
+        footer {
+          flex-direction: column;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .button {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Goodreads MCP</h1>
-      <p>The Streamable HTTP MCP endpoint is available at <code>/mcp</code>.</p>
-      <p>
-        <a href="https://github.com/simhskal/goodreads-mcp"
-          >Setup and source code</a
-        >
-      </p>
-    </main>
+    <div class="shell">
+      <header>
+        <a class="brand" href="/" aria-label="Goodreads MCP home">
+          <span class="mark" aria-hidden="true">G</span>
+          Goodreads MCP
+        </a>
+        <nav aria-label="Primary navigation">
+          <a href="#setup">Setup</a>
+          <a href="#connect">Connect</a>
+          <a class="github" href="https://github.com/simhskal/goodreads-mcp"
+            >GitHub ↗</a
+          >
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <span class="eyebrow">Your reading life, available to AI</span>
+            <h1>Bring your Goodreads shelves to Codex.</h1>
+            <p class="lede">
+              A small, open-source MCP server for searching your library,
+              checking current reads, and understanding your reading history.
+            </p>
+            <div class="actions">
+              <a class="button" href="#setup">Set up your server</a>
+              <a
+                class="button secondary"
+                href="https://github.com/simhskal/goodreads-mcp"
+                >View source</a
+              >
+            </div>
+          </div>
+
+          <aside class="endpoint-card" aria-label="Hosted endpoint">
+            <span class="status">Service online</span>
+            <h2>Streamable HTTP endpoint</h2>
+            <p>
+              The hosted server is live. Complete the account setup below before
+              calling Goodreads tools.
+            </p>
+            <div class="copy-row">
+              <code>https://goodreads-mcp-chi.vercel.app/mcp</code>
+              <button
+                class="copy"
+                data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
+                type="button"
+              >
+                Copy
+              </button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="section" id="setup">
+          <div class="section-heading">
+            <h2>Set up in four steps</h2>
+            <p>
+              Goodreads no longer provides a supported developer OAuth flow, so
+              this personal deployment reads the official RSS feed for one
+              account. Your Goodreads password is never requested.
+            </p>
+          </div>
+
+          <div class="steps">
+            <article class="step">
+              <span class="number">1</span>
+              <div>
+                <h3>Find your Goodreads user ID</h3>
+                <p>
+                  Open your Goodreads profile and copy its URL. The numeric
+                  portion after <code>/user/show/</code> is your user ID.
+                  <a href="https://www.goodreads.com/user/show" target="_blank"
+                    >Open Goodreads ↗</a
+                  >
+                </p>
+                <div class="helper">
+                  <input
+                    id="profile-url"
+                    type="url"
+                    inputmode="url"
+                    placeholder="https://www.goodreads.com/user/show/12345678-name"
+                    aria-label="Goodreads profile URL"
+                  />
+                  <button class="button" id="find-id" type="button">
+                    Find my ID
+                  </button>
+                </div>
+                <p class="result" id="id-result" aria-live="polite"></p>
+              </div>
+            </article>
+
+            <article class="step">
+              <span class="number">2</span>
+              <div>
+                <h3>Get the RSS key if your feed is private</h3>
+                <p>
+                  In Goodreads, open <strong>My Books</strong>, select a shelf,
+                  and find the RSS link at the bottom of the page. Copy only the
+                  value after <code>key=</code>. Public feeds can skip this
+                  step. Treat the key like a password.
+                </p>
+              </div>
+            </article>
+
+            <article class="step">
+              <span class="number">3</span>
+              <div>
+                <h3>Configure the Vercel project</h3>
+                <p>
+                  In Project Settings → Environment Variables, add
+                  <code>GOODREADS_USER_ID</code> and optionally
+                  <code>GOODREADS_RSS_KEY</code>. Apply them to Production, then
+                  redeploy the latest deployment.
+                  <a
+                    href="https://vercel.com/major-milestones/goodreads-mcp/settings/environment-variables"
+                    target="_blank"
+                    >Open Vercel settings ↗</a
+                  >
+                </p>
+              </div>
+            </article>
+
+            <article class="step">
+              <span class="number">4</span>
+              <div>
+                <h3>Connect your MCP client</h3>
+                <p>
+                  Copy the command for your client, run it once, then restart
+                  the client so it discovers the new server.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="connect">
+          <div class="section-heading">
+            <h2>Choose your client</h2>
+            <p>
+              Both clients use Streamable HTTP. The personal Vercel server does
+              not require a separate login command.
+            </p>
+          </div>
+
+          <div class="commands">
+            <article class="command-card">
+              <h3>Codex</h3>
+              <p>Add the endpoint globally, then start a new Codex session.</p>
+              <div class="copy-row">
+                <code
+                  >codex mcp add goodreads --url
+                  https://goodreads-mcp-chi.vercel.app/mcp</code
+                >
+                <button
+                  class="copy"
+                  data-copy="codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/mcp"
+                  type="button"
+                >
+                  Copy
+                </button>
+              </div>
+            </article>
+
+            <article class="command-card">
+              <h3>Claude Code</h3>
+              <p>Add the same endpoint with the HTTP transport enabled.</p>
+              <div class="copy-row">
+                <code
+                  >claude mcp add --transport http goodreads
+                  https://goodreads-mcp-chi.vercel.app/mcp</code
+                >
+                <button
+                  class="copy"
+                  data-copy="claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/mcp"
+                  type="button"
+                >
+                  Copy
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <div class="notice">
+            <strong>Do not run <code>codex mcp login goodreads</code>.</strong>
+            OAuth login is not enabled on this personal deployment. Seeing “No
+            authorization support detected” is expected; account access comes
+            from the Vercel environment variables configured above.
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Open source, password-free, and built on Goodreads RSS.</p>
+        <p>
+          <a href="https://github.com/simhskal/goodreads-mcp">GitHub</a>
+          ·
+          <a href="https://github.com/simhskal/goodreads-mcp#privacy"
+            >Privacy</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      const copyButtons = document.querySelectorAll("[data-copy]");
+      for (const button of copyButtons) {
+        button.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(button.dataset.copy);
+          const label = button.textContent;
+          button.textContent = "Copied";
+          window.setTimeout(() => {
+            button.textContent = label;
+          }, 1400);
+        });
+      }
+
+      const profileInput = document.querySelector("#profile-url");
+      const result = document.querySelector("#id-result");
+      document.querySelector("#find-id").addEventListener("click", () => {
+        const match = profileInput.value.match(
+          /goodreads\.com\/user\/show\/(\d+)/i,
+        );
+        if (!match) {
+          result.textContent =
+            "That does not look like a Goodreads profile URL. Try copying the full URL from your profile page.";
+          result.style.color = "#9a3d31";
+          return;
+        }
+
+        result.innerHTML = `Your Goodreads user ID is <strong>${match[1]}</strong>. Copy this value into <code>GOODREADS_USER_ID</code>.`;
+        result.style.color = "var(--accent-dark)";
+      });
+    </script>
   </body>
 </html>

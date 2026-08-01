@@ -87,6 +87,8 @@ The canonical hosted deployment is available at
 [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/), with its
 Streamable HTTP MCP endpoint at
 [`https://goodreads-mcp-chi.vercel.app/mcp`](https://goodreads-mcp-chi.vercel.app/mcp).
+The home page includes a guided setup checklist, Goodreads user-ID helper, and
+copyable commands for Codex and Claude Code.
 
 The Vercel deployment exposes the same RSS-backed tools at `/mcp`. Configure
 `GOODREADS_USER_ID` with the numeric ID in your Goodreads profile URL and, for
