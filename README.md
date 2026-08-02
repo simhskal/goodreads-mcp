@@ -4,10 +4,10 @@ Use your Goodreads shelves and reading history from Claude Code, Codex, and
 other Model Context Protocol clients—without sharing a Goodreads password.
 
 Goodreads MCP reads supported Goodreads RSS feeds and optional Goodreads CSV
-exports. The local server runs entirely on your machine. A personal Streamable
-HTTP server can be deployed to Vercel with your Goodreads identity configured
-as environment variables. The multi-user remote server adds OAuth 2.1 login,
-per-account storage, and a Streamable HTTP MCP endpoint on Cloudflare Workers.
+exports. The local server runs entirely on your machine. The stateless Vercel
+server receives your Goodreads identity from client-configured HTTP headers.
+The multi-user remote server adds OAuth 2.1 login, per-account storage, and a
+Streamable HTTP MCP endpoint on Cloudflare Workers.
 
 > [!IMPORTANT]
 > Goodreads retired its public API. This project does not scrape Goodreads,
@@ -81,40 +81,65 @@ URL (for example `https://www.goodreads.com/user/show/12345678-name`) and
 optional RSS key. The OAuth provider supports dynamic client registration,
 PKCE, refresh tokens, and protected-resource metadata for compatible clients.
 
-## Deploy a personal server to Vercel
+## Connect to the Vercel server
 
 The canonical hosted deployment is available at
 [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/), with its
 Streamable HTTP MCP endpoint at
 [`https://goodreads-mcp-chi.vercel.app/mcp`](https://goodreads-mcp-chi.vercel.app/mcp).
+The home page includes a guided setup checklist, Goodreads user-ID helper, and
+copyable commands for Codex and Claude Code.
 
-The Vercel deployment exposes the same RSS-backed tools at `/mcp`. Configure
-`GOODREADS_USER_ID` with the numeric ID in your Goodreads profile URL and, for
-private feeds, configure `GOODREADS_RSS_KEY` with the key from a shelf's RSS
-link. Treat the RSS key as a secret.
+The Vercel deployment exposes the same RSS-backed tools at `/mcp`. Keep
+`GOODREADS_USER_ID` and the optional `GOODREADS_RSS_KEY` on your machine; the
+MCP client sends them as HTTPS headers with each request. Treat the RSS key as a
+secret. Do not add account credentials to the Vercel project.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsimhskal%2Fgoodreads-mcp&env=GOODREADS_USER_ID,GOODREADS_RSS_KEY&envDescription=Goodreads%20profile%20ID%20and%20optional%20private%20RSS%20key&envLink=https%3A%2F%2Fgithub.com%2Fsimhskal%2Fgoodreads-mcp%23deploy-a-personal-server-to-vercel)
-
-You can also deploy with the CLI:
-
-```sh
-vercel
-vercel env add GOODREADS_USER_ID
-vercel env add GOODREADS_RSS_KEY
-vercel --prod
-```
-
-Then connect a Streamable HTTP client:
+Set the values in the shell that launches your client:
 
 ```sh
-claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/mcp
-codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/mcp
+export GOODREADS_USER_ID=12345678
+export GOODREADS_RSS_KEY=your-rss-key
 ```
 
-This deployment is intended for one Goodreads account and does not add OAuth.
-Keep the URL private if the underlying Goodreads feed should not be shared. Use
-the Cloudflare deployment below when you need per-user OAuth and stored CSV
-imports.
+### Codex
+
+```toml
+# ~/.codex/config.toml
+[mcp_servers.goodreads]
+url = "https://goodreads-mcp-chi.vercel.app/mcp"
+
+[mcp_servers.goodreads.env_http_headers]
+X-Goodreads-User-ID = "GOODREADS_USER_ID"
+X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"
+```
+
+### Claude Code
+
+```json
+{
+  "mcpServers": {
+    "goodreads": {
+      "type": "http",
+      "url": "https://goodreads-mcp-chi.vercel.app/mcp",
+      "headers": {
+        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",
+        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"
+      }
+    }
+  }
+}
+```
+
+Restart the client after exporting the variables. Do not run
+`codex mcp login goodreads`; the stateless endpoint uses client headers rather
+than OAuth. Use the Cloudflare deployment below when you need OAuth and stored
+CSV imports.
+
+To self-host the stateless endpoint, deploy the repository without Goodreads
+environment variables:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsimhskal%2Fgoodreads-mcp)
 
 ## Deploy a multi-user server to Cloudflare
 
@@ -150,7 +175,7 @@ Workspace layout:
 packages/core           RSS, CSV, library queries, stats, Open Library
 packages/server-local   stdio MCP server published as goodreads-mcp
 packages/server-remote  OAuth-enabled Cloudflare Worker and onboarding UI
-api/server.ts           Personal Vercel Streamable HTTP endpoint
+api/server.ts           Stateless Vercel Streamable HTTP endpoint
 ```
 
 See [AGENTS.md](AGENTS.md) for an architecture and conventions brief,
@@ -159,12 +184,14 @@ See [AGENTS.md](AGENTS.md) for an architecture and conventions brief,
 
 ## Privacy
 
-The local server keeps your library and credentials on your machine. A hosted
-deployment stores the Goodreads identity, RSS key, imported CSV rows, and OAuth
-grants required to serve each account. It does not receive your Goodreads
-password. RSS responses may be cached for up to 15 minutes. Use the
-authenticated `delete_account` MCP tool to remove stored profile and library
-data, then revoke the connection in your MCP client.
+The local server keeps your library and credentials on your machine. The
+stateless Vercel server receives the Goodreads identity and optional RSS key in
+HTTPS request headers and does not persist them. The Cloudflare deployment
+stores the Goodreads identity, RSS key, imported CSV rows, and OAuth grants
+required to serve each account. Neither deployment receives your Goodreads
+password. Cloudflare RSS responses may be cached for up to 15 minutes. Use the
+authenticated `delete_account` MCP tool to remove Cloudflare-stored profile and
+library data, then revoke the connection in your MCP client.
 
 Open Library receives ISBN queries when `get_book` performs enrichment. Review
 the policies of Goodreads, Open Library, Cloudflare, and your MCP client before
