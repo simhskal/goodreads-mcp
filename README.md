@@ -124,9 +124,9 @@ For a manual deployment:
 
 1. Fork or clone this repository and run `pnpm install`.
 2. Create the D1 database and KV namespaces described in
-   [`packages/server-remote/wrangler.toml`](packages/server-remote/wrangler.toml).
+   [`packages/server-remote/wrangler.jsonc`](packages/server-remote/wrangler.jsonc).
 3. Apply the D1 migrations.
-4. Replace placeholder binding IDs in `wrangler.toml`.
+4. Replace placeholder binding IDs in `wrangler.jsonc`.
 5. Add the secrets documented in
    [`packages/server-remote/README.md`](packages/server-remote/README.md).
 6. Run `pnpm --filter @goodreads-mcp/server-remote deploy`.
@@ -153,7 +153,8 @@ packages/server-remote  OAuth-enabled Cloudflare Worker and onboarding UI
 api/server.ts           Personal Vercel Streamable HTTP endpoint
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for project boundaries and
+See [AGENTS.md](AGENTS.md) for an architecture and conventions brief,
+[CONTRIBUTING.md](CONTRIBUTING.md) for project boundaries, and
 [SECURITY.md](SECURITY.md) for reporting and data-handling details.
 
 ## Privacy
