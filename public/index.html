@@ -232,6 +232,29 @@
         white-space: nowrap;
       }
 
+      .config-block {
+        position: relative;
+        margin-top: 16px;
+        border-radius: 12px;
+        color: #e8f0eb;
+        background: var(--code);
+        overflow: hidden;
+      }
+
+      .config-block pre {
+        margin: 0;
+        padding: 18px 82px 18px 18px;
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .config-block .copy {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
       .copy {
         min-width: 66px;
         padding: 7px 10px;
@@ -489,8 +512,8 @@
             <span class="status">Service online</span>
             <h2>Streamable HTTP endpoint</h2>
             <p>
-              The hosted server is live. Complete the account setup below before
-              calling Goodreads tools.
+              The hosted server is live. Your MCP client sends your Goodreads
+              configuration securely with each request.
             </p>
             <div class="copy-row">
               <code>https://goodreads-mcp-chi.vercel.app/mcp</code>
@@ -510,8 +533,9 @@
             <h2>Set up in four steps</h2>
             <p>
               Goodreads no longer provides a supported developer OAuth flow, so
-              this personal deployment reads the official RSS feed for one
-              account. Your Goodreads password is never requested.
+              the shared endpoint reads the official RSS feed using credentials
+              supplied by each MCP client. Your Goodreads password is never
+              requested.
             </p>
           </div>
 
@@ -559,18 +583,24 @@
             <article class="step">
               <span class="number">3</span>
               <div>
-                <h3>Configure the Vercel project</h3>
+                <h3>Keep credentials on your machine</h3>
                 <p>
-                  In Project Settings → Environment Variables, add
-                  <code>GOODREADS_USER_ID</code> and optionally
-                  <code>GOODREADS_RSS_KEY</code>. Apply them to Production, then
-                  redeploy the latest deployment.
-                  <a
-                    href="https://vercel.com/major-milestones/goodreads-mcp/settings/environment-variables"
-                    target="_blank"
-                    >Open Vercel settings ↗</a
-                  >
+                  Export <code>GOODREADS_USER_ID</code> and optionally
+                  <code>GOODREADS_RSS_KEY</code> in the shell that starts your
+                  MCP client. Do not add them to Vercel. Your client reads these
+                  values locally and sends them as HTTPS headers.
                 </p>
+                <div class="config-block">
+                  <pre><code>export GOODREADS_USER_ID="12345678"
+export GOODREADS_RSS_KEY="your-private-rss-key"</code></pre>
+                  <button
+                    class="copy"
+                    data-copy='export GOODREADS_USER_ID="12345678"&#10;export GOODREADS_RSS_KEY="your-private-rss-key"'
+                    type="button"
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
             </article>
 
@@ -579,8 +609,8 @@
               <div>
                 <h3>Connect your MCP client</h3>
                 <p>
-                  Copy the command for your client, run it once, then restart
-                  the client so it discovers the new server.
+                  Copy the configuration for your client, then restart it so the
+                  local environment variables and server are discovered.
                 </p>
               </div>
             </article>
@@ -591,23 +621,26 @@
           <div class="section-heading">
             <h2>Choose your client</h2>
             <p>
-              Both clients use Streamable HTTP. The personal Vercel server does
-              not require a separate login command.
+              Both clients send your local environment variables as HTTPS
+              headers. The shared Vercel server does not store them or require a
+              separate login command.
             </p>
           </div>
 
           <div class="commands">
             <article class="command-card">
               <h3>Codex</h3>
-              <p>Add the endpoint globally, then start a new Codex session.</p>
-              <div class="copy-row">
-                <code
-                  >codex mcp add goodreads --url
-                  https://goodreads-mcp-chi.vercel.app/mcp</code
-                >
+              <p>Add this to <code>~/.codex/config.toml</code>.</p>
+              <div class="config-block">
+                <pre><code>[mcp_servers.goodreads]
+url = "https://goodreads-mcp-chi.vercel.app/mcp"
+
+[mcp_servers.goodreads.env_http_headers]
+X-Goodreads-User-ID = "GOODREADS_USER_ID"
+X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"</code></pre>
                 <button
                   class="copy"
-                  data-copy="codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/mcp"
+                  data-copy='[mcp_servers.goodreads]&#10;url = "https://goodreads-mcp-chi.vercel.app/mcp"&#10;&#10;[mcp_servers.goodreads.env_http_headers]&#10;X-Goodreads-User-ID = "GOODREADS_USER_ID"&#10;X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"'
                   type="button"
                 >
                   Copy
@@ -617,15 +650,23 @@
 
             <article class="command-card">
               <h3>Claude Code</h3>
-              <p>Add the same endpoint with the HTTP transport enabled.</p>
-              <div class="copy-row">
-                <code
-                  >claude mcp add --transport http goodreads
-                  https://goodreads-mcp-chi.vercel.app/mcp</code
-                >
+              <p>Add this server to <code>.mcp.json</code>.</p>
+              <div class="config-block">
+                <pre><code>{
+  "mcpServers": {
+    "goodreads": {
+      "type": "http",
+      "url": "https://goodreads-mcp-chi.vercel.app/mcp",
+      "headers": {
+        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",
+        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"
+      }
+    }
+  }
+}</code></pre>
                 <button
                   class="copy"
-                  data-copy="claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/mcp"
+                  data-copy='{&#10;  "mcpServers": {&#10;    "goodreads": {&#10;      "type": "http",&#10;      "url": "https://goodreads-mcp-chi.vercel.app/mcp",&#10;      "headers": {&#10;        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",&#10;        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"&#10;      }&#10;    }&#10;  }&#10;}'
                   type="button"
                 >
                   Copy
@@ -636,9 +677,9 @@
 
           <div class="notice">
             <strong>Do not run <code>codex mcp login goodreads</code>.</strong>
-            OAuth login is not enabled on this personal deployment. Seeing “No
+            OAuth login is not enabled on this stateless deployment. Seeing “No
             authorization support detected” is expected; account access comes
-            from the Vercel environment variables configured above.
+            from the client-side HTTP headers configured above.
           </div>
         </section>
       </main>
