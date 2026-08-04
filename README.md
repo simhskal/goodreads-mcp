@@ -29,9 +29,40 @@ Streamable HTTP MCP endpoint on Cloudflare Workers.
 
 ## Run locally
 
-Requirements: Node.js 20 or newer and a Goodreads profile user ID. For RSS
-access, open **My Books**, find the RSS link at the bottom of a shelf, and copy
-the `key` query parameter. Treat it as a secret.
+Requirements: Node.js 20 or newer.
+
+### Set up your Goodreads connection
+
+With a setup-capable browser assistant, your only manual step should be signing
+in directly on Goodreads. The assistant can then:
+
+1. Open **Profile** and derive `GOODREADS_USER_ID` from the digits after
+   `/user/show/` in the address bar.
+2. Open **My Books**, choose a shelf, scroll to the bottom, and find its
+   **RSS** link.
+3. Parse `GOODREADS_RSS_KEY` from the link in memory, without opening, printing,
+   or logging the secret-bearing URL.
+4. Show the local destination and variable names, ask for confirmation, write
+   the values, restart the MCP client, and verify the connection.
+
+Browser control handles navigation; a local configuration tool handles the
+write. The assistant should report only whether each value was found and
+written—not the values themselves. If you are setting up manually, the user ID
+is the numeric part of your profile URL. The RSS key is the value after `key=`
+in the RSS link; leave it unset if the link has no `key` parameter.
+
+The user ID is not sensitive. Treat the RSS key like a password. Keep it only in
+your local environment or your MCP client's secret configuration; never put the
+full RSS URL or key in source control, screenshots, chat, or command output. The
+key is optional when your Goodreads feeds are public.
+
+Sign in to Goodreads yourself; never give an automation tool your password or
+ask it to read, export, or store session cookies. Once the RSS link is visible,
+the tool must not capture screenshots, browser snapshots, network logs, the
+current URL, or the link target. No particular browser or MCP client is
+required.
+
+Set the values in the environment that launches your MCP client:
 
 ```sh
 export GOODREADS_USER_ID=12345678
@@ -39,8 +70,8 @@ export GOODREADS_RSS_KEY=your-rss-key
 npx goodreads-mcp
 ```
 
-`GOODREADS_RSS_KEY` is optional for public feeds. You can also set
-`GOODREADS_CSV_PATH` to a Goodreads library export for complete local history.
+You can also set `GOODREADS_CSV_PATH` to a Goodreads library export for complete
+local history. Restart your MCP client after changing environment variables.
 
 ### Claude Code
 

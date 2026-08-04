@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Connect your Goodreads shelves to Codex or Claude with Goodreads MCP."
+      content="Connect your Goodreads shelves to any compatible MCP client with Goodreads MCP."
     />
     <title>Goodreads MCP — Setup guide</title>
     <style>
@@ -493,7 +493,7 @@
         <section class="hero">
           <div>
             <span class="eyebrow">Your reading life, available to AI</span>
-            <h1>Bring your Goodreads shelves to Codex.</h1>
+            <h1>Bring your Goodreads shelves to your AI tools.</h1>
             <p class="lede">
               A small, open-source MCP server for searching your library,
               checking current reads, and understanding your reading history.
@@ -534,8 +534,9 @@
             <p>
               Goodreads no longer provides a supported developer OAuth flow, so
               the shared endpoint reads the official RSS feed using credentials
-              supplied by each MCP client. Your Goodreads password is never
-              requested.
+              supplied by each MCP client. With a setup-capable browser
+              assistant, your only manual step is signing in directly on
+              Goodreads. Your password is never requested by Goodreads MCP.
             </p>
           </div>
 
@@ -543,13 +544,18 @@
             <article class="step">
               <span class="number">1</span>
               <div>
-                <h3>Find your Goodreads user ID</h3>
+                <h3>Sign in directly on Goodreads</h3>
                 <p>
-                  Open your Goodreads profile and copy its URL. The numeric
-                  portion after <code>/user/show/</code> is your user ID.
+                  Authenticate in a headed browser yourself. Never give a setup
+                  tool your password or ask it to read, export, or save session
+                  cookies. Then open your Goodreads profile.
                   <a href="https://www.goodreads.com/user/show" target="_blank"
                     >Open Goodreads ↗</a
                   >
+                </p>
+                <p>
+                  <strong>Manual fallback:</strong> paste your profile URL here
+                  to extract the public user ID locally in this page.
                 </p>
                 <div class="helper">
                   <input
@@ -570,12 +576,14 @@
             <article class="step">
               <span class="number">2</span>
               <div>
-                <h3>Get the RSS key if your feed is private</h3>
+                <h3>Let the assistant find both values</h3>
                 <p>
-                  In Goodreads, open <strong>My Books</strong>, select a shelf,
-                  and find the RSS link at the bottom of the page. Copy only the
-                  value after <code>key=</code>. Public feeds can skip this
-                  step. Treat the key like a password.
+                  Browser control can derive the numeric user ID from the
+                  profile URL, then open <strong>My Books</strong>, select a
+                  shelf, scroll to the bottom, and find its
+                  <strong>RSS</strong> link. It should parse the
+                  <code>key</code> value in memory without opening or printing
+                  the secret-bearing URL.
                 </p>
               </div>
             </article>
@@ -583,12 +591,28 @@
             <article class="step">
               <span class="number">3</span>
               <div>
-                <h3>Keep credentials on your machine</h3>
+                <h3>Keep the RSS key private</h3>
                 <p>
-                  Export <code>GOODREADS_USER_ID</code> and optionally
-                  <code>GOODREADS_RSS_KEY</code> in the shell that starts your
-                  MCP client. Do not add them to Vercel. Your client reads these
-                  values locally and sends them as HTTPS headers.
+                  The assistant should report only “user ID found” and “RSS key
+                  found.” Once the RSS link is visible, it must not capture
+                  screenshots, browser snapshots, network logs, the current URL,
+                  or the link target. The key stays out of chat, logs, and shell
+                  history.
+                </p>
+              </div>
+            </article>
+
+            <article class="step">
+              <span class="number">4</span>
+              <div>
+                <h3>Confirm the local config change</h3>
+                <p>
+                  A local configuration tool should show you the destination and
+                  variable names, ask before writing, and never display the
+                  secret values. Restart your client afterward. Never commit
+                  these values to source control. If the RSS link has no
+                  <code>key</code> parameter, leave
+                  <code>GOODREADS_RSS_KEY</code> unset.
                 </p>
                 <div class="config-block">
                   <pre><code>export GOODREADS_USER_ID="12345678"
@@ -603,44 +627,35 @@ export GOODREADS_RSS_KEY="your-private-rss-key"</code></pre>
                 </div>
               </div>
             </article>
-
-            <article class="step">
-              <span class="number">4</span>
-              <div>
-                <h3>Connect your MCP client</h3>
-                <p>
-                  Copy the configuration for your client, then restart it so the
-                  local environment variables and server are discovered.
-                </p>
-              </div>
-            </article>
           </div>
         </section>
 
         <section class="section" id="connect">
           <div class="section-heading">
-            <h2>Choose your client</h2>
+            <h2>Choose a transport</h2>
             <p>
-              Both clients send your local environment variables as HTTPS
-              headers. The shared Vercel server does not store them or require a
-              separate login command.
+              Goodreads MCP works with compatible clients over local stdio or
+              hosted Streamable HTTP. Configuration syntax varies, so use the
+              equivalent fields in your client's MCP settings.
             </p>
           </div>
 
           <div class="commands">
             <article class="command-card">
-              <h3>Codex</h3>
-              <p>Add this to <code>~/.codex/config.toml</code>.</p>
+              <h3>Local stdio</h3>
+              <p>
+                Run the package locally and pass the two environment variables
+                to the process.
+              </p>
               <div class="config-block">
-                <pre><code>[mcp_servers.goodreads]
-url = "https://goodreads-mcp-chi.vercel.app/mcp"
-
-[mcp_servers.goodreads.env_http_headers]
-X-Goodreads-User-ID = "GOODREADS_USER_ID"
-X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"</code></pre>
+                <pre><code>command: npx
+args: -y, goodreads-mcp
+environment:
+  GOODREADS_USER_ID
+  GOODREADS_RSS_KEY</code></pre>
                 <button
                   class="copy"
-                  data-copy='[mcp_servers.goodreads]&#10;url = "https://goodreads-mcp-chi.vercel.app/mcp"&#10;&#10;[mcp_servers.goodreads.env_http_headers]&#10;X-Goodreads-User-ID = "GOODREADS_USER_ID"&#10;X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"'
+                  data-copy="npx -y goodreads-mcp"
                   type="button"
                 >
                   Copy
@@ -649,24 +664,19 @@ X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"</code></pre>
             </article>
 
             <article class="command-card">
-              <h3>Claude Code</h3>
-              <p>Add this server to <code>.mcp.json</code>.</p>
+              <h3>Hosted HTTP</h3>
+              <p>
+                Point your client at the endpoint and map local environment
+                variables to these request headers.
+              </p>
               <div class="config-block">
-                <pre><code>{
-  "mcpServers": {
-    "goodreads": {
-      "type": "http",
-      "url": "https://goodreads-mcp-chi.vercel.app/mcp",
-      "headers": {
-        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",
-        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"
-      }
-    }
-  }
-}</code></pre>
+                <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
+headers:
+  X-Goodreads-User-ID: GOODREADS_USER_ID
+  X-Goodreads-RSS-Key: GOODREADS_RSS_KEY</code></pre>
                 <button
                   class="copy"
-                  data-copy='{&#10;  "mcpServers": {&#10;    "goodreads": {&#10;      "type": "http",&#10;      "url": "https://goodreads-mcp-chi.vercel.app/mcp",&#10;      "headers": {&#10;        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",&#10;        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"&#10;      }&#10;    }&#10;  }&#10;}'
+                  data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
                   type="button"
                 >
                   Copy
@@ -676,10 +686,10 @@ X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"</code></pre>
           </div>
 
           <div class="notice">
-            <strong>Do not run <code>codex mcp login goodreads</code>.</strong>
-            OAuth login is not enabled on this stateless deployment. Seeing “No
-            authorization support detected” is expected; account access comes
-            from the client-side HTTP headers configured above.
+            <strong>No MCP OAuth login is required.</strong>
+            This stateless endpoint does not use OAuth. It reads the user ID and
+            optional RSS key from request headers and does not store them. Never
+            provide a Goodreads password or session cookie.
           </div>
         </section>
       </main>
