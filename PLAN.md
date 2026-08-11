@@ -58,6 +58,36 @@ Alternative worth noting: **Hardcover** has a real free GraphQL API and imports 
 - **Codex OAuth quirks** → DCR required (done); don't enforce `resource` strictly; test against the installed Codex version.
 - **ToS exposure** → hosted path is RSS + CSV only; any scraping/GraphQL experiments live in a clearly-labeled, off-by-default local mode or stay out entirely.
 
+## Market launch sequence
+
+The launch is about the outcome—making a reader's history useful to their AI—not
+about MCP configuration. Do not schedule a Product Hunt launch until the
+published package, demo, and self-serve setup path below are live.
+
+1. **Release foundation.** Merge the setup simplification, publish
+   `@goodreads-mcp/core` and `goodreads-mcp` to npm, tag a GitHub release, and
+   validate `npx -y goodreads-mcp` from a clean temporary directory. Publish
+   public metadata to the official MCP Registry once the install method is live.
+2. **Conversion surface.** Rework the landing page around a concrete AI result,
+   a 45–60 second demo, a Codex/Claude/local client chooser, exact copyable
+   configuration, and a compact privacy promise. Add canonical, Open Graph, and
+   X metadata plus privacy-preserving attribution and setup-success events.
+3. **Private beta.** Ask 10–20 MCP users who actively use Goodreads to set it
+   up unaided. Record only consented, non-secret failure points and fix the
+   largest source of abandonment before launch.
+4. **Launch assets.** Prepare a square Product Hunt icon, 2–4 gallery images,
+   demo video, product description, maker first comment, X post/thread, and
+   LinkedIn post. Use outcome-led language: "Make your reading history usable
+   by your AI."
+5. **Launch day.** Post from a personal Product Hunt maker account, then
+   announce on X and LinkedIn. Be present for comments, help users through
+   setup without requesting credentials, and turn recurring feedback into
+   GitHub issues.
+6. **Week one.** Review activation (page visit → install → successful first
+   tool call), user questions, and referral sources. Decide whether the next
+   product investment is easier credential/setup onboarding or richer reading
+   recommendations.
+
 ## Repo structure (proposed)
 
 ```
