@@ -1,7 +1,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { fetchOpenLibraryBook } from "@goodreads-mcp/core";
+import { fetchOpenLibraryBook } from "@organized-chaos/goodreads-mcp-core";
 import { LibraryRepository } from "./repository.js";
 import { fetchShelf } from "./rss.js";
 import type { AuthProps, Env } from "./types.js";

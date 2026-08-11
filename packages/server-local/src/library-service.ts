@@ -1,1 +1,1 @@
-export { GoodreadsRssLibraryService as GoodreadsLibraryService } from "@goodreads-mcp/core";
+export { GoodreadsRssLibraryService as GoodreadsLibraryService } from "@organized-chaos/goodreads-mcp-core";

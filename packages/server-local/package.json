@@ -12,13 +12,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/index.ts",
-    "pretypecheck": "pnpm --filter @goodreads-mcp/core build",
+    "pretypecheck": "pnpm --filter @organized-chaos/goodreads-mcp-core build",
     "start": "node dist/index.js",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@goodreads-mcp/core": "workspace:*",
+    "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
     "zod": "4.4.3"
   },
