@@ -1,4 +1,7 @@
-import { goodreadsRssUrl, parseGoodreadsRss } from "@goodreads-mcp/core";
+import {
+  goodreadsRssUrl,
+  parseGoodreadsRss,
+} from "@organized-chaos/goodreads-mcp-core";
 import { fromCoreBook } from "./csv.js";
 import type { StoredBook } from "./types.js";
 

@@ -65,7 +65,7 @@ about MCP configuration. Do not schedule a Product Hunt launch until the
 published package, demo, and self-serve setup path below are live.
 
 1. **Release foundation.** Merge the setup simplification, publish
-   `@goodreads-mcp/core` and `goodreads-mcp` to npm, tag a GitHub release, and
+   `@organized-chaos/goodreads-mcp-core` and `goodreads-mcp` to npm, tag a GitHub release, and
    validate `npx -y goodreads-mcp` from a clean temporary directory. Publish
    public metadata to the official MCP Registry once the install method is live.
 2. **Conversion surface.** Rework the landing page around a concrete AI result,

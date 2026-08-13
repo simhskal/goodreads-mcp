@@ -48,7 +48,7 @@ public/index.html       Static landing page for the Vercel deployment
 
 Package names:
 
-- `@goodreads-mcp/core` — shared library, built to `dist/` and consumed via
+- `@organized-chaos/goodreads-mcp-core` — shared library, built to `dist/` and consumed via
   `workspace:*`
 - `goodreads-mcp` — the published stdio server binary
 - `@goodreads-mcp/server-remote` — private Worker package
@@ -125,7 +125,7 @@ Vercel deploys the repo separately via its own Git integration.
   `dist/`. Changes to those packages affect the Vercel function immediately, and
   a type error there fails the Vercel build even though it lives outside
   `packages/`.
-- `pretypecheck` hooks build `@goodreads-mcp/core` first; if typecheck fails with
+- `pretypecheck` hooks build `@organized-chaos/goodreads-mcp-core` first; if typecheck fails with
   missing `dist/` types, run `pnpm build` once.
 - The Worker's `wrangler.jsonc` contains placeholder binding IDs. A fresh
   self-host must create its own D1 database and KV namespaces and replace them.

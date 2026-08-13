@@ -1,7 +1,7 @@
 import {
   parseGoodreadsCsv as parseCoreCsv,
   type Book,
-} from "@goodreads-mcp/core";
+} from "@organized-chaos/goodreads-mcp-core";
 import type { StoredBook } from "./types.js";
 
 export { parseGoodreadsCsv };
