@@ -48,7 +48,7 @@ Alternative worth noting: **Hardcover** has a real free GraphQL API and imports 
 1. **v0 — core library + local stdio server (1st week).** Data layer (RSS parser, CSV importer, types) as a standalone package; thin stdio server reading `GOODREADS_USER_ID`/`GOODREADS_RSS_KEY` from env. Validates tools end-to-end in both CLIs with zero hosting. Ships as `npx goodreads-mcp`.
 2. **v1 — remote OAuth server.** Worker + `workers-oauth-provider` (DCR, PKCE, PRM), connect-Goodreads onboarding page, per-user storage (KV/D1), Streamable HTTP endpoint. Verify login from both Claude Code and a current Codex build.
 3. **v1.1 — full history + polish.** CSV import UI, `reading_stats`, response caching (RSS ~15 min TTL), account deletion endpoint.
-4. **Open-source launch.** MIT license; README with copy-paste setup for both clients; "Deploy to Cloudflare" button so anyone can self-host their own instance; GitHub Actions CI (typecheck, tests, deploy); SECURITY.md + privacy note (what's stored, how to delete); submit to the official MCP registry, PulseMCP, Smithery.
+4. **Open-source launch.** MIT license; README with copy-paste setup for both clients; "Deploy to Cloudflare" button so anyone can self-host their own instance; GitHub Actions CI (typecheck, tests, build); Vercel deployment through its Git integration; SECURITY.md + privacy note (what's stored, how to delete); submit to the official MCP registry, PulseMCP, Smithery.
 
 ## Risks & mitigations
 
