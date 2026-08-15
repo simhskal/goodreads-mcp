@@ -71,8 +71,8 @@ importers:
   packages/server-remote:
     dependencies:
       '@cloudflare/workers-oauth-provider':
-        specifier: ^0.8.3
-        version: 0.8.3
+        specifier: ^0.10.2
+        version: 0.10.2
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
         version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.4.3)
@@ -268,8 +268,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-oauth-provider@0.8.3':
-    resolution: {integrity: sha512-5dIeQlJTDKAQvy3GcrtWBhPvTb9lHeRp/m8MoostTkcrbrGImH8zKSdJhogQ5YSTFUCg+b7FBg38b7KCM/x3VQ==}
+  '@cloudflare/workers-oauth-provider@0.10.2':
+    resolution: {integrity: sha512-3yWtnPaZyNaiLuv9tWkWfEyqbILFsvfG0Q5RwZGJ2jkSkrOMM8IxKYaGCFakSGbMXmatvyrhFDCDZ70S6TVnqQ==}
 
   '@cloudflare/workers-types@5.20260810.1':
     resolution: {integrity: sha512-aD0hEU6HaiG4wy4hDoPoLXMH963nHD4MsIY566pGkWO2dL/yeYEiMN7SeJ24t+wBmLDnh16yQ7IPos5opGkIoA==}
@@ -2284,7 +2284,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260801.1':
     optional: true
 
-  '@cloudflare/workers-oauth-provider@0.8.3': {}
+  '@cloudflare/workers-oauth-provider@0.10.2': {}
 
   '@cloudflare/workers-types@5.20260810.1': {}
 
