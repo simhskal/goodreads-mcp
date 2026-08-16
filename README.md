@@ -188,8 +188,8 @@ For a manual deployment:
 6. Run `pnpm --filter @goodreads-mcp/server-remote deploy`.
 
 Cloudflare's free plan is sufficient for personal/light use, subject to its
-current limits. The deploy job in CI requires `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID` repository secrets.
+current limits. Cloudflare deployment is an optional, manual self-hosting path;
+the repository's CI does not deploy it automatically.
 
 ## Development
 

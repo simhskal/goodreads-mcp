@@ -95,9 +95,9 @@ pnpm --filter @goodreads-mcp/server-remote deploy
 ```
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install --frozen-lockfile`,
-`pnpm check`, and `pnpm build` on every PR, then deploys the Worker on pushes to
-`main` using the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
-Vercel deploys the repo separately via its own Git integration.
+`pnpm check`, and `pnpm build` on every PR and push to `main`. Vercel deploys the
+repo separately through its Git integration. Cloudflare Worker deployment is an
+optional, manual self-hosting path.
 
 ## Conventions
 
