@@ -1,0 +1,150 @@
+import { access, constants } from "node:fs/promises";
+import { homedir } from "node:os";
+import type {
+  GoodreadsBrowser,
+  GoodreadsCredentials,
+  SetupPrompter,
+} from "./setup.js";
+import { parseGoodreadsRssKey, parseGoodreadsUserId } from "./setup.js";
+
+const GOODREADS_HOME = "https://www.goodreads.com/";
+
+export async function createGoodreadsBrowser(
+  prompter: SetupPrompter,
+): Promise<GoodreadsBrowser> {
+  const executablePath = await findBrowserExecutable();
+  if (!executablePath) {
+    throw new Error(
+      "Could not find Google Chrome or Chromium. Install a desktop browser and run setup again.",
+    );
+  }
+
+  let playwright: typeof import("playwright-core");
+  try {
+    playwright = await import("playwright-core");
+  } catch {
+    throw new Error(
+      "The browser setup dependency is unavailable. Reinstall goodreads-mcp and try again.",
+    );
+  }
+
+  let browser: import("playwright-core").Browser | undefined;
+  let page: import("playwright-core").Page | undefined;
+
+  return {
+    async open() {
+      browser = await playwright.chromium.launch({
+        executablePath,
+        headless: false,
+      });
+      page = await browser.newPage();
+      await page.goto(GOODREADS_HOME, { waitUntil: "domcontentloaded" });
+    },
+    async waitForUser() {
+      await prompter.ask(
+        "A Goodreads window is open. Sign in there yourself, then press Enter here. Your password is never read by this setup tool. ",
+      );
+    },
+    async findCredentials(): Promise<GoodreadsCredentials> {
+      if (!page) throw new Error("The Goodreads browser did not open.");
+
+      let userId =
+        parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
+      if (!userId) {
+        await page.goto("https://www.goodreads.com/user/show", {
+          waitUntil: "domcontentloaded",
+        });
+        userId =
+          parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
+      }
+      if (!userId) {
+        await prompter.ask(
+          "Open your Goodreads profile in the browser, then press Enter here. ",
+        );
+        userId =
+          parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
+      }
+      if (!userId) {
+        throw new Error(
+          "Could not find a Goodreads profile URL. Open your profile and run setup again.",
+        );
+      }
+
+      await page.goto(`https://www.goodreads.com/review/list/${userId}`, {
+        waitUntil: "domcontentloaded",
+      });
+      const rssUrl = await findRssUrl(page);
+      const rssKey = rssUrl ? parseGoodreadsRssKey(rssUrl) : undefined;
+
+      if (!rssUrl) {
+        await prompter.ask(
+          "Open My Books and click its RSS link in the browser, then press Enter here. ",
+        );
+      }
+
+      const finalRssUrl = rssUrl ?? (await waitForRssUrl(page));
+      return {
+        userId,
+        ...((rssKey ?? parseGoodreadsRssKey(finalRssUrl))
+          ? { rssKey: rssKey ?? parseGoodreadsRssKey(finalRssUrl) }
+          : {}),
+      };
+    },
+    async close() {
+      await browser?.close();
+    },
+  };
+}
+
+async function findUserIdOnPage(page: import("playwright-core").Page) {
+  const href = await page
+    .locator('a[href*="/user/show/"]')
+    .first()
+    .getAttribute("href")
+    .catch(() => null);
+  return href ? parseGoodreadsUserId(href) : undefined;
+}
+
+async function findRssUrl(page: import("playwright-core").Page) {
+  return page
+    .locator('a[href*="review/list_rss/"]')
+    .first()
+    .getAttribute("href")
+    .catch(() => null);
+}
+
+async function waitForRssUrl(page: import("playwright-core").Page) {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const href = await findRssUrl(page);
+    if (href) return href;
+    const currentUrl = page.url();
+    if (currentUrl.includes("review/list_rss/")) return currentUrl;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error("Could not find the Goodreads RSS link.");
+}
+
+async function findBrowserExecutable(): Promise<string | undefined> {
+  const candidates = [
+    process.env.GOODREADS_CHROME_PATH,
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    `${homedir()}/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`,
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    try {
+      await access(candidate, constants.X_OK);
+      return candidate;
+    } catch {
+      // Try the next standard browser location.
+    }
+  }
+  return undefined;
+}

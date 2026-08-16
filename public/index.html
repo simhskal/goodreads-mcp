@@ -157,6 +157,54 @@
         margin-top: 32px;
       }
 
+      .guided-setup {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+        gap: 24px;
+        align-items: center;
+        margin-top: 28px;
+        padding: 22px 24px;
+        border: 1px solid #c9d9ce;
+        border-radius: 18px;
+        background: #edf6ef;
+      }
+
+      .guided-setup h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+      }
+
+      .guided-setup p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .guided-setup .setup-commands {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .setup-command {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 10px 10px 14px;
+        border-radius: 10px;
+        color: #e8f0eb;
+        background: var(--code);
+      }
+
+      .setup-command code {
+        min-width: 0;
+        overflow: hidden;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .button {
         display: inline-flex;
         min-height: 46px;
@@ -430,7 +478,8 @@
 
         .hero,
         .section-heading,
-        .commands {
+        .commands,
+        .guided-setup {
           grid-template-columns: 1fr;
         }
 
@@ -533,11 +582,44 @@
             <h2>Set up in four steps</h2>
             <p>
               Goodreads no longer provides a supported developer OAuth flow, so
-              the shared endpoint reads the official RSS feed using credentials
-              supplied by each MCP client. With a setup-capable browser
-              assistant, your only manual step is signing in directly on
-              Goodreads. Your password is never requested by Goodreads MCP.
+              the Vercel endpoint reads the official RSS feed using credentials
+              supplied by each MCP client. For a guided setup, run one command
+              below; a temporary browser opens on your computer and your
+              password is never requested by Goodreads MCP.
             </p>
+          </div>
+
+          <div class="guided-setup" id="guided-setup">
+            <div>
+              <h3>Let your browser do the busywork</h3>
+              <p>
+                Sign in directly to Goodreads, press Enter, and the local helper
+                finds your profile ID and RSS link. Nothing is sent to Vercel,
+                and setup asks before changing your AI client configuration.
+              </p>
+            </div>
+            <div class="setup-commands">
+              <div class="setup-command">
+                <code>npx -y goodreads-mcp setup --client claude</code>
+                <button
+                  class="copy"
+                  data-copy="npx -y goodreads-mcp setup --client claude"
+                  type="button"
+                >
+                  Copy
+                </button>
+              </div>
+              <div class="setup-command">
+                <code>npx -y goodreads-mcp setup --client codex</code>
+                <button
+                  class="copy"
+                  data-copy="npx -y goodreads-mcp setup --client codex"
+                  type="button"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="steps">
@@ -578,9 +660,8 @@
               <div>
                 <h3>Let the assistant find both values</h3>
                 <p>
-                  Browser control can derive the numeric user ID from the
-                  profile URL, then open <strong>My Books</strong>, select a
-                  shelf, scroll to the bottom, and find its
+                  The guided setup can derive the numeric user ID from your
+                  profile, then open <strong>My Books</strong> and find its
                   <strong>RSS</strong> link. It should parse the
                   <code>key</code> value in memory without opening or printing
                   the secret-bearing URL.
