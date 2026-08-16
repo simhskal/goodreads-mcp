@@ -48,18 +48,10 @@ export async function createGoodreadsBrowser(
     async findCredentials(): Promise<GoodreadsCredentials> {
       if (!page) throw new Error("The Goodreads browser did not open.");
 
-      let userId =
-        parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
-      if (!userId) {
-        await page.goto("https://www.goodreads.com/user/show", {
-          waitUntil: "domcontentloaded",
-        });
-        userId =
-          parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
-      }
+      let userId = await findUserIdThroughSettings(page, prompter);
       if (!userId) {
         await prompter.ask(
-          "Open your Goodreads profile in the browser, then press Enter here. ",
+          "Click your Goodreads profile photo, choose Settings, then press Enter here. ",
         );
         userId =
           parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
@@ -94,6 +86,57 @@ export async function createGoodreadsBrowser(
       await browser?.close();
     },
   };
+}
+
+async function findUserIdThroughSettings(
+  page: import("playwright-core").Page,
+  prompter: SetupPrompter,
+): Promise<string | undefined> {
+  const accountMenu = await findVisibleLocator(page, [
+    'button[aria-label*="account" i]',
+    'button[aria-label*="profile" i]',
+    'a[aria-label*="account" i]',
+    '[data-testid*="avatar" i]',
+    '[data-testid*="account" i]',
+    "header button:has(img)",
+    "nav button:has(img)",
+  ]);
+
+  if (!accountMenu) {
+    await prompter.ask(
+      "Click your Goodreads profile photo in the top-right corner, then press Enter here. ",
+    );
+  } else {
+    await accountMenu.click();
+  }
+
+  const settings = await findVisibleLocator(page, [
+    'a:has-text("Settings")',
+    'button:has-text("Settings")',
+    '[role="menuitem"]:has-text("Settings")',
+  ]);
+  if (!settings) return undefined;
+
+  await settings.click();
+  await page
+    .waitForURL(
+      (url) => /goodreads\.com\/user\/show\/\d+/i.test(url.toString()),
+      { timeout: 10_000 },
+    )
+    .catch(() => undefined);
+
+  return parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
+}
+
+async function findVisibleLocator(
+  page: import("playwright-core").Page,
+  selectors: string[],
+) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector).first();
+    if (await locator.isVisible().catch(() => false)) return locator;
+  }
+  return undefined;
 }
 
 async function findUserIdOnPage(page: import("playwright-core").Page) {
