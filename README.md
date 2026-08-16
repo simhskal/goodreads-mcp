@@ -29,12 +29,33 @@ Streamable HTTP MCP endpoint on Cloudflare Workers.
 
 ## Run locally
 
-Requirements: Node.js 20 or newer.
+Requirements: Node.js 20 or newer. The guided setup also requires a locally
+installed Google Chrome or Chromium browser.
 
 ### Set up your Goodreads connection
 
-With a setup-capable browser assistant, your only manual step should be signing
-in directly on Goodreads. The assistant can then:
+For a guided local setup, run the command for the AI client you use:
+
+```sh
+npx -y goodreads-mcp setup --client claude
+# or
+npx -y goodreads-mcp setup --client codex
+```
+
+The setup helper opens a temporary visible browser window. Sign in to
+Goodreads yourself in that window, then press Enter in the terminal. It finds
+your profile ID and RSS link locally, asks before changing your AI client's
+configuration, and reports only whether each value was found. It never asks
+for, reads, or stores your Goodreads password or session cookies. The browser
+session is closed when setup finishes.
+
+The helper configures the Vercel-hosted endpoint at
+`https://goodreads-mcp-chi.vercel.app/mcp`. If you do not want to use the
+guided helper, the manual configuration below remains supported.
+
+If you prefer to complete the connection manually, your only Goodreads
+credential work should still happen directly on Goodreads. The setup sequence
+is:
 
 1. Open **Profile** and derive `GOODREADS_USER_ID` from the digits after
    `/user/show/` in the address bar.
