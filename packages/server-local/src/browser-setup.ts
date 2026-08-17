@@ -48,38 +48,22 @@ export async function createGoodreadsBrowser(
     async findCredentials(): Promise<GoodreadsCredentials> {
       if (!page) throw new Error("The Goodreads browser did not open.");
 
-      let userId = await findUserIdThroughSettings(page, prompter);
-      if (!userId) {
-        await prompter.ask(
-          "Click your Goodreads profile photo, choose Settings, then press Enter here. ",
-        );
-        userId =
-          parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
-      }
+      const userId = await findUserIdThroughProfileMenu(page);
       if (!userId) {
         throw new Error(
-          "Could not find a Goodreads profile URL. Open your profile and run setup again.",
+          "Could not find your Goodreads profile URL after opening the account menu.",
         );
       }
 
       await page.goto(`https://www.goodreads.com/review/list/${userId}`, {
         waitUntil: "domcontentloaded",
       });
-      const rssUrl = await findRssUrl(page);
+      const rssUrl = await waitForRssUrl(page);
       const rssKey = rssUrl ? parseGoodreadsRssKey(rssUrl) : undefined;
 
-      if (!rssUrl) {
-        await prompter.ask(
-          "Open My Books and click its RSS link in the browser, then press Enter here. ",
-        );
-      }
-
-      const finalRssUrl = rssUrl ?? (await waitForRssUrl(page));
       return {
         userId,
-        ...((rssKey ?? parseGoodreadsRssKey(finalRssUrl))
-          ? { rssKey: rssKey ?? parseGoodreadsRssKey(finalRssUrl) }
-          : {}),
+        ...(rssKey ? { rssKey } : {}),
       };
     },
     async close() {
@@ -88,36 +72,47 @@ export async function createGoodreadsBrowser(
   };
 }
 
-async function findUserIdThroughSettings(
+async function findUserIdThroughProfileMenu(
   page: import("playwright-core").Page,
-  prompter: SetupPrompter,
 ): Promise<string | undefined> {
-  const accountMenu = await findVisibleLocator(page, [
-    'button[aria-label*="account" i]',
-    'button[aria-label*="profile" i]',
-    'a[aria-label*="account" i]',
-    '[data-testid*="avatar" i]',
-    '[data-testid*="account" i]',
-    "header button:has(img)",
-    "nav button:has(img)",
-  ]);
+  const accountMenu = await findVisibleLocator(
+    page,
+    [
+      'button[aria-label*="account" i]',
+      'button[aria-label*="profile" i]',
+      'a[aria-label*="account" i]',
+      '[data-testid*="avatar" i]',
+      '[data-testid*="account" i]',
+      "header button:has(img):last-child",
+      "nav button:has(img):last-child",
+      "button:has(img):last-child",
+    ],
+    "last",
+  );
 
   if (!accountMenu) {
-    await prompter.ask(
-      "Click your Goodreads profile photo in the top-right corner, then press Enter here. ",
+    throw new Error(
+      "Could not find the Goodreads account menu/avatar after sign-in.",
     );
-  } else {
-    await accountMenu.click();
+  }
+  await accountMenu.click();
+
+  const profileLink = await waitForVisibleLocator(
+    page,
+    [
+      'a:has-text("Profile")',
+      'button:has-text("Profile")',
+      '[role="menuitem"]:has-text("Profile")',
+    ],
+    10_000,
+  );
+  if (!profileLink) {
+    throw new Error(
+      "Could not find the Profile option in the Goodreads account menu.",
+    );
   }
 
-  const settings = await findVisibleLocator(page, [
-    'a:has-text("Settings")',
-    'button:has-text("Settings")',
-    '[role="menuitem"]:has-text("Settings")',
-  ]);
-  if (!settings) return undefined;
-
-  await settings.click();
+  await profileLink.click();
   await page
     .waitForURL(
       (url) => /goodreads\.com\/user\/show\/\d+/i.test(url.toString()),
@@ -131,10 +126,28 @@ async function findUserIdThroughSettings(
 async function findVisibleLocator(
   page: import("playwright-core").Page,
   selectors: string[],
+  position: "first" | "last" = "first",
 ) {
   for (const selector of selectors) {
-    const locator = page.locator(selector).first();
+    const locator =
+      position === "last"
+        ? page.locator(selector).last()
+        : page.locator(selector).first();
     if (await locator.isVisible().catch(() => false)) return locator;
+  }
+  return undefined;
+}
+
+async function waitForVisibleLocator(
+  page: import("playwright-core").Page,
+  selectors: string[],
+  timeoutMs: number,
+) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const locator = await findVisibleLocator(page, selectors);
+    if (locator) return locator;
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
   return undefined;
 }
@@ -164,7 +177,7 @@ async function waitForRssUrl(page: import("playwright-core").Page) {
     if (currentUrl.includes("review/list_rss/")) return currentUrl;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error("Could not find the Goodreads RSS link.");
+  throw new Error("Could not find the Goodreads RSS link on My Books.");
 }
 
 async function findBrowserExecutable(): Promise<string | undefined> {
