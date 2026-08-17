@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Make your Goodreads reading history useful to your AI with an open-source MCP server."
+      content="Make your Goodreads reading history useful to your AI."
     />
     <meta name="theme-color" content="#f7f4ee" />
     <title>Goodreads MCP — Ask your AI about everything you’ve read</title>
@@ -22,6 +22,8 @@
         --accent: #a23b33;
         --accent-dark: #7f2b27;
         --accent-soft: #f0d8d2;
+        --green: #3e765f;
+        --green-soft: #edf4ef;
         --oak: #c9a77a;
         --shadow: 0 22px 60px rgba(67, 52, 33, 0.12);
         --display: Georgia, "Times New Roman", serif;
@@ -261,7 +263,7 @@
       .hero-art {
         position: relative;
         isolation: isolate;
-        min-height: 462px;
+        min-height: 500px;
       }
 
       .paper-card {
@@ -275,123 +277,102 @@
 
       .question-card {
         z-index: 3;
-        top: 16px;
+        top: 12px;
         right: 0;
-        width: min(100%, 390px);
-        transform: rotate(2.2deg);
+        width: min(100%, 470px);
+        padding: 30px;
+        border-radius: 28px;
+        transform: rotate(1.2deg);
       }
 
       .question-card::after {
         position: absolute;
-        top: -14px;
-        right: 28px;
-        width: 29px;
-        height: 52px;
-        background: var(--accent);
-        box-shadow: 0 4px 0 rgba(127, 43, 39, 0.18);
+        top: 55px;
+        right: 34px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #e1b74c;
+        box-shadow: none;
         content: "";
       }
 
       .question-card h2 {
-        max-width: 290px;
-        margin: 15px 0 24px;
+        max-width: none;
+        margin: 17px 0 25px;
         font-family: var(--display);
-        font-size: 31px;
+        font-size: 29px;
         font-weight: 500;
         letter-spacing: -0.05em;
         line-height: 1.02;
       }
 
       .prompt {
-        padding: 12px 14px;
-        border: 1px solid var(--line);
-        border-radius: 3px;
+        padding: 19px 18px;
+        border: 0;
+        border-radius: 16px;
         color: var(--muted);
-        background: var(--ground);
-        font-size: 14px;
+        background: #f0ede4;
+        font-family: var(--display);
+        font-size: 20px;
+        line-height: 1.2;
       }
 
       .prompt + .prompt {
-        margin-top: 9px;
+        margin-top: 13px;
       }
 
-      .answer-card {
-        z-index: 2;
-        right: 38px;
-        bottom: 0;
-        width: min(100%, 350px);
-        padding: 21px;
-        transform: rotate(-3.5deg);
+      .answer-list {
+        display: grid;
+        gap: 14px;
+        margin-top: 24px;
       }
 
-      .answer-card .book-row {
+      .answer-row {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
       }
 
-      .book-spine {
+      .answer-number {
         display: grid;
-        width: 29px;
-        height: 52px;
+        width: 28px;
+        height: 28px;
         flex: 0 0 auto;
         place-items: center;
-        color: var(--surface);
-        background: var(--accent);
-        font-family: var(--display);
-        font-size: 10px;
-        writing-mode: vertical-rl;
+        border-radius: 50%;
+        color: var(--green);
+        background: #dcece3;
+        font-weight: 800;
       }
 
-      .book-spine.blue {
-        background: #3e5660;
+      .answer-row:nth-child(2) .answer-number {
+        color: #927025;
+        background: #f5e9b9;
       }
 
-      .book-row strong {
-        display: block;
-        font-family: var(--display);
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.1;
+      .answer-row:nth-child(3) .answer-number {
+        color: #8c4b3f;
+        background: #eadbd6;
       }
 
-      .book-row small {
-        display: block;
-        margin-top: 3px;
-        color: var(--muted);
-        font-size: 12px;
+      .answer-link {
+        margin-top: 23px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 800;
       }
 
       .shelf {
-        position: absolute;
-        z-index: 0;
-        right: 4px;
-        bottom: 55px;
-        left: 0;
-        height: 13px;
-        background: var(--oak);
-        box-shadow: 0 8px 0 rgba(130, 96, 55, 0.12);
-        pointer-events: none;
-        transform: rotate(-1.6deg);
+        display: none;
       }
 
       .shelf::before {
-        position: absolute;
-        right: 16%;
-        bottom: 13px;
-        width: 11%;
-        height: 107px;
-        border-radius: 3px 3px 0 0;
-        background: #3e5660;
-        box-shadow:
-          -50px 12px 0 var(--accent),
-          -93px 5px 0 #8d7255,
-          46px 16px 0 #5e7769,
-          89px 6px 0 #b46e54;
-        content: "";
+        display: none;
       }
 
       .section {
@@ -466,42 +447,29 @@
       }
 
       .setup-section {
-        display: grid;
-        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-        gap: 72px;
-        align-items: start;
+        display: block;
       }
 
-      .setup-intro p {
-        max-width: 390px;
-        margin-top: 21px;
+      .setup-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+        gap: 64px;
+        align-items: end;
+        margin-bottom: 42px;
+      }
+
+      .setup-heading p {
+        max-width: 470px;
+        margin: 0 0 2px;
         color: var(--muted);
         font-size: 17px;
+        line-height: 1.5;
       }
 
       .guided-setup {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(245px, 0.72fr);
-        gap: 22px;
-        align-items: center;
-        margin: 0 0 26px;
-        padding: 22px 24px;
-        border: 1px solid #dbc2ba;
-        background: var(--accent-soft);
-      }
-
-      .guided-setup h3 {
-        margin-bottom: 5px;
-        font-family: var(--display);
-        font-size: 23px;
-        font-weight: 500;
-        letter-spacing: -0.035em;
-      }
-
-      .guided-setup p {
-        margin-bottom: 0;
-        color: #715651;
-        font-size: 13px;
+        gap: 10px;
+        margin-top: 32px;
       }
 
       .setup-commands {
@@ -516,10 +484,13 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 7px 7px 7px 12px;
-        color: #f6f2ea;
-        background: #282522;
-        font-size: 12px;
+        min-height: 60px;
+        padding: 0 9px 0 16px;
+        border: 1px solid #d4d0c5;
+        border-radius: 12px;
+        color: var(--ink);
+        background: #f8faf7;
+        font-size: 13px;
       }
 
       .setup-command code,
@@ -533,12 +504,12 @@
       .copy {
         flex: 0 0 auto;
         min-width: 62px;
-        padding: 7px 9px;
+        padding: 10px 12px;
         border: 0;
-        border-radius: 2px;
+        border-radius: 8px;
         color: var(--ink);
-        background: #f2ece1;
-        font-size: 11px;
+        background: #f2f0ea;
+        font-size: 12px;
         font-weight: 800;
         cursor: pointer;
       }
@@ -550,41 +521,58 @@
       .steps {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
+        gap: 14px;
       }
 
       .step {
         min-width: 0;
-        min-height: 230px;
-        padding: 20px;
+        min-height: 420px;
+        padding: 30px;
         border: 1px solid var(--line);
+        border-radius: 20px;
         background: var(--surface);
+      }
+
+      .step > div {
+        display: block;
       }
 
       .number {
         display: grid;
-        width: 30px;
-        height: 30px;
+        width: 52px;
+        height: 52px;
         place-items: center;
         border-radius: 50%;
         color: var(--surface);
-        background: var(--accent);
-        font-family: var(--display);
-        font-size: 15px;
+        background: var(--green);
+        font-family: var(--sans);
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .step-label {
+        float: right;
+        margin-top: 17px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
       }
 
       .step h3 {
-        margin: 20px 0 8px;
-        font-family: var(--display);
-        font-size: 22px;
+        clear: both;
+        margin: 35px 0 15px;
+        font-family: var(--sans);
+        font-size: 24px;
         font-weight: 500;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.04em;
       }
 
       .step p {
-        margin-bottom: 0;
+        margin: 0;
         color: var(--muted);
-        font-size: 14px;
+        font-size: 15px;
+        line-height: 1.5;
       }
 
       .step a,
@@ -639,6 +627,25 @@
         margin: 8px 0 0 !important;
         color: var(--accent-dark);
         font-size: 13px !important;
+      }
+
+      .ready-card {
+        margin-top: 32px;
+        padding: 20px;
+        border-radius: 16px;
+        background: #f0ede4;
+        font-family: var(--display);
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .ready-card strong {
+        display: block;
+        margin-top: 24px;
+        color: var(--green);
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 800;
       }
 
       .advanced {
@@ -758,13 +765,9 @@
           font-size: clamp(54px, 9vw, 78px);
         }
 
-        .setup-section {
+        .setup-heading {
           grid-template-columns: 1fr;
-          gap: 42px;
-        }
-
-        .setup-intro p {
-          max-width: 600px;
+          gap: 18px;
         }
       }
 
@@ -797,18 +800,14 @@
         }
 
         .hero-art {
-          min-height: 430px;
+          min-height: 420px;
           margin-top: 52px;
         }
 
         .question-card {
-          right: 2%;
-          width: 90%;
-        }
-
-        .answer-card {
-          right: 5%;
-          width: 83%;
+          right: 0;
+          width: 100%;
+          padding: 24px;
         }
 
         .section {
@@ -846,12 +845,17 @@
           margin-bottom: 13px;
         }
 
-        .guided-setup {
-          gap: 17px;
+        .setup-heading p {
+          margin-top: 18px;
         }
 
         .step {
           min-height: auto;
+          padding: 24px;
+        }
+
+        .step h3 {
+          margin: 28px 0 12px;
         }
 
         .advanced {
@@ -897,7 +901,6 @@
         <nav aria-label="Primary navigation">
           <a href="#why">What it does</a>
           <a href="#setup">Setup</a>
-          <a href="https://github.com/simhskal/goodreads-mcp">GitHub ↗</a>
           <a class="nav-cta" href="#setup">Connect</a>
         </nav>
       </header>
@@ -905,22 +908,18 @@
       <main>
         <section class="hero">
           <div>
-            <span class="eyebrow">Your reading life, in context</span>
+            <span class="eyebrow">Your reading life, made useful</span>
             <h1>Ask your AI about everything you’ve read.</h1>
             <p class="lede">
-              Goodreads MCP gives compatible AI tools a private window into your
-              shelves, so your reading history can become useful to find new
-              books.
+              Connect your Goodreads library to Claude, Codex, or another MCP
+              client. Find patterns in your reading, remember what mattered, and
+              choose your next book.
             </p>
             <div class="actions">
               <a class="button" href="#setup"
                 >Connect my library <span aria-hidden="true">↗</span></a
               >
-              <a
-                class="button secondary"
-                href="https://github.com/simhskal/goodreads-mcp"
-                >View the source</a
-              >
+              <a class="button secondary" href="#why">See how it works</a>
             </div>
             <p class="privacy-line">
               <svg
@@ -953,35 +952,29 @@
 
           <div
             class="hero-art"
-            aria-label="Example questions you can ask about your library"
+            aria-label="Example question and answer from your Goodreads library"
           >
             <div class="paper-card question-card">
-              <span class="kicker">Ask your library</span>
-              <h2>Turn a shelf into a conversation.</h2>
-              <div class="prompt">
-                What should I read next if I loved my last three books?
-              </div>
-              <div class="prompt">Which books have I rated five stars?</div>
-              <div class="prompt">What was I reading this time last year?</div>
-            </div>
-            <div class="paper-card answer-card">
-              <span class="status">Library connected</span>
-              <div class="book-row">
-                <span class="book-spine">OPEN</span>
-                <div>
-                  <strong>Open</strong>
-                  <small>Andre Agassi · 4 stars</small>
+              <span class="kicker">Try a question</span>
+              <h2>“What books changed how I think about work?”</h2>
+              <div class="answer-list">
+                <div class="answer-row">
+                  <span class="answer-number">1</span>
+                  <span>The Design of Everyday Things · Don Norman</span>
+                </div>
+                <div class="answer-row">
+                  <span class="answer-number">2</span>
+                  <span>Thinking in Systems · Donella Meadows</span>
+                </div>
+                <div class="answer-row">
+                  <span class="answer-number">3</span>
+                  <span>Range · David Epstein</span>
                 </div>
               </div>
-              <div class="book-row">
-                <span class="book-spine blue">SHOE DOG</span>
-                <div>
-                  <strong>Shoe Dog</strong>
-                  <small>Phil Knight · 5 stars</small>
-                </div>
+              <div class="answer-link">
+                Your library, with a point of view →
               </div>
             </div>
-            <div class="shelf" aria-hidden="true"></div>
           </div>
         </section>
 
@@ -1025,105 +1018,99 @@
 
         <section class="section" id="setup">
           <div class="setup-section">
-            <div class="setup-intro">
-              <span class="kicker">Start with your own library</span>
-              <h2>One guided setup. Then just ask.</h2>
+            <div class="setup-heading">
+              <div>
+                <span class="kicker">Simple by design</span>
+                <h2>Choose where your reading life lives.</h2>
+              </div>
               <p>
-                Goodreads MCP works with compatible clients including Claude,
-                Codex, and other MCP tools. A local helper opens Goodreads in a
-                visible browser and walks you through the only values needed.
+                Three small choices. No passwords, no mysterious setup language,
+                no need to understand how MCP works.
               </p>
             </div>
 
-            <div>
-              <div class="guided-setup" id="guided-setup">
-                <div>
-                  <h3>Let your browser do the busywork.</h3>
-                  <p>
-                    Sign in directly to Goodreads. Your password and session
-                    never pass through Goodreads MCP.
-                  </p>
-                </div>
-                <div class="setup-commands">
-                  <div class="setup-command">
-                    <code>setup --client claude</code>
-                    <button
-                      class="copy"
-                      data-copy="npx -y goodreads-mcp setup --client claude"
-                      type="button"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                  <div class="setup-command">
-                    <code>setup --client codex</code>
-                    <button
-                      class="copy"
-                      data-copy="npx -y goodreads-mcp setup --client codex"
-                      type="button"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="steps">
-                <article class="step">
-                  <span class="number">1</span>
-                  <div>
-                    <h3>Run the command</h3>
-                    <p>
-                      Choose your AI client above and run the setup command. A
-                      fresh browser window opens on your device.
-                    </p>
-                  </div>
-                </article>
-                <article class="step">
-                  <span class="number">2</span>
-                  <div>
-                    <h3>Log in on Goodreads</h3>
-                    <p>
-                      Sign in directly on Goodreads, then use the account menu
-                      to visit Settings. The helper never sees your password or
-                      session cookie.
-                      <a
-                        href="https://www.goodreads.com/"
-                        target="_blank"
-                        rel="noreferrer"
-                        >Open Goodreads ↗</a
+            <div class="steps">
+              <article class="step">
+                <span class="number">1</span>
+                <span class="step-label">YOUR AI</span>
+                <h3>Run the command</h3>
+                <p>
+                  Choose your AI client and run the setup command. A fresh
+                  browser window opens on your device.
+                </p>
+                <div class="guided-setup" id="guided-setup">
+                  <div class="setup-commands">
+                    <div class="setup-command">
+                      <code>setup --client claude</code>
+                      <button
+                        class="copy"
+                        data-copy="npx -y goodreads-mcp setup --client claude"
+                        type="button"
                       >
-                    </p>
-                    <details>
-                      <summary>Having trouble? Find your ID manually.</summary>
-                      <div class="helper">
-                        <input
-                          id="profile-url"
-                          type="url"
-                          inputmode="url"
-                          placeholder="https://www.goodreads.com/user/show/12345678-name"
-                          aria-label="Goodreads profile URL"
-                        />
-                        <button class="button" id="find-id" type="button">
-                          Find my ID
-                        </button>
-                      </div>
-                      <p class="result" id="id-result" aria-live="polite"></p>
-                    </details>
+                        Copy
+                      </button>
+                    </div>
+                    <div class="setup-command">
+                      <code>setup --client codex</code>
+                      <button
+                        class="copy"
+                        data-copy="npx -y goodreads-mcp setup --client codex"
+                        type="button"
+                      >
+                        Copy
+                      </button>
+                    </div>
                   </div>
-                </article>
-                <article class="step">
-                  <span class="number">3</span>
-                  <div>
-                    <h3>Let the tool do its thing</h3>
-                    <p>
-                      It finds your library connection in memory, asks before
-                      changing local configuration, and gets your AI ready to
-                      answer its first question.
-                    </p>
+                </div>
+              </article>
+
+              <article class="step">
+                <span class="number">2</span>
+                <span class="step-label">YOUR BOOKS</span>
+                <h3>Log in on Goodreads</h3>
+                <p>
+                  Sign in directly on Goodreads, then use the account menu to
+                  visit Settings. The helper never sees your password or session
+                  cookie.
+                  <a
+                    href="https://www.goodreads.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    >Open Goodreads ↗</a
+                  >
+                </p>
+                <details>
+                  <summary>Having trouble? Find your ID manually.</summary>
+                  <div class="helper">
+                    <input
+                      id="profile-url"
+                      type="url"
+                      inputmode="url"
+                      placeholder="https://www.goodreads.com/user/show/12345678-name"
+                      aria-label="Goodreads profile URL"
+                    />
+                    <button class="button" id="find-id" type="button">
+                      Find my ID
+                    </button>
                   </div>
-                </article>
-              </div>
+                  <p class="result" id="id-result" aria-live="polite"></p>
+                </details>
+              </article>
+
+              <article class="step">
+                <span class="number">3</span>
+                <span class="step-label">DONE</span>
+                <h3>Let the tool do its thing</h3>
+                <p>
+                  It finds your library connection in memory, asks before
+                  changing local configuration, and gets your AI ready to answer
+                  its first question.
+                </p>
+                <div class="ready-card">
+                  “What should I read next?”
+                  <strong>Your library is ready →</strong>
+                </div>
+              </article>
             </div>
           </div>
 
@@ -1192,17 +1179,7 @@ headers:
       </main>
 
       <footer>
-        <p>
-          Open source, password-free, and built on sanctioned Goodreads data
-          channels.
-        </p>
-        <p>
-          <a href="https://github.com/simhskal/goodreads-mcp">GitHub</a>
-          ·
-          <a href="https://github.com/simhskal/goodreads-mcp#privacy"
-            >Privacy</a
-          >
-        </p>
+        <p>Password-free, and built on sanctioned Goodreads data channels.</p>
       </footer>
     </div>
 
