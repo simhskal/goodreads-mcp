@@ -5,22 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Connect your Goodreads shelves to any compatible MCP client with Goodreads MCP."
+      content="Make your Goodreads reading history useful to your AI with an open-source MCP server."
     />
-    <title>Goodreads MCP — Setup guide</title>
+    <meta name="theme-color" content="#f7f4ee" />
+    <title>Goodreads MCP — Ask your AI about everything you’ve read</title>
     <style>
       :root {
         color-scheme: light;
-        --ink: #24211b;
-        --muted: #716b61;
-        --paper: #f5f1e8;
-        --card: rgba(255, 253, 248, 0.88);
-        --line: #d9d1c2;
-        --accent: #2f6f55;
-        --accent-dark: #22513f;
-        --accent-soft: #dcece3;
-        --code: #1e2722;
-        --shadow: 0 24px 70px rgba(55, 47, 35, 0.12);
+        --ground: #f7f4ee;
+        --surface: #fffdfa;
+        --surface-warm: #eee8dc;
+        --ink: #171717;
+        --muted: #68645d;
+        --faint: #918b81;
+        --line: #d9d1c4;
+        --accent: #a23b33;
+        --accent-dark: #7f2b27;
+        --accent-soft: #f0d8d2;
+        --oak: #c9a77a;
+        --shadow: 0 22px 60px rgba(67, 52, 33, 0.12);
+        --display: Georgia, "Times New Roman", serif;
+        --sans:
+          Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
       }
 
       * {
@@ -34,17 +41,28 @@
       body {
         margin: 0;
         color: var(--ink);
-        background:
-          radial-gradient(circle at 80% 5%, #e2eadb 0, transparent 30rem),
-          linear-gradient(180deg, #fbf9f4 0, var(--paper) 100%);
-        font-family:
-          Inter,
-          ui-sans-serif,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
+        background: var(--ground);
+        font-family: var(--sans);
         line-height: 1.55;
+      }
+
+      body::before {
+        position: fixed;
+        z-index: -1;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 88% 4%,
+            rgba(201, 167, 122, 0.24),
+            transparent 25rem
+          ),
+          radial-gradient(
+            circle at 4% 48%,
+            rgba(162, 59, 51, 0.06),
+            transparent 22rem
+          );
+        content: "";
+        pointer-events: none;
       }
 
       a {
@@ -56,43 +74,53 @@
         font: inherit;
       }
 
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
       .shell {
-        width: min(1080px, calc(100% - 32px));
+        width: min(1160px, calc(100% - 40px));
         margin: 0 auto;
       }
 
       header {
         display: flex;
+        min-height: 82px;
         align-items: center;
         justify-content: space-between;
-        min-height: 74px;
-        border-bottom: 1px solid rgba(100, 91, 75, 0.14);
+        border-bottom: 1px solid rgba(90, 76, 56, 0.16);
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 11px;
-        font-weight: 720;
+        gap: 10px;
+        font-family: var(--display);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
         text-decoration: none;
-        letter-spacing: -0.02em;
       }
 
       .mark {
         display: grid;
         width: 34px;
-        height: 34px;
+        height: 38px;
         place-items: center;
-        border-radius: 10px;
-        color: white;
+        border-radius: 4px 4px 9px 9px;
+        color: var(--surface);
         background: var(--accent);
-        box-shadow: 0 8px 18px rgba(47, 111, 85, 0.24);
+        box-shadow: 4px 5px 0 var(--oak);
+        font-family: var(--sans);
+        font-size: 15px;
+        font-weight: 800;
       }
 
       nav {
         display: flex;
         align-items: center;
-        gap: 24px;
+        gap: 28px;
         color: var(--muted);
         font-size: 14px;
       }
@@ -101,27 +129,39 @@
         text-decoration: none;
       }
 
+      nav a:hover,
+      footer a:hover {
+        color: var(--accent);
+      }
+
+      .nav-cta {
+        padding: 9px 14px;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-        gap: 64px;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+        gap: 72px;
         align-items: center;
-        padding: 88px 0 72px;
+        min-height: 650px;
+        padding: 88px 0 82px;
       }
 
       .eyebrow,
+      .kicker,
       .status {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-
-      .eyebrow {
+        gap: 9px;
         color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
       }
 
       .eyebrow::before,
@@ -133,94 +173,55 @@
         content: "";
       }
 
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
       h1 {
-        max-width: 720px;
-        margin: 18px 0 20px;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: clamp(48px, 7vw, 82px);
+        max-width: 740px;
+        margin-bottom: 26px;
+        font-family: var(--display);
+        font-size: clamp(58px, 8.2vw, 104px);
         font-weight: 500;
-        letter-spacing: -0.055em;
-        line-height: 0.98;
+        letter-spacing: -0.075em;
+        line-height: 0.9;
       }
 
       .lede {
-        max-width: 650px;
-        margin: 0;
+        max-width: 570px;
+        margin-bottom: 0;
         color: var(--muted);
-        font-size: clamp(18px, 2.3vw, 22px);
+        font-size: clamp(18px, 2vw, 21px);
+        line-height: 1.45;
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
-        margin-top: 32px;
-      }
-
-      .guided-setup {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
-        gap: 24px;
-        align-items: center;
-        margin-top: 28px;
-        padding: 22px 24px;
-        border: 1px solid #c9d9ce;
-        border-radius: 18px;
-        background: #edf6ef;
-      }
-
-      .guided-setup h3 {
-        margin: 0 0 6px;
-        font-size: 18px;
-      }
-
-      .guided-setup p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 14px;
-      }
-
-      .guided-setup .setup-commands {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .setup-command {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 10px 10px 10px 14px;
-        border-radius: 10px;
-        color: #e8f0eb;
-        background: var(--code);
-      }
-
-      .setup-command code {
-        min-width: 0;
-        overflow: hidden;
-        font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        margin-top: 34px;
       }
 
       .button {
         display: inline-flex;
-        min-height: 46px;
+        min-height: 48px;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 0 18px;
+        padding: 0 19px;
         border: 1px solid var(--accent);
-        border-radius: 12px;
-        color: white;
+        border-radius: 999px;
+        color: var(--surface);
         background: var(--accent);
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: 800;
         text-decoration: none;
         transition:
-          transform 150ms ease,
-          background 150ms ease;
+          background 150ms ease,
+          transform 150ms ease;
       }
 
       .button:hover {
@@ -231,235 +232,487 @@
       .button.secondary {
         border-color: var(--line);
         color: var(--ink);
-        background: rgba(255, 255, 255, 0.54);
+        background: transparent;
       }
 
-      .endpoint-card {
-        min-width: 0;
-        padding: 28px;
-        border: 1px solid rgba(121, 108, 85, 0.17);
-        border-radius: 24px;
-        background: var(--card);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(12px);
+      .button.secondary:hover {
+        background: var(--surface);
       }
 
-      .status {
-        color: var(--accent);
-        letter-spacing: 0;
-        text-transform: none;
+      .privacy-line {
+        display: flex;
+        max-width: 520px;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 20px;
+        color: var(--faint);
+        font-size: 13px;
       }
 
-      .endpoint-card h2 {
-        margin: 18px 0 8px;
-        font-size: 17px;
-      }
-
-      .endpoint-card p {
-        margin: 0 0 18px;
+      .privacy-line strong {
         color: var(--muted);
+      }
+
+      .privacy-line svg {
+        flex: 0 0 auto;
+        margin-top: 3px;
+      }
+
+      .hero-art {
+        position: relative;
+        min-height: 462px;
+      }
+
+      .paper-card {
+        position: absolute;
+        padding: 24px;
+        border: 1px solid rgba(106, 83, 53, 0.18);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .question-card {
+        z-index: 2;
+        top: 16px;
+        right: 0;
+        width: min(100%, 390px);
+        transform: rotate(2.2deg);
+      }
+
+      .question-card::after {
+        position: absolute;
+        top: -14px;
+        right: 28px;
+        width: 29px;
+        height: 52px;
+        background: var(--accent);
+        box-shadow: 0 4px 0 rgba(127, 43, 39, 0.18);
+        content: "";
+      }
+
+      .question-card h2 {
+        max-width: 290px;
+        margin: 15px 0 24px;
+        font-family: var(--display);
+        font-size: 31px;
+        font-weight: 500;
+        letter-spacing: -0.05em;
+        line-height: 1.02;
+      }
+
+      .prompt {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        color: var(--muted);
+        background: var(--ground);
         font-size: 14px;
       }
 
-      .copy-row {
+      .prompt + .prompt {
+        margin-top: 9px;
+      }
+
+      .answer-card {
+        right: 38px;
+        bottom: 0;
+        width: min(100%, 350px);
+        padding: 21px;
+        transform: rotate(-3.5deg);
+      }
+
+      .answer-card .book-row {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 6px 6px 6px 14px;
-        border-radius: 12px;
-        color: #e8f0eb;
-        background: var(--code);
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
       }
 
-      .copy-row code {
-        min-width: 0;
-        flex: 1;
-        overflow: hidden;
+      .book-spine {
+        display: grid;
+        width: 29px;
+        height: 52px;
+        flex: 0 0 auto;
+        place-items: center;
+        color: var(--surface);
+        background: var(--accent);
+        font-family: var(--display);
+        font-size: 10px;
+        writing-mode: vertical-rl;
+      }
+
+      .book-spine.blue {
+        background: #3e5660;
+      }
+
+      .book-row strong {
+        display: block;
+        font-family: var(--display);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.1;
+      }
+
+      .book-row small {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
         font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
-      .config-block {
-        position: relative;
-        margin-top: 16px;
-        border-radius: 12px;
-        color: #e8f0eb;
-        background: var(--code);
-        overflow: hidden;
-      }
-
-      .config-block pre {
-        margin: 0;
-        padding: 18px 82px 18px 18px;
-        overflow-x: auto;
-        font-size: 12px;
-        line-height: 1.6;
-      }
-
-      .config-block .copy {
+      .shelf {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        right: 4px;
+        bottom: 55px;
+        left: 0;
+        height: 13px;
+        background: var(--oak);
+        box-shadow: 0 8px 0 rgba(130, 96, 55, 0.12);
+        transform: rotate(-1.6deg);
       }
 
-      .copy {
-        min-width: 66px;
-        padding: 7px 10px;
-        border: 0;
-        border-radius: 8px;
-        color: var(--ink);
-        background: #f4f1e9;
-        font-size: 12px;
-        font-weight: 750;
-        cursor: pointer;
+      .shelf::before {
+        position: absolute;
+        right: 16%;
+        bottom: 13px;
+        width: 11%;
+        height: 107px;
+        border-radius: 3px 3px 0 0;
+        background: #3e5660;
+        box-shadow:
+          -50px 12px 0 var(--accent),
+          -93px 5px 0 #8d7255,
+          46px 16px 0 #5e7769,
+          89px 6px 0 #b46e54;
+        content: "";
       }
 
       .section {
-        padding: 72px 0;
+        padding: 92px 0;
+        border-top: 1px solid rgba(90, 76, 56, 0.16);
       }
 
       .section-heading {
         display: grid;
-        grid-template-columns: 0.8fr 1.2fr;
-        gap: 48px;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        gap: 64px;
         align-items: end;
-        margin-bottom: 34px;
+        margin-bottom: 42px;
       }
 
       h2 {
-        margin: 0;
-        font-size: clamp(30px, 4vw, 44px);
-        letter-spacing: -0.04em;
-        line-height: 1.06;
+        margin-bottom: 0;
+        font-family: var(--display);
+        font-size: clamp(36px, 5vw, 62px);
+        font-weight: 500;
+        letter-spacing: -0.065em;
+        line-height: 0.96;
       }
 
       .section-heading p {
-        margin: 0;
+        max-width: 560px;
+        margin-bottom: 2px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.5;
+      }
+
+      .outcomes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .outcome {
+        min-height: 226px;
+        padding: 27px 28px 30px 0;
+      }
+
+      .outcome + .outcome {
+        padding-left: 28px;
+        border-left: 1px solid var(--line);
+      }
+
+      .outcome-number {
+        display: block;
+        margin-bottom: 29px;
+        color: var(--accent);
+        font-family: var(--display);
+        font-size: 20px;
+      }
+
+      .outcome h3 {
+        margin-bottom: 8px;
+        font-family: var(--display);
+        font-size: 27px;
+        font-weight: 500;
+        letter-spacing: -0.04em;
+      }
+
+      .outcome p {
+        max-width: 290px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .setup-section {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: 72px;
+        align-items: start;
+      }
+
+      .setup-intro p {
+        max-width: 390px;
+        margin-top: 21px;
         color: var(--muted);
         font-size: 17px;
       }
 
+      .guided-setup {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(245px, 0.72fr);
+        gap: 22px;
+        align-items: center;
+        margin: 0 0 26px;
+        padding: 22px 24px;
+        border: 1px solid #dbc2ba;
+        background: var(--accent-soft);
+      }
+
+      .guided-setup h3 {
+        margin-bottom: 5px;
+        font-family: var(--display);
+        font-size: 23px;
+        font-weight: 500;
+        letter-spacing: -0.035em;
+      }
+
+      .guided-setup p {
+        margin-bottom: 0;
+        color: #715651;
+        font-size: 13px;
+      }
+
+      .setup-commands {
+        display: grid;
+        gap: 8px;
+      }
+
+      .setup-command,
+      .copy-row {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 7px 7px 12px;
+        color: #f6f2ea;
+        background: #282522;
+        font-size: 12px;
+      }
+
+      .setup-command code,
+      .copy-row code {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .copy {
+        flex: 0 0 auto;
+        min-width: 62px;
+        padding: 7px 9px;
+        border: 0;
+        border-radius: 2px;
+        color: var(--ink);
+        background: #f2ece1;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .copy:hover {
+        background: white;
+      }
+
       .steps {
         display: grid;
-        gap: 16px;
+        border-top: 1px solid var(--line);
       }
 
       .step {
         display: grid;
-        grid-template-columns: 52px minmax(0, 1fr);
-        gap: 20px;
-        padding: 26px;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        background: rgba(255, 253, 248, 0.67);
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 18px;
+        padding: 23px 0;
+        border-bottom: 1px solid var(--line);
       }
 
       .number {
         display: grid;
-        width: 42px;
-        height: 42px;
+        width: 30px;
+        height: 30px;
         place-items: center;
-        border-radius: 12px;
-        color: var(--accent-dark);
-        background: var(--accent-soft);
-        font-weight: 800;
+        border-radius: 50%;
+        color: var(--surface);
+        background: var(--accent);
+        font-family: var(--display);
+        font-size: 15px;
       }
 
       .step h3 {
-        margin: 2px 0 6px;
-        font-size: 19px;
-      }
-
-      .step > div,
-      .command-card {
-        min-width: 0;
+        margin: 2px 0 5px;
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.03em;
       }
 
       .step p {
-        margin: 0;
+        margin-bottom: 0;
         color: var(--muted);
+        font-size: 14px;
       }
 
-      .step a {
-        color: var(--accent-dark);
-        font-weight: 650;
+      .step a,
+      .step strong {
+        color: var(--ink);
+        font-weight: 750;
       }
 
       .helper {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 10px;
-        margin-top: 16px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 9px;
+        margin-top: 15px;
       }
 
       .helper input {
         width: 100%;
-        min-height: 46px;
-        padding: 0 14px;
+        min-height: 44px;
+        padding: 0 12px;
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 2px;
         outline: none;
-        background: white;
+        color: var(--ink);
+        background: var(--surface);
+        font-size: 13px;
       }
 
       .helper input:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(47, 111, 85, 0.12);
+        box-shadow: 0 0 0 3px rgba(162, 59, 51, 0.12);
       }
 
       .result {
-        min-height: 24px;
-        margin-top: 8px !important;
+        min-height: 22px;
+        margin: 8px 0 0 !important;
+        color: var(--accent-dark);
+        font-size: 13px !important;
+      }
+
+      .advanced {
+        margin-top: 94px;
+        padding: 30px;
+        background: var(--surface-warm);
+      }
+
+      .advanced-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+      }
+
+      .advanced h2 {
+        font-size: clamp(31px, 4vw, 47px);
+      }
+
+      .advanced-head p {
+        max-width: 430px;
+        margin-bottom: 0;
+        color: var(--muted);
         font-size: 14px;
       }
 
       .commands {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 14px;
       }
 
       .command-card {
-        padding: 24px;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        background: var(--card);
+        min-width: 0;
+        padding: 20px;
+        background: var(--surface);
       }
 
       .command-card h3 {
-        margin: 0 0 6px;
+        margin-bottom: 5px;
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 500;
       }
 
       .command-card p {
         min-height: 44px;
-        margin: 0 0 16px;
+        margin-bottom: 14px;
         color: var(--muted);
-        font-size: 14px;
+        font-size: 13px;
+      }
+
+      .config-block {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #3c3832;
+        color: #f6f2ea;
+        background: #282522;
+      }
+
+      .config-block pre {
+        margin: 0;
+        padding: 16px 76px 16px 15px;
+        overflow-x: auto;
+        font-size: 11px;
+        line-height: 1.7;
+      }
+
+      .config-block .copy {
+        position: absolute;
+        top: 9px;
+        right: 9px;
       }
 
       .notice {
-        margin-top: 18px;
-        padding: 18px 20px;
-        border-left: 4px solid #bc7a24;
-        border-radius: 4px 12px 12px 4px;
-        background: #fff4df;
-        color: #654818;
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 15px 0 0;
+        border-top: 1px solid rgba(106, 83, 53, 0.22);
+        color: var(--muted);
+        font-size: 13px;
       }
 
       .notice strong {
-        display: block;
-        margin-bottom: 3px;
+        color: var(--ink);
       }
 
       footer {
         display: flex;
         justify-content: space-between;
         gap: 24px;
-        padding: 36px 0 48px;
-        border-top: 1px solid var(--line);
+        padding: 38px 0 48px;
+        border-top: 1px solid rgba(90, 76, 56, 0.16);
         color: var(--muted);
-        font-size: 14px;
+        font-size: 13px;
       }
 
       footer p {
@@ -468,42 +721,126 @@
 
       footer a {
         color: var(--ink);
-        font-weight: 650;
+        font-weight: 700;
+        text-decoration: none;
       }
 
-      @media (max-width: 760px) {
-        nav a:not(.github) {
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+          gap: 40px;
+        }
+
+        h1 {
+          font-size: clamp(54px, 9vw, 78px);
+        }
+
+        .setup-section {
+          grid-template-columns: 1fr;
+          gap: 42px;
+        }
+
+        .setup-intro p {
+          max-width: 600px;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .shell {
+          width: min(100% - 28px, 560px);
+        }
+
+        header {
+          min-height: 70px;
+        }
+
+        nav {
+          gap: 14px;
+        }
+
+        nav a:not(.nav-cta) {
           display: none;
         }
 
-        .hero,
-        .section-heading,
+        .hero {
+          display: block;
+          min-height: auto;
+          padding: 69px 0 72px;
+        }
+
+        h1 {
+          max-width: 540px;
+          font-size: clamp(55px, 16vw, 82px);
+        }
+
+        .hero-art {
+          min-height: 430px;
+          margin-top: 52px;
+        }
+
+        .question-card {
+          right: 2%;
+          width: 90%;
+        }
+
+        .answer-card {
+          right: 5%;
+          width: 83%;
+        }
+
+        .section {
+          padding: 68px 0;
+        }
+
+        .section-heading {
+          display: block;
+          margin-bottom: 30px;
+        }
+
+        .section-heading p {
+          margin-top: 18px;
+        }
+
+        .outcomes,
         .commands,
         .guided-setup {
           grid-template-columns: 1fr;
         }
 
-        .hero {
-          gap: 40px;
-          padding: 62px 0 48px;
+        .outcome {
+          min-height: auto;
+          padding: 23px 0 25px;
         }
 
-        .section {
-          padding: 52px 0;
+        .outcome + .outcome {
+          padding-left: 0;
+          border-top: 1px solid var(--line);
+          border-left: 0;
         }
 
-        .section-heading {
-          gap: 14px;
+        .outcome-number {
+          margin-bottom: 13px;
         }
 
-        .step {
-          grid-template-columns: 42px minmax(0, 1fr);
-          gap: 14px;
-          padding: 20px;
+        .guided-setup {
+          gap: 17px;
         }
 
-        .helper {
-          grid-template-columns: 1fr;
+        .advanced {
+          margin-top: 68px;
+          padding: 22px 18px;
+        }
+
+        .advanced-head {
+          display: block;
+        }
+
+        .advanced-head p {
+          margin-top: 14px;
+        }
+
+        .command-card p {
+          min-height: auto;
         }
 
         footer {
@@ -530,253 +867,307 @@
           Goodreads MCP
         </a>
         <nav aria-label="Primary navigation">
+          <a href="#why">What it does</a>
           <a href="#setup">Setup</a>
-          <a href="#connect">Connect</a>
-          <a class="github" href="https://github.com/simhskal/goodreads-mcp"
-            >GitHub ↗</a
-          >
+          <a href="https://github.com/simhskal/goodreads-mcp">GitHub ↗</a>
+          <a class="nav-cta" href="#setup">Connect</a>
         </nav>
       </header>
 
       <main>
         <section class="hero">
           <div>
-            <span class="eyebrow">Your reading life, available to AI</span>
-            <h1>Bring your Goodreads shelves to your AI tools.</h1>
+            <span class="eyebrow">Your reading life, in context</span>
+            <h1>Ask your AI about everything you’ve read.</h1>
             <p class="lede">
-              A small, open-source MCP server for searching your library,
-              checking current reads, and understanding your reading history.
+              Goodreads MCP gives compatible AI tools a private window into your
+              shelves, so your reading history can become useful again.
             </p>
             <div class="actions">
-              <a class="button" href="#setup">Set up your server</a>
+              <a class="button" href="#setup"
+                >Connect my library <span aria-hidden="true">↗</span></a
+              >
               <a
                 class="button secondary"
                 href="https://github.com/simhskal/goodreads-mcp"
-                >View source</a
+                >View the source</a
               >
             </div>
+            <p class="privacy-line">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 1.5 13 3v3.7c0 3.2-2 6.1-5 7.8-3-1.7-5-4.6-5-7.8V3l5-1.5Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                />
+                <path
+                  d="m5.6 8 1.5 1.5 3.3-3.4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.3"
+                />
+              </svg>
+              <span
+                ><strong>No Goodreads password.</strong> Your credentials stay
+                in your AI client, not on this site.</span
+              >
+            </p>
           </div>
 
-          <aside class="endpoint-card" aria-label="Hosted endpoint">
-            <span class="status">Service online</span>
-            <h2>Streamable HTTP endpoint</h2>
-            <p>
-              The hosted server is live. Your MCP client sends your Goodreads
-              configuration securely with each request.
-            </p>
-            <div class="copy-row">
-              <code>https://goodreads-mcp-chi.vercel.app/mcp</code>
-              <button
-                class="copy"
-                data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
-                type="button"
-              >
-                Copy
-              </button>
+          <div
+            class="hero-art"
+            aria-label="Example questions you can ask about your library"
+          >
+            <div class="paper-card question-card">
+              <span class="kicker">Ask your library</span>
+              <h2>Turn a shelf into a conversation.</h2>
+              <div class="prompt">
+                What should I read next if I loved my last three books?
+              </div>
+              <div class="prompt">Which books have I rated five stars?</div>
+              <div class="prompt">What was I reading this time last year?</div>
             </div>
-          </aside>
+            <div class="paper-card answer-card">
+              <span class="status">Library connected</span>
+              <div class="book-row">
+                <span class="book-spine">OPEN</span>
+                <div>
+                  <strong>Open</strong>
+                  <small>Andre Agassi · 4 stars</small>
+                </div>
+              </div>
+              <div class="book-row">
+                <span class="book-spine blue">SHOE DOG</span>
+                <div>
+                  <strong>Shoe Dog</strong>
+                  <small>Phil Knight · 5 stars</small>
+                </div>
+              </div>
+            </div>
+            <div class="shelf" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <section class="section" id="why">
+          <div class="section-heading">
+            <h2>Your books already know a lot about you.</h2>
+            <p>
+              Goodreads keeps the record. Goodreads MCP makes that record
+              available to the tools you already use, without turning your
+              reading life into another social feed.
+            </p>
+          </div>
+
+          <div class="outcomes">
+            <article class="outcome">
+              <span class="outcome-number">01</span>
+              <h3>Recall</h3>
+              <p>
+                Find the title, author, or half-remembered idea hiding somewhere
+                in your shelves.
+              </p>
+            </article>
+            <article class="outcome">
+              <span class="outcome-number">02</span>
+              <h3>Reflect</h3>
+              <p>
+                Look back at your reading patterns, ratings, and seasons of your
+                life.
+              </p>
+            </article>
+            <article class="outcome">
+              <span class="outcome-number">03</span>
+              <h3>Discover</h3>
+              <p>
+                Ask for recommendations that start from what you actually
+                read—not a generic profile.
+              </p>
+            </article>
+          </div>
         </section>
 
         <section class="section" id="setup">
-          <div class="section-heading">
-            <h2>Set up in four steps</h2>
-            <p>
-              Goodreads no longer provides a supported developer OAuth flow, so
-              the Vercel endpoint reads the official RSS feed using credentials
-              supplied by each MCP client. For a guided setup, run one command
-              below; a temporary browser opens on your computer and your
-              password is never requested by Goodreads MCP.
-            </p>
-          </div>
-
-          <div class="guided-setup" id="guided-setup">
-            <div>
-              <h3>Let your browser do the busywork</h3>
+          <div class="setup-section">
+            <div class="setup-intro">
+              <span class="kicker">Start with your own library</span>
+              <h2>One guided setup. Then just ask.</h2>
               <p>
-                Sign in directly to Goodreads, press Enter, and the local helper
-                finds your profile ID and RSS link. Nothing is sent to Vercel,
-                and setup asks before changing your AI client configuration.
+                Goodreads MCP works with compatible clients including Claude,
+                Codex, and other MCP tools. A local helper opens Goodreads in a
+                visible browser and walks you through the only values needed.
               </p>
             </div>
-            <div class="setup-commands">
-              <div class="setup-command">
-                <code>npx -y goodreads-mcp setup --client claude</code>
-                <button
-                  class="copy"
-                  data-copy="npx -y goodreads-mcp setup --client claude"
-                  type="button"
-                >
-                  Copy
-                </button>
+
+            <div>
+              <div class="guided-setup" id="guided-setup">
+                <div>
+                  <h3>Let your browser do the busywork.</h3>
+                  <p>
+                    Sign in directly to Goodreads. Your password and session
+                    never pass through Goodreads MCP.
+                  </p>
+                </div>
+                <div class="setup-commands">
+                  <div class="setup-command">
+                    <code>setup --client claude</code>
+                    <button
+                      class="copy"
+                      data-copy="npx -y goodreads-mcp setup --client claude"
+                      type="button"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <div class="setup-command">
+                    <code>setup --client codex</code>
+                    <button
+                      class="copy"
+                      data-copy="npx -y goodreads-mcp setup --client codex"
+                      type="button"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="setup-command">
-                <code>npx -y goodreads-mcp setup --client codex</code>
-                <button
-                  class="copy"
-                  data-copy="npx -y goodreads-mcp setup --client codex"
-                  type="button"
-                >
-                  Copy
-                </button>
+
+              <div class="steps">
+                <article class="step">
+                  <span class="number">1</span>
+                  <div>
+                    <h3>Sign in on Goodreads yourself</h3>
+                    <p>
+                      Open Goodreads, use the account menu to visit Settings,
+                      and let the helper discover your profile. No password or
+                      session cookie is collected by this project.
+                      <a
+                        href="https://www.goodreads.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                        >Open Goodreads ↗</a
+                      >
+                    </p>
+                    <p>
+                      <strong>Manual fallback:</strong> paste a profile URL to
+                      extract the public user ID locally in this page.
+                    </p>
+                    <div class="helper">
+                      <input
+                        id="profile-url"
+                        type="url"
+                        inputmode="url"
+                        placeholder="https://www.goodreads.com/user/show/12345678-name"
+                        aria-label="Goodreads profile URL"
+                      />
+                      <button class="button" id="find-id" type="button">
+                        Find my ID
+                      </button>
+                    </div>
+                    <p class="result" id="id-result" aria-live="polite"></p>
+                  </div>
+                </article>
+                <article class="step">
+                  <span class="number">2</span>
+                  <div>
+                    <h3>Find your library connection</h3>
+                    <p>
+                      The helper finds your numeric Goodreads ID and, when
+                      available, the RSS key for your own shelves—in memory.
+                    </p>
+                  </div>
+                </article>
+                <article class="step">
+                  <span class="number">3</span>
+                  <div>
+                    <h3>Confirm the local change</h3>
+                    <p>
+                      Review the destination and approve the local client
+                      configuration. Restart your AI client, then ask your first
+                      question.
+                    </p>
+                  </div>
+                </article>
               </div>
             </div>
           </div>
 
-          <div class="steps">
-            <article class="step">
-              <span class="number">1</span>
-              <div>
-                <h3>Sign in directly on Goodreads</h3>
+          <div class="advanced" id="advanced">
+            <div class="advanced-head">
+              <h2>For people who want the details.</h2>
+              <p>
+                Use local stdio or the hosted Vercel endpoint. Both expose the
+                same library tools.
+              </p>
+            </div>
+            <div class="commands">
+              <article class="command-card">
+                <h3>Local</h3>
                 <p>
-                  Authenticate in a headed browser yourself. Never give a setup
-                  tool your password or ask it to read, export, or save session
-                  cookies. Then open your Goodreads profile.
-                  <a href="https://www.goodreads.com/user/show" target="_blank"
-                    >Open Goodreads ↗</a
-                  >
-                </p>
-                <p>
-                  <strong>Manual fallback:</strong> paste your profile URL here
-                  to extract the public user ID locally in this page.
-                </p>
-                <div class="helper">
-                  <input
-                    id="profile-url"
-                    type="url"
-                    inputmode="url"
-                    placeholder="https://www.goodreads.com/user/show/12345678-name"
-                    aria-label="Goodreads profile URL"
-                  />
-                  <button class="button" id="find-id" type="button">
-                    Find my ID
-                  </button>
-                </div>
-                <p class="result" id="id-result" aria-live="polite"></p>
-              </div>
-            </article>
-
-            <article class="step">
-              <span class="number">2</span>
-              <div>
-                <h3>Let the assistant find both values</h3>
-                <p>
-                  The guided setup can derive the numeric user ID from your
-                  profile, then open <strong>My Books</strong> and find its
-                  <strong>RSS</strong> link. It should parse the
-                  <code>key</code> value in memory without opening or printing
-                  the secret-bearing URL.
-                </p>
-              </div>
-            </article>
-
-            <article class="step">
-              <span class="number">3</span>
-              <div>
-                <h3>Keep the RSS key private</h3>
-                <p>
-                  The assistant should report only “user ID found” and “RSS key
-                  found.” Once the RSS link is visible, it must not capture
-                  screenshots, browser snapshots, network logs, the current URL,
-                  or the link target. The key stays out of chat, logs, and shell
-                  history.
-                </p>
-              </div>
-            </article>
-
-            <article class="step">
-              <span class="number">4</span>
-              <div>
-                <h3>Confirm the local config change</h3>
-                <p>
-                  A local configuration tool should show you the destination and
-                  variable names, ask before writing, and never display the
-                  secret values. Restart your client afterward. Never commit
-                  these values to source control. If the RSS link has no
-                  <code>key</code> parameter, leave
-                  <code>GOODREADS_RSS_KEY</code> unset.
+                  Run the server on your own machine and keep the values in your
+                  client environment.
                 </p>
                 <div class="config-block">
-                  <pre><code>export GOODREADS_USER_ID="12345678"
-export GOODREADS_RSS_KEY="your-private-rss-key"</code></pre>
+                  <pre><code>command: npx
+args: -y, goodreads-mcp
+environment:
+  GOODREADS_USER_ID
+  GOODREADS_RSS_KEY</code></pre>
                   <button
                     class="copy"
-                    data-copy='export GOODREADS_USER_ID="12345678"&#10;export GOODREADS_RSS_KEY="your-private-rss-key"'
+                    data-copy="npx -y goodreads-mcp"
                     type="button"
                   >
                     Copy
                   </button>
                 </div>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="section" id="connect">
-          <div class="section-heading">
-            <h2>Choose a transport</h2>
-            <p>
-              Goodreads MCP works with compatible clients over local stdio or
-              hosted Streamable HTTP. Configuration syntax varies, so use the
-              equivalent fields in your client's MCP settings.
-            </p>
-          </div>
-
-          <div class="commands">
-            <article class="command-card">
-              <h3>Local stdio</h3>
-              <p>
-                Run the package locally and pass the two environment variables
-                to the process.
-              </p>
-              <div class="config-block">
-                <pre><code>command: npx
-args: -y, goodreads-mcp
-environment:
-  GOODREADS_USER_ID
-  GOODREADS_RSS_KEY</code></pre>
-                <button
-                  class="copy"
-                  data-copy="npx -y goodreads-mcp"
-                  type="button"
-                >
-                  Copy
-                </button>
-              </div>
-            </article>
-
-            <article class="command-card">
-              <h3>Hosted HTTP</h3>
-              <p>
-                Point your client at the endpoint and map local environment
-                variables to these request headers.
-              </p>
-              <div class="config-block">
-                <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
+              </article>
+              <article class="command-card">
+                <h3>Hosted</h3>
+                <p>
+                  Point your MCP client at the stateless Vercel endpoint and
+                  send credentials as request headers.
+                </p>
+                <div class="config-block">
+                  <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
 headers:
   X-Goodreads-User-ID: GOODREADS_USER_ID
   X-Goodreads-RSS-Key: GOODREADS_RSS_KEY</code></pre>
-                <button
-                  class="copy"
-                  data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
-                  type="button"
-                >
-                  Copy
-                </button>
-              </div>
-            </article>
-          </div>
-
-          <div class="notice">
-            <strong>No MCP OAuth login is required.</strong>
-            This stateless endpoint does not use OAuth. It reads the user ID and
-            optional RSS key from request headers and does not store them. Never
-            provide a Goodreads password or session cookie.
+                  <button
+                    class="copy"
+                    data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
+                    type="button"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </article>
+            </div>
+            <div class="notice">
+              <span aria-hidden="true">↳</span>
+              <span
+                ><strong>Privacy is a boundary, not a feature.</strong> No
+                Goodreads passwords, session cookies, scraping, or
+                secret-bearing URLs in logs. The hosted endpoint reads
+                request-scoped values and does not store them.</span
+              >
+            </div>
           </div>
         </section>
       </main>
 
       <footer>
-        <p>Open source, password-free, and built on Goodreads RSS.</p>
+        <p>
+          Open source, password-free, and built on sanctioned Goodreads data
+          channels.
+        </p>
         <p>
           <a href="https://github.com/simhskal/goodreads-mcp">GitHub</a>
           ·
@@ -809,11 +1200,14 @@ headers:
         if (!match) {
           result.textContent =
             "That does not look like a Goodreads profile URL. Try copying the full URL from your profile page.";
-          result.style.color = "#9a3d31";
+          result.style.color = "var(--accent-dark)";
           return;
         }
 
-        result.innerHTML = `Your Goodreads user ID is <strong>${match[1]}</strong>. Copy this value into <code>GOODREADS_USER_ID</code>.`;
+        result.innerHTML =
+          "Your Goodreads user ID is <strong>" +
+          match[1] +
+          "</strong>. Copy this value into <code>GOODREADS_USER_ID</code>.";
         result.style.color = "var(--accent-dark)";
       });
     </script>
