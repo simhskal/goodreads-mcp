@@ -162,9 +162,13 @@ export GOODREADS_RSS_KEY=your-rss-key
 url = "https://goodreads-mcp-chi.vercel.app/mcp"
 
 [mcp_servers.goodreads.env_http_headers]
-X-Goodreads-User-ID = "GOODREADS_USER_ID"
-X-Goodreads-RSS-Key = "GOODREADS_RSS_KEY"
+"X-Goodreads-User-ID" = "GOODREADS_USER_ID"
+"X-Goodreads-RSS-Key" = "GOODREADS_RSS_KEY"
 ```
+
+The guided setup command writes literal values under
+`[mcp_servers.goodreads.http_headers]` instead, with the config file restricted
+to your user account.
 
 ### Claude Code
 

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCodexConfig,
   formatSetupSummary,
+  migrateCodexHeaderSection,
   parseGoodreadsRssKey,
   parseGoodreadsUserId,
   runSetup,
@@ -71,9 +72,20 @@ describe("Goodreads setup helpers", () => {
 
     expect(config).toContain('model = "gpt-5"');
     expect(config).toContain(
-      '[mcp_servers.goodreads.env_http_headers]\n"X-Goodreads-User-ID" = "12345678"',
+      '[mcp_servers.goodreads.http_headers]\n"X-Goodreads-User-ID" = "12345678"',
     );
     expect(config).toContain('"X-Goodreads-RSS-Key" = "abc123-private"');
+    expect(config).not.toContain("env_http_headers");
+  });
+
+  it("migrates the previously generated Codex header section", () => {
+    const config = migrateCodexHeaderSection(
+      '[mcp_servers.goodreads.env_http_headers]\n"X-Goodreads-User-ID" = "12345678"\n',
+    );
+
+    expect(config).toBe(
+      '[mcp_servers.goodreads.http_headers]\n"X-Goodreads-User-ID" = "12345678"\n',
+    );
   });
 
   it("asks before writing local Codex configuration and closes the browser", async () => {
