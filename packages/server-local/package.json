@@ -1,10 +1,13 @@
 {
-  "name": "goodreads-mcp",
-  "version": "0.1.1",
+  "name": "@organized-chaos/goodreads-mcp",
+  "version": "0.1.0",
   "description": "A local Goodreads library MCP server",
   "type": "module",
   "bin": {
-    "goodreads-mcp": "./dist/index.js"
+    "goodreads-mcp": "dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist"
@@ -33,6 +36,10 @@
     "node": ">=20"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simhskal/goodreads-mcp.git"
+  },
   "keywords": [
     "goodreads",
     "mcp",

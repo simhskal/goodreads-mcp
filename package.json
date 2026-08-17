@@ -13,12 +13,16 @@
     "build": "pnpm -r build",
     "check": "pnpm format:check && pnpm typecheck && pnpm test",
     "clean": "pnpm -r clean",
+    "changeset": "changeset",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "release": "pnpm check && pnpm build && node scripts/publish-packages.mjs",
+    "release:verify": "pnpm check && pnpm build && RELEASE_DRY_RUN=1 node scripts/publish-packages.mjs",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.0",
     "@types/node": "^26.2.0",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3",
