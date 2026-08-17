@@ -260,11 +260,13 @@
 
       .hero-art {
         position: relative;
+        isolation: isolate;
         min-height: 462px;
       }
 
       .paper-card {
         position: absolute;
+        z-index: 1;
         padding: 24px;
         border: 1px solid rgba(106, 83, 53, 0.18);
         background: var(--surface);
@@ -272,7 +274,7 @@
       }
 
       .question-card {
-        z-index: 2;
+        z-index: 3;
         top: 16px;
         right: 0;
         width: min(100%, 390px);
@@ -314,6 +316,7 @@
       }
 
       .answer-card {
+        z-index: 2;
         right: 38px;
         bottom: 0;
         width: min(100%, 350px);
@@ -364,12 +367,14 @@
 
       .shelf {
         position: absolute;
+        z-index: 0;
         right: 4px;
         bottom: 55px;
         left: 0;
         height: 13px;
         background: var(--oak);
         box-shadow: 0 8px 0 rgba(130, 96, 55, 0.12);
+        pointer-events: none;
         transform: rotate(-1.6deg);
       }
 
