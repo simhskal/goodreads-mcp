@@ -97,6 +97,13 @@ export function upsertTomlSection(
   return `${lines.join("\n").replace(/\n+$/, "")}\n`;
 }
 
+export function migrateCodexHeaderSection(content: string): string {
+  return content.replace(
+    /^\[mcp_servers\.goodreads\.env_http_headers\]\s*$/m,
+    "[mcp_servers.goodreads.http_headers]",
+  );
+}
+
 export function buildCodexConfig(
   existing: string,
   endpoint: string,
@@ -105,6 +112,7 @@ export function buildCodexConfig(
   let content = upsertTomlSection(existing, "mcp_servers.goodreads", {
     url: endpoint,
   });
+  content = migrateCodexHeaderSection(content);
 
   const headers: Record<string, string> = {
     '"X-Goodreads-User-ID"': credentials.userId,
@@ -114,7 +122,7 @@ export function buildCodexConfig(
   }
   return upsertTomlSection(
     content,
-    "mcp_servers.goodreads.env_http_headers",
+    "mcp_servers.goodreads.http_headers",
     headers,
   );
 }

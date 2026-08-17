@@ -75,20 +75,7 @@ export async function createGoodreadsBrowser(
 async function findUserIdThroughProfileMenu(
   page: import("playwright-core").Page,
 ): Promise<string | undefined> {
-  const accountMenu = await findVisibleLocator(
-    page,
-    [
-      'button[aria-label*="account" i]',
-      'button[aria-label*="profile" i]',
-      'a[aria-label*="account" i]',
-      '[data-testid*="avatar" i]',
-      '[data-testid*="account" i]',
-      "header button:has(img):last-child",
-      "nav button:has(img):last-child",
-      "button:has(img):last-child",
-    ],
-    "last",
-  );
+  const accountMenu = await findAccountMenu(page);
 
   if (!accountMenu) {
     throw new Error(
@@ -121,6 +108,70 @@ async function findUserIdThroughProfileMenu(
     .catch(() => undefined);
 
   return parseGoodreadsUserId(page.url()) ?? (await findUserIdOnPage(page));
+}
+
+async function findAccountMenu(page: import("playwright-core").Page) {
+  const semanticMatch = await findVisibleLocator(
+    page,
+    [
+      'button[aria-label*="account" i]',
+      'button[aria-label*="profile" i]',
+      'a[aria-label*="account" i]',
+      '[data-testid*="avatar" i]',
+      '[data-testid*="account" i]',
+    ],
+    "last",
+  );
+  if (semanticMatch) return semanticMatch;
+
+  const marked = await page.evaluate(() => {
+    const marker = "data-goodreads-mcp-account-control";
+    document.querySelector(`[${marker}]`)?.removeAttribute(marker);
+
+    const viewportWidth = window.innerWidth;
+    const controls = Array.from(
+      document.querySelectorAll(
+        'button, a, [role="button"], [aria-haspopup], img, [data-testid]',
+      ),
+    );
+    const candidates = new Set<HTMLElement>();
+
+    for (const element of controls) {
+      const rect = element.getBoundingClientRect();
+      if (
+        rect.width === 0 ||
+        rect.height === 0 ||
+        rect.top > 180 ||
+        rect.left < viewportWidth * 0.55
+      ) {
+        continue;
+      }
+
+      const target = element.closest<HTMLElement>(
+        'button, a, [role="button"], [aria-haspopup]',
+      );
+      candidates.add(target ?? (element as HTMLElement));
+    }
+
+    const accountControl = [...candidates]
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      })
+      .sort(
+        (left, right) =>
+          right.getBoundingClientRect().right -
+          left.getBoundingClientRect().right,
+      )[0];
+
+    if (!accountControl) return false;
+    accountControl.setAttribute(marker, "true");
+    return true;
+  });
+
+  return marked
+    ? page.locator('[data-goodreads-mcp-account-control="true"]').first()
+    : undefined;
 }
 
 async function findVisibleLocator(
