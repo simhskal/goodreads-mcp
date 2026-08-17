@@ -549,15 +549,16 @@
 
       .steps {
         display: grid;
-        border-top: 1px solid var(--line);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
       }
 
       .step {
-        display: grid;
-        grid-template-columns: 40px minmax(0, 1fr);
-        gap: 18px;
-        padding: 23px 0;
-        border-bottom: 1px solid var(--line);
+        min-width: 0;
+        min-height: 230px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        background: var(--surface);
       }
 
       .number {
@@ -573,7 +574,7 @@
       }
 
       .step h3 {
-        margin: 2px 0 5px;
+        margin: 20px 0 8px;
         font-family: var(--display);
         font-size: 22px;
         font-weight: 500;
@@ -590,6 +591,23 @@
       .step strong {
         color: var(--ink);
         font-weight: 750;
+      }
+
+      details {
+        margin-top: 18px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      summary {
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      details[open] summary {
+        margin-bottom: 14px;
       }
 
       .helper {
@@ -808,7 +826,8 @@
 
         .outcomes,
         .commands,
-        .guided-setup {
+        .guided-setup,
+        .steps {
           grid-template-columns: 1fr;
         }
 
@@ -829,6 +848,10 @@
 
         .guided-setup {
           gap: 17px;
+        }
+
+        .step {
+          min-height: auto;
         }
 
         .advanced {
@@ -886,7 +909,8 @@
             <h1>Ask your AI about everything you’ve read.</h1>
             <p class="lede">
               Goodreads MCP gives compatible AI tools a private window into your
-              shelves, so your reading history can become useful again.
+              shelves, so your reading history can become useful to find new
+              books.
             </p>
             <div class="actions">
               <a class="button" href="#setup"
@@ -922,7 +946,7 @@
               </svg>
               <span
                 ><strong>No Goodreads password.</strong> Your credentials stay
-                in your AI client, not on this site.</span
+                on your device, not on the cloud.</span
               >
             </p>
           </div>
@@ -963,7 +987,7 @@
 
         <section class="section" id="why">
           <div class="section-heading">
-            <h2>Your books already know a lot about you.</h2>
+            <h2>Your books let you discover you.</h2>
             <p>
               Goodreads keeps the record. Goodreads MCP makes that record
               available to the tools you already use, without turning your
@@ -1048,11 +1072,21 @@
                 <article class="step">
                   <span class="number">1</span>
                   <div>
-                    <h3>Sign in on Goodreads yourself</h3>
+                    <h3>Run the command</h3>
                     <p>
-                      Open Goodreads, use the account menu to visit Settings,
-                      and let the helper discover your profile. No password or
-                      session cookie is collected by this project.
+                      Choose your AI client above and run the setup command. A
+                      fresh browser window opens on your device.
+                    </p>
+                  </div>
+                </article>
+                <article class="step">
+                  <span class="number">2</span>
+                  <div>
+                    <h3>Log in on Goodreads</h3>
+                    <p>
+                      Sign in directly on Goodreads, then use the account menu
+                      to visit Settings. The helper never sees your password or
+                      session cookie.
                       <a
                         href="https://www.goodreads.com/"
                         target="_blank"
@@ -1060,43 +1094,32 @@
                         >Open Goodreads ↗</a
                       >
                     </p>
-                    <p>
-                      <strong>Manual fallback:</strong> paste a profile URL to
-                      extract the public user ID locally in this page.
-                    </p>
-                    <div class="helper">
-                      <input
-                        id="profile-url"
-                        type="url"
-                        inputmode="url"
-                        placeholder="https://www.goodreads.com/user/show/12345678-name"
-                        aria-label="Goodreads profile URL"
-                      />
-                      <button class="button" id="find-id" type="button">
-                        Find my ID
-                      </button>
-                    </div>
-                    <p class="result" id="id-result" aria-live="polite"></p>
-                  </div>
-                </article>
-                <article class="step">
-                  <span class="number">2</span>
-                  <div>
-                    <h3>Find your library connection</h3>
-                    <p>
-                      The helper finds your numeric Goodreads ID and, when
-                      available, the RSS key for your own shelves—in memory.
-                    </p>
+                    <details>
+                      <summary>Having trouble? Find your ID manually.</summary>
+                      <div class="helper">
+                        <input
+                          id="profile-url"
+                          type="url"
+                          inputmode="url"
+                          placeholder="https://www.goodreads.com/user/show/12345678-name"
+                          aria-label="Goodreads profile URL"
+                        />
+                        <button class="button" id="find-id" type="button">
+                          Find my ID
+                        </button>
+                      </div>
+                      <p class="result" id="id-result" aria-live="polite"></p>
+                    </details>
                   </div>
                 </article>
                 <article class="step">
                   <span class="number">3</span>
                   <div>
-                    <h3>Confirm the local change</h3>
+                    <h3>Let the tool do its thing</h3>
                     <p>
-                      Review the destination and approve the local client
-                      configuration. Restart your AI client, then ask your first
-                      question.
+                      It finds your library connection in memory, asks before
+                      changing local configuration, and gets your AI ready to
+                      answer its first question.
                     </p>
                   </div>
                 </article>
@@ -1108,8 +1131,8 @@
             <div class="advanced-head">
               <h2>For people who want the details.</h2>
               <p>
-                Use local stdio or the hosted Vercel endpoint. Both expose the
-                same library tools.
+                Use local stdio or the hosted endpoint. Both expose the same
+                library tools.
               </p>
             </div>
             <div class="commands">
@@ -1137,7 +1160,7 @@ environment:
               <article class="command-card">
                 <h3>Hosted</h3>
                 <p>
-                  Point your MCP client at the stateless Vercel endpoint and
+                  Point your MCP client at the stateless hosted endpoint and
                   send credentials as request headers.
                 </p>
                 <div class="config-block">
