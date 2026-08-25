@@ -13,10 +13,10 @@
     "db:migrate": "wrangler d1 migrations apply goodreads-mcp --remote"
   },
   "dependencies": {
-    "@cloudflare/workers-oauth-provider": "^0.10.2",
+    "@cloudflare/workers-oauth-provider": "^0.10.3",
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "agents": "^0.20.1",
+    "agents": "^0.21.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
