@@ -24,7 +24,7 @@
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
     "playwright-core": "1.62.1",
-    "zod": "4.4.3"
+    "zod": "4.5.2"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
