@@ -8,6 +8,8 @@ It uses Goodreads RSS feeds and optional Goodreads CSV exports. It does not
 accept Goodreads passwords, session cookies, scrape Goodreads, or call private
 Goodreads APIs.
 
+Project website: [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/)
+
 ## Requirements
 
 - Node.js 20 or newer

@@ -7,6 +7,8 @@ This package is the data layer used by the Goodreads MCP servers. It does not
 collect Goodreads passwords or session cookies, scrape Goodreads, or call
 Goodreads private APIs.
 
+Project website: [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/)
+
 ## Install
 
 ```sh
