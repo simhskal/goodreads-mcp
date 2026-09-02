@@ -37,9 +37,9 @@ installed Google Chrome or Chromium browser.
 For a guided local setup, run the command for the AI client you use:
 
 ```sh
-npx -y goodreads-mcp setup --client claude
+npx -y @organized-chaos/goodreads-mcp setup --client claude
 # or
-npx -y goodreads-mcp setup --client codex
+npx -y @organized-chaos/goodreads-mcp setup --client codex
 ```
 
 The setup helper opens a temporary visible browser window. Sign in to
@@ -88,7 +88,7 @@ Set the values in the environment that launches your MCP client:
 ```sh
 export GOODREADS_USER_ID=12345678
 export GOODREADS_RSS_KEY=your-rss-key
-npx goodreads-mcp
+npx -y @organized-chaos/goodreads-mcp
 ```
 
 You can also set `GOODREADS_CSV_PATH` to a Goodreads library export for complete
@@ -100,7 +100,7 @@ local history. Restart your MCP client after changing environment variables.
 claude mcp add goodreads \
   --env GOODREADS_USER_ID=12345678 \
   --env GOODREADS_RSS_KEY=your-rss-key \
-  -- npx -y goodreads-mcp
+  -- npx -y @organized-chaos/goodreads-mcp
 ```
 
 ### Codex

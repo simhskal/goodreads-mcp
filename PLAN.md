@@ -45,7 +45,7 @@ Alternative worth noting: **Hardcover** has a real free GraphQL API and imports 
 
 ## Milestones
 
-1. **v0 — core library + local stdio server (1st week).** Data layer (RSS parser, CSV importer, types) as a standalone package; thin stdio server reading `GOODREADS_USER_ID`/`GOODREADS_RSS_KEY` from env. Validates tools end-to-end in both CLIs with zero hosting. Ships as `npx goodreads-mcp`.
+1. **v0 — core library + local stdio server (1st week).** Data layer (RSS parser, CSV importer, types) as a standalone package; thin stdio server reading `GOODREADS_USER_ID`/`GOODREADS_RSS_KEY` from env. Validates tools end-to-end in both CLIs with zero hosting. Ships as `npx -y @organized-chaos/goodreads-mcp`.
 2. **v1 — remote OAuth server.** Worker + `workers-oauth-provider` (DCR, PKCE, PRM), connect-Goodreads onboarding page, per-user storage (KV/D1), Streamable HTTP endpoint. Verify login from both Claude Code and a current Codex build.
 3. **v1.1 — full history + polish.** CSV import UI, `reading_stats`, response caching (RSS ~15 min TTL), account deletion endpoint.
 4. **Open-source launch.** MIT license; README with copy-paste setup for both clients; "Deploy to Cloudflare" button so anyone can self-host their own instance; GitHub Actions CI (typecheck, tests, build); Vercel deployment through its Git integration; SECURITY.md + privacy note (what's stored, how to delete); submit to the official MCP registry, PulseMCP, Smithery.
@@ -65,8 +65,8 @@ about MCP configuration. Do not schedule a Product Hunt launch until the
 published package, demo, and self-serve setup path below are live.
 
 1. **Release foundation.** Merge the setup simplification, publish
-   `@organized-chaos/goodreads-mcp-core` and `goodreads-mcp` to npm, tag a GitHub release, and
-   validate `npx -y goodreads-mcp` from a clean temporary directory. Publish
+   `@organized-chaos/goodreads-mcp-core` and `@organized-chaos/goodreads-mcp` to npm, tag a GitHub release, and
+   validate `npx -y @organized-chaos/goodreads-mcp` from a clean temporary directory. Publish
    public metadata to the official MCP Registry once the install method is live.
 2. **Conversion surface.** Rework the landing page around a concrete AI result,
    a 45–60 second demo, a Codex/Claude/local client chooser, exact copyable
@@ -94,7 +94,7 @@ published package, demo, and self-serve setup path below are live.
 goodreads-mcp/
   packages/
     core/          # RSS parser, CSV importer, types, stats
-    server-local/  # stdio server (npx goodreads-mcp)
+    server-local/  # stdio server (npx @organized-chaos/goodreads-mcp)
     server-remote/ # Cloudflare Worker: OAuth provider + McpAgent + onboarding page
   README.md        # setup for Claude Code + Codex, self-host button
   LICENSE          # MIT

@@ -10,7 +10,7 @@ Goodreads private APIs.
 ## Install
 
 ```sh
-pnpm add @organized-chaos/goodreads-mcp-core
+npm install @organized-chaos/goodreads-mcp-core
 ```
 
 Node.js 20 or newer is required. The package is ESM-only.
