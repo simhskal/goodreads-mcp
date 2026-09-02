@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Remember what you’ve read, notice patterns, and choose your next book from your own Goodreads library."
+      content="Ask better questions about your Goodreads library, notice patterns in what you read, and choose your next book."
     />
     <meta name="theme-color" content="#f7f4ee" />
-    <title>Goodreads MCP — Remember what you’ve read</title>
+    <title>Goodreads MCP — You’ve read more than you remember</title>
     <style>
       :root {
         color-scheme: light;
@@ -899,7 +899,7 @@
           Goodreads MCP
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#why">How it works</a>
+          <a href="#why">Why this exists</a>
           <a href="#setup">Setup</a>
           <a class="nav-cta" href="#setup">Get started</a>
         </nav>
@@ -908,18 +908,20 @@
       <main>
         <section class="hero">
           <div>
-            <span class="eyebrow">A little help from your own books</span>
-            <h1>Remember what you’ve read. Find what matters.</h1>
+            <span class="eyebrow"
+              >Your Goodreads library, with a question attached</span
+            >
+            <h1>You’ve read more than you remember.</h1>
             <p class="lede">
-              Goodreads holds years of your reading. Connect it to Claude or
-              Codex and ask the questions you’ve wished you could ask your
-              shelves.
+              Goodreads is good at keeping a list. Goodreads MCP lets you ask it
+              questions. Which books changed how you think about work? What do
+              you keep returning to? What should you read next?
             </p>
             <div class="actions">
               <a class="button" href="#setup"
-                >Connect my Goodreads <span aria-hidden="true">↗</span></a
+                >Connect Goodreads <span aria-hidden="true">↗</span></a
               >
-              <a class="button secondary" href="#why">See what you can ask</a>
+              <a class="button secondary" href="#why">See an example</a>
             </div>
             <p class="privacy-line">
               <svg
@@ -944,8 +946,8 @@
                 />
               </svg>
               <span
-                ><strong>Your Goodreads login stays yours.</strong> We never ask
-                for your password.</span
+                ><strong>No password required.</strong> Your Goodreads login
+                stays yours.</span
               >
             </p>
           </div>
@@ -955,7 +957,7 @@
             aria-label="Example question and answer from your Goodreads library"
           >
             <div class="paper-card question-card">
-              <span class="kicker">Ask your shelves</span>
+              <span class="kicker">Ask a real question</span>
               <h2>“What books changed how I think about work?”</h2>
               <div class="answer-list">
                 <div class="answer-row">
@@ -972,7 +974,7 @@
                 </div>
               </div>
               <div class="answer-link">
-                A recommendation based on what you actually read →
+                The answer starts with your shelves →
               </div>
             </div>
           </div>
@@ -980,18 +982,19 @@
 
         <section class="section" id="why">
           <div class="section-heading">
-            <h2>Your reading history is more interesting than a list.</h2>
+            <h2>A reading list is a record. It can also be a way to think.</h2>
             <p>
-              Sometimes you want to remember why a book mattered. Sometimes you
-              want to see the thread between the books you’ve been reading. Your
-              shelves already contain those answers.
+              Most of us read a book, mark it read, and move on. Later, the
+              useful part is hard to recover. This connects your Goodreads
+              history to Claude or Codex so you can search it, look for
+              patterns, and make decisions from your own experience.
             </p>
           </div>
 
           <div class="outcomes">
             <article class="outcome">
               <span class="outcome-number">01</span>
-              <h3>Remember</h3>
+              <h3>Find the book</h3>
               <p>
                 Find the title, author, or half-remembered idea hiding somewhere
                 in your shelves.
@@ -999,15 +1002,15 @@
             </article>
             <article class="outcome">
               <span class="outcome-number">02</span>
-              <h3>Notice patterns</h3>
+              <h3>See the pattern</h3>
               <p>
-                Look back at what you’ve loved, skipped, and returned to over
-                the years.
+                Notice what you’ve loved, skipped, and returned to over the
+                years.
               </p>
             </article>
             <article class="outcome">
               <span class="outcome-number">03</span>
-              <h3>Choose what’s next</h3>
+              <h3>Pick the next one</h3>
               <p>
                 Get recommendations that start with your taste—not a generic
                 profile.
@@ -1020,12 +1023,12 @@
           <div class="setup-section">
             <div class="setup-heading">
               <div>
-                <span class="kicker">Get started</span>
-                <h2>It takes about a minute.</h2>
+                <span class="kicker">Start here</span>
+                <h2>Connect it once. Then just ask.</h2>
               </div>
               <p>
-                Tell us which app you use. We’ll take care of the technical
-                bits.
+                The setup is a little technical because computers are. The
+                useful part is simple.
               </p>
             </div>
 
@@ -1033,10 +1036,10 @@
               <article class="step">
                 <span class="number">1</span>
                 <span class="step-label">YOUR APP</span>
-                <h3>Pick your app</h3>
+                <h3>Tell us where to connect</h3>
                 <p>
-                  Choose Claude or Codex and copy the one command that matches.
-                  A browser window opens on your device.
+                  Choose Claude or Codex and run one command. A browser window
+                  opens on your device.
                 </p>
                 <div class="guided-setup" id="guided-setup">
                   <div class="setup-commands">
@@ -1067,10 +1070,10 @@
               <article class="step">
                 <span class="number">2</span>
                 <span class="step-label">YOUR GOODREADS</span>
-                <h3>Open Goodreads</h3>
+                <h3>Sign in normally</h3>
                 <p>
-                  Sign in directly on Goodreads. We’ll find your profile and
-                  library link; your password stays with Goodreads.
+                  Goodreads is the only place that sees your password. We’ll
+                  find the profile and library details we need.
                   <a
                     href="https://www.goodreads.com/"
                     target="_blank"
@@ -1099,10 +1102,10 @@
               <article class="step">
                 <span class="number">3</span>
                 <span class="step-label">YOU’RE IN</span>
-                <h3>Ask a question</h3>
+                <h3>Ask the obvious question</h3>
                 <p>
-                  The setup saves the connection on your computer. Then try
-                  something like this:
+                  The setup saves the connection on your computer. Then ask
+                  something you actually want to know:
                 </p>
                 <div class="ready-card">
                   “What should I read next?”
@@ -1114,11 +1117,11 @@
 
           <div class="advanced" id="advanced">
             <div class="advanced-head">
-              <h2>Want to see what’s happening?</h2>
+              <h2>If you’re curious about the machinery.</h2>
               <p>
-                There are two ways to connect: keep everything on your computer,
-                or use the hosted Vercel connection. Most people can use the
-                setup above.
+                There is a local option and a hosted Vercel option. Both let
+                your AI read the same library; the difference is where the
+                connection runs.
               </p>
             </div>
             <div class="commands">
@@ -1143,8 +1146,8 @@ environment:
               <article class="command-card">
                 <h3>Hosted on Vercel</h3>
                 <p>
-                  Use the hosted connection while your Goodreads details are
-                  still sent only with each request.
+                  A small hosted endpoint handles requests. Your Goodreads
+                  details are sent with each request and are not saved.
                 </p>
                 <div class="config-block">
                   <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
@@ -1164,9 +1167,9 @@ headers:
             <div class="notice">
               <span aria-hidden="true">↳</span>
               <span
-                ><strong>Your privacy matters.</strong> No Goodreads passwords,
-                session cookies, scraping, or saved library credentials. The
-                hosted connection does not store your details.</span
+                ><strong>We’ve kept this deliberately boring.</strong> No
+                Goodreads password, no session cookies, no scraping, and no
+                saved library credentials.</span
               >
             </div>
           </div>
@@ -1174,7 +1177,7 @@ headers:
       </main>
 
       <footer>
-        <p>Made for readers. No Goodreads passwords collected.</p>
+        <p>For people with too many books and not enough memory.</p>
       </footer>
     </div>
 
