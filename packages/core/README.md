@@ -7,10 +7,12 @@ This package is the data layer used by the Goodreads MCP servers. It does not
 collect Goodreads passwords or session cookies, scrape Goodreads, or call
 Goodreads private APIs.
 
+Project website: [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/)
+
 ## Install
 
 ```sh
-pnpm add @organized-chaos/goodreads-mcp-core
+npm install @organized-chaos/goodreads-mcp-core
 ```
 
 Node.js 20 or newer is required. The package is ESM-only.

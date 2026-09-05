@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Make your Goodreads reading history useful to your AI."
+      content="Ask better questions about your Goodreads library, notice patterns in what you read, and choose your next book."
     />
     <meta name="theme-color" content="#f7f4ee" />
-    <title>Goodreads MCP — Ask your AI about everything you’ve read</title>
+    <title>Goodreads MCP — You’ve read more than you remember</title>
     <style>
       :root {
         color-scheme: light;
@@ -899,27 +899,29 @@
           Goodreads MCP
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#why">What it does</a>
+          <a href="#why">Why this exists</a>
           <a href="#setup">Setup</a>
-          <a class="nav-cta" href="#setup">Connect</a>
+          <a class="nav-cta" href="#setup">Get started</a>
         </nav>
       </header>
 
       <main>
         <section class="hero">
           <div>
-            <span class="eyebrow">Your reading life, made useful</span>
-            <h1>Ask your AI about everything you’ve read.</h1>
+            <span class="eyebrow"
+              >Your Goodreads library, with a question attached</span
+            >
+            <h1>You’ve read more than you remember.</h1>
             <p class="lede">
-              Connect your Goodreads library to Claude, Codex, or another MCP
-              client. Find patterns in your reading, remember what mattered, and
-              choose your next book.
+              Goodreads is good at keeping a list. Goodreads MCP lets you ask it
+              questions. Which books changed how you think about work? What do
+              you keep returning to? What should you read next?
             </p>
             <div class="actions">
               <a class="button" href="#setup"
-                >Connect my library <span aria-hidden="true">↗</span></a
+                >Connect Goodreads <span aria-hidden="true">↗</span></a
               >
-              <a class="button secondary" href="#why">See how it works</a>
+              <a class="button secondary" href="#why">See an example</a>
             </div>
             <p class="privacy-line">
               <svg
@@ -944,8 +946,8 @@
                 />
               </svg>
               <span
-                ><strong>No Goodreads password.</strong> Your credentials stay
-                on your device, not on the cloud.</span
+                ><strong>No password required.</strong> Your Goodreads login
+                stays yours.</span
               >
             </p>
           </div>
@@ -955,7 +957,7 @@
             aria-label="Example question and answer from your Goodreads library"
           >
             <div class="paper-card question-card">
-              <span class="kicker">Try a question</span>
+              <span class="kicker">Ask a real question</span>
               <h2>“What books changed how I think about work?”</h2>
               <div class="answer-list">
                 <div class="answer-row">
@@ -972,7 +974,7 @@
                 </div>
               </div>
               <div class="answer-link">
-                Your library, with a point of view →
+                The answer starts with your shelves →
               </div>
             </div>
           </div>
@@ -980,18 +982,19 @@
 
         <section class="section" id="why">
           <div class="section-heading">
-            <h2>Your books let you discover you.</h2>
+            <h2>A reading list is a record. It can also be a way to think.</h2>
             <p>
-              Goodreads keeps the record. Goodreads MCP makes that record
-              available to the tools you already use, without turning your
-              reading life into another social feed.
+              Most of us read a book, mark it read, and move on. Later, the
+              useful part is hard to recover. This connects your Goodreads
+              history to Claude or Codex so you can search it, look for
+              patterns, and make decisions from your own experience.
             </p>
           </div>
 
           <div class="outcomes">
             <article class="outcome">
               <span class="outcome-number">01</span>
-              <h3>Recall</h3>
+              <h3>Find the book</h3>
               <p>
                 Find the title, author, or half-remembered idea hiding somewhere
                 in your shelves.
@@ -999,18 +1002,18 @@
             </article>
             <article class="outcome">
               <span class="outcome-number">02</span>
-              <h3>Reflect</h3>
+              <h3>See the pattern</h3>
               <p>
-                Look back at your reading patterns, ratings, and seasons of your
-                life.
+                Notice what you’ve loved, skipped, and returned to over the
+                years.
               </p>
             </article>
             <article class="outcome">
               <span class="outcome-number">03</span>
-              <h3>Discover</h3>
+              <h3>Pick the next one</h3>
               <p>
-                Ask for recommendations that start from what you actually
-                read—not a generic profile.
+                Get recommendations that start with your taste—not a generic
+                profile.
               </p>
             </article>
           </div>
@@ -1020,23 +1023,23 @@
           <div class="setup-section">
             <div class="setup-heading">
               <div>
-                <span class="kicker">Simple by design</span>
-                <h2>Choose where your reading life lives.</h2>
+                <span class="kicker">Start here</span>
+                <h2>Connect it once. Then just ask.</h2>
               </div>
               <p>
-                Three small choices. No passwords, no mysterious setup language,
-                no need to understand how MCP works.
+                The setup is a little technical because computers are. The
+                useful part is simple.
               </p>
             </div>
 
             <div class="steps">
               <article class="step">
                 <span class="number">1</span>
-                <span class="step-label">YOUR AI</span>
-                <h3>Run the command</h3>
+                <span class="step-label">YOUR APP</span>
+                <h3>Tell us where to connect</h3>
                 <p>
-                  Choose your AI client and run the setup command. A fresh
-                  browser window opens on your device.
+                  Choose Claude or Codex and run one command. A browser window
+                  opens on your device.
                 </p>
                 <div class="guided-setup" id="guided-setup">
                   <div class="setup-commands">
@@ -1044,7 +1047,7 @@
                       <code>setup --client claude</code>
                       <button
                         class="copy"
-                        data-copy="npx -y goodreads-mcp setup --client claude"
+                        data-copy="npx -y @organized-chaos/goodreads-mcp setup --client claude"
                         type="button"
                       >
                         Copy
@@ -1054,7 +1057,7 @@
                       <code>setup --client codex</code>
                       <button
                         class="copy"
-                        data-copy="npx -y goodreads-mcp setup --client codex"
+                        data-copy="npx -y @organized-chaos/goodreads-mcp setup --client codex"
                         type="button"
                       >
                         Copy
@@ -1066,12 +1069,11 @@
 
               <article class="step">
                 <span class="number">2</span>
-                <span class="step-label">YOUR BOOKS</span>
-                <h3>Log in on Goodreads</h3>
+                <span class="step-label">YOUR GOODREADS</span>
+                <h3>Sign in normally</h3>
                 <p>
-                  Sign in directly on Goodreads, then use the account menu on
-                  the right to visit Profile. The helper never sees your
-                  password or session cookie.
+                  Goodreads is the only place that sees your password. We’ll
+                  find the profile and library details we need.
                   <a
                     href="https://www.goodreads.com/"
                     target="_blank"
@@ -1099,12 +1101,11 @@
 
               <article class="step">
                 <span class="number">3</span>
-                <span class="step-label">DONE</span>
-                <h3>Let the tool do its thing</h3>
+                <span class="step-label">YOU’RE IN</span>
+                <h3>Ask the obvious question</h3>
                 <p>
-                  It finds your library connection in memory, asks before
-                  changing local configuration, and gets your AI ready to answer
-                  its first question.
+                  The setup saves the connection on your computer. Then ask
+                  something you actually want to know:
                 </p>
                 <div class="ready-card">
                   “What should I read next?”
@@ -1116,28 +1117,26 @@
 
           <div class="advanced" id="advanced">
             <div class="advanced-head">
-              <h2>For people who want the details.</h2>
+              <h2>If you’re curious about the machinery.</h2>
               <p>
-                Use local stdio or the hosted endpoint. Both expose the same
-                library tools.
+                There is a local option and a hosted Vercel option. Both let
+                your AI read the same library; the difference is where the
+                connection runs.
               </p>
             </div>
             <div class="commands">
               <article class="command-card">
-                <h3>Local</h3>
-                <p>
-                  Run the server on your own machine and keep the values in your
-                  client environment.
-                </p>
+                <h3>On your computer</h3>
+                <p>Your connection details stay on your machine.</p>
                 <div class="config-block">
                   <pre><code>command: npx
-args: -y, goodreads-mcp
+args: -y, @organized-chaos/goodreads-mcp
 environment:
   GOODREADS_USER_ID
   GOODREADS_RSS_KEY</code></pre>
                   <button
                     class="copy"
-                    data-copy="npx -y goodreads-mcp"
+                    data-copy="npx -y @organized-chaos/goodreads-mcp"
                     type="button"
                   >
                     Copy
@@ -1145,10 +1144,10 @@ environment:
                 </div>
               </article>
               <article class="command-card">
-                <h3>Hosted</h3>
+                <h3>Hosted on Vercel</h3>
                 <p>
-                  Point your MCP client at the stateless hosted endpoint and
-                  send credentials as request headers.
+                  A small hosted endpoint handles requests. Your Goodreads
+                  details are sent with each request and are not saved.
                 </p>
                 <div class="config-block">
                   <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
@@ -1168,10 +1167,9 @@ headers:
             <div class="notice">
               <span aria-hidden="true">↳</span>
               <span
-                ><strong>Privacy is a boundary, not a feature.</strong> No
-                Goodreads passwords, session cookies, scraping, or
-                secret-bearing URLs in logs. The hosted endpoint reads
-                request-scoped values and does not store them.</span
+                ><strong>We’ve kept this deliberately boring.</strong> No
+                Goodreads password, no session cookies, no scraping, and no
+                saved library credentials.</span
               >
             </div>
           </div>
@@ -1179,7 +1177,7 @@ headers:
       </main>
 
       <footer>
-        <p>Password-free, and built on sanctioned Goodreads data channels.</p>
+        <p>For people with too many books and not enough memory.</p>
       </footer>
     </div>
 
