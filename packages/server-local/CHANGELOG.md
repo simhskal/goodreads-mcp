@@ -1,5 +1,13 @@
 # @organized-chaos/goodreads-mcp
 
+## 0.1.2
+
+### Patch Changes
+
+- b149b8a: Add npm package READMEs and update scoped installation examples.
+- Updated dependencies [b149b8a]
+  - @organized-chaos/goodreads-mcp-core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
