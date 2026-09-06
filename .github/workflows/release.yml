@@ -27,9 +27,8 @@ jobs:
       - run: pnpm release:verify
       - uses: changesets/action@v2
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           version-script: pnpm changeset version
           publish-script: pnpm release
           commit-message: "chore: version packages"
           pr-title: "chore: version packages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
