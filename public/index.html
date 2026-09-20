@@ -175,26 +175,6 @@
         padding: 88px 0 82px;
       }
 
-      .kicker,
-      .status {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        color: var(--accent);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-      }
-
-      .status::before {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: currentColor;
-        content: "";
-      }
-
       h1,
       h2,
       h3,
@@ -570,18 +550,8 @@
         font-weight: 800;
       }
 
-      .step-label {
-        float: right;
-        margin-top: 17px;
-        color: var(--muted);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-      }
-
       .step h3 {
-        clear: both;
-        margin: 35px 0 15px;
+        margin: 28px 0 15px;
         font-family: var(--sans);
         font-size: 24px;
         font-weight: 500;
@@ -974,7 +944,6 @@
             aria-label="Example question and answer from your Goodreads library"
           >
             <div class="paper-card question-card">
-              <span class="kicker">Ask a real question</span>
               <h2>“Make me a reading brief I can share.”</h2>
               <div class="answer-list">
                 <div class="answer-row">
@@ -1047,7 +1016,6 @@
           <div class="setup-section">
             <div class="setup-heading">
               <div>
-                <span class="kicker">Start here</span>
                 <h2>Connect it once. Then just ask.</h2>
               </div>
               <p>
@@ -1059,7 +1027,6 @@
             <div class="steps">
               <article class="step">
                 <span class="number">1</span>
-                <span class="step-label">YOUR APP</span>
                 <h3>Tell us where to connect</h3>
                 <p>
                   Choose Claude or Codex and run one command. A browser window
@@ -1093,7 +1060,6 @@
 
               <article class="step">
                 <span class="number">2</span>
-                <span class="step-label">YOUR GOODREADS</span>
                 <h3>Sign in normally</h3>
                 <p>
                   Goodreads is the only place that sees your password. We’ll
@@ -1125,7 +1091,6 @@
 
               <article class="step">
                 <span class="number">3</span>
-                <span class="step-label">YOU’RE IN</span>
                 <h3>Ask the obvious question</h3>
                 <p>
                   The setup saves the connection on your computer. Then ask
