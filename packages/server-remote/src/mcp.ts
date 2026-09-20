@@ -90,6 +90,15 @@ export class GoodreadsMcp extends McpAgent<
     );
 
     this.server.tool(
+      "reading_brief",
+      "Create a Markdown-ready, shareable summary of the user's reading year, favorites, and recent books. It contains only facts from the connected library.",
+      {
+        year: z.number().int().min(1000).max(9999).optional(),
+      },
+      async ({ year }) => text(await repository.readingBrief(userId, year)),
+    );
+
+    this.server.tool(
       "reading_stats",
       "Summarize reading count, rating, and pace from the imported library.",
       {

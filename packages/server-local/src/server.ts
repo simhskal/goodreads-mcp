@@ -7,6 +7,7 @@ export interface LibraryTools {
   getReadingList(shelf: string, limit: number): Promise<unknown>;
   getCurrentlyReading(limit: number): Promise<unknown>;
   getRecentlyRead(limit: number): Promise<unknown>;
+  readingBrief(year?: number): Promise<unknown>;
   readingStats(year?: number): Promise<unknown>;
   searchLibrary(query: string, limit: number): Promise<unknown>;
   getBook(lookup: { isbn?: string; title?: string }): Promise<unknown>;
@@ -96,6 +97,31 @@ export function registerTools<T extends Pick<McpServer, "registerTool">>(
     async ({ limit: max }) => {
       try {
         return jsonResult(await library.getRecentlyRead(max));
+      } catch (error) {
+        return errorResult(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "reading_brief",
+    {
+      title: "Create a reading brief",
+      description:
+        "Create a Markdown-ready, shareable summary of the user's reading year, favorites, and recent books. It contains only facts from the connected library.",
+      inputSchema: {
+        year: z
+          .number()
+          .int()
+          .min(1000)
+          .max(9999)
+          .optional()
+          .describe("Optional four-digit calendar year"),
+      },
+    },
+    async ({ year }) => {
+      try {
+        return jsonResult(await library.readingBrief(year));
       } catch (error) {
         return errorResult(error);
       }

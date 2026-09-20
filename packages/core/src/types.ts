@@ -46,6 +46,15 @@ export interface ReadingStats {
   topAuthors: Array<{ author: string; count: number }>;
 }
 
+export interface ReadingBrief {
+  title: string;
+  year?: number;
+  stats: ReadingStats;
+  favoriteBooks: Array<Pick<Book, "title" | "author" | "rating" | "dateRead">>;
+  recentBooks: Array<Pick<Book, "title" | "author" | "rating" | "dateRead">>;
+  markdown: string;
+}
+
 export interface OpenLibraryMetadata {
   title?: string;
   authors?: string[];

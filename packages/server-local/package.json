@@ -1,7 +1,7 @@
 {
   "name": "@organized-chaos/goodreads-mcp",
   "version": "0.1.1",
-  "description": "A local Goodreads library MCP server",
+  "description": "Turn your Goodreads history into private context for Claude and Codex.",
   "type": "module",
   "bin": {
     "goodreads-mcp": "dist/index.js"
@@ -10,7 +10,8 @@
     "access": "public"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -43,6 +44,12 @@
   "keywords": [
     "goodreads",
     "mcp",
-    "model-context-protocol"
+    "model-context-protocol",
+    "claude-code",
+    "codex",
+    "reading-history",
+    "book-recommendations",
+    "reading-tracker",
+    "private-by-default"
   ]
 }

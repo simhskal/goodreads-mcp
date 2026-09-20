@@ -8,7 +8,29 @@
       content="Ask better questions about your Goodreads library, notice patterns in what you read, and choose your next book."
     />
     <meta name="theme-color" content="#f7f4ee" />
+    <meta
+      property="og:title"
+      content="Goodreads MCP — Your reading history, usable by your AI"
+    />
+    <meta
+      property="og:description"
+      content="Ask better questions about what you have read. Private by default, with no Goodreads password required."
+    />
+    <meta name="twitter:card" content="summary" />
     <title>Goodreads MCP — You’ve read more than you remember</title>
+    <script>
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
+      window.va("beforeSend", function (event) {
+        var url = new URL(event.url);
+        url.search = "";
+        return Object.assign({}, event, { url: url.toString() });
+      });
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <style>
       :root {
         color-scheme: light;
@@ -958,23 +980,23 @@
           >
             <div class="paper-card question-card">
               <span class="kicker">Ask a real question</span>
-              <h2>“What books changed how I think about work?”</h2>
+              <h2>“Make me a reading brief I can share.”</h2>
               <div class="answer-list">
                 <div class="answer-row">
                   <span class="answer-number">1</span>
-                  <span>The Design of Everyday Things · Don Norman</span>
+                  <span>42 books finished · 14,806 pages</span>
                 </div>
                 <div class="answer-row">
                   <span class="answer-number">2</span>
-                  <span>Thinking in Systems · Donella Meadows</span>
+                  <span>4.6/5 average rating · 31 books rated</span>
                 </div>
                 <div class="answer-row">
                   <span class="answer-number">3</span>
-                  <span>Range · David Epstein</span>
+                  <span>Most-read author · Ursula K. Le Guin</span>
                 </div>
               </div>
               <div class="answer-link">
-                The answer starts with your shelves →
+                Fact-only Markdown, ready to make your own →
               </div>
             </div>
           </div>
@@ -1016,6 +1038,13 @@
                 profile.
               </p>
             </article>
+          </div>
+
+          <div class="ready-card" aria-label="Four prompts to try first">
+            Start with one of these: “Create my reading brief for 2026.” · “What
+            do my five-star books have in common?” · “Pick three books from my
+            to-read shelf.” · “Which unfinished series should I return to?”
+            <strong>Copy a prompt. Ask a real question.</strong>
           </div>
         </section>
 

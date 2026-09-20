@@ -15,6 +15,7 @@ const route = (request: Request) => {
           service().getReadingList(shelf, limit),
         getCurrentlyReading: (limit) => service().getCurrentlyReading(limit),
         getRecentlyRead: (limit) => service().getRecentlyRead(limit),
+        readingBrief: (year) => service().readingBrief(year),
         readingStats: (year) => service().readingStats(year),
         searchLibrary: (query, limit) => service().searchLibrary(query, limit),
         getBook: (lookup) => service().getBook(lookup),
