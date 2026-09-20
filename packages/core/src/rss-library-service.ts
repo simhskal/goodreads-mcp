@@ -6,6 +6,7 @@ import {
   getReadingList,
   getRecentlyRead,
   listShelves,
+  readingBrief,
   readingStats,
   searchLibrary,
 } from "./library.js";
@@ -67,6 +68,10 @@ export class GoodreadsRssLibraryService {
 
   async readingStats(year?: number) {
     return readingStats(await this.#library("read"), year);
+  }
+
+  async readingBrief(year?: number) {
+    return readingBrief(await this.#library("read"), year);
   }
 
   async searchLibrary(query: string, limit: number): Promise<Book[]> {

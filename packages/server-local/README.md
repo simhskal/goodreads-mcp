@@ -1,8 +1,9 @@
 # @organized-chaos/goodreads-mcp
 
-Use your Goodreads library from Claude Code, Codex, and other MCP clients.
-This package runs as a local stdio server and keeps your Goodreads connection
-details on your machine.
+Turn your Goodreads history into private context for Claude Code, Codex, and
+other MCP clients. Ask what to read next, surface the books you loved, or make
+a Markdown-ready reading brief you can share. This package runs locally and
+keeps your Goodreads connection details on your machine.
 
 It uses Goodreads RSS feeds and optional Goodreads CSV exports. It does not
 accept Goodreads passwords, session cookies, scrape Goodreads, or call private
@@ -29,6 +30,15 @@ The helper opens a temporary browser window and finds your Goodreads profile
 ID and RSS connection locally. Sign in directly on Goodreads; the helper never
 reads or stores your Goodreads password or browser session cookies. It asks
 before changing your local AI client configuration.
+
+## First prompts
+
+Once connected, try one of these:
+
+- “Create my reading brief for 2026 and make it ready to share.”
+- “Which books did I rate five stars, and what do they have in common?”
+- “Pick three books from my to-read shelf based on my favorite authors.”
+- “Which unfinished series should I return to?”
 
 ## Run the server
 
@@ -74,8 +84,8 @@ Restart your MCP client after changing its configuration.
 ## Available tools
 
 The server exposes tools for listing shelves, reading books, viewing current
-and recent reading, calculating reading stats, searching your library, and
-looking up book metadata through Open Library.
+and recent reading, calculating stats, creating a shareable `reading_brief`,
+searching your library, and looking up book metadata through Open Library.
 
 ## Goodreads data limits
 

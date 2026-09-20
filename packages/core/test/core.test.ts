@@ -7,6 +7,7 @@ import {
   getReadingList,
   parseGoodreadsCsv,
   parseGoodreadsRss,
+  readingBrief,
   readingStats,
   searchLibrary,
 } from "../src/index.js";
@@ -84,6 +85,18 @@ describe("library services", () => {
       authors: 1,
     });
     expect(readingStats(library, 2025).booksPerMonth[1]).toBe(1);
+  });
+
+  it("creates a fact-only Markdown reading brief", () => {
+    const brief = readingBrief(library, 2025);
+    expect(brief).toMatchObject({
+      title: "2025 Reading Brief",
+      year: 2025,
+      stats: { booksRead: 1, pagesRead: 320 },
+      favoriteBooks: [{ title: "A, B", author: "Jane Doe", rating: 5 }],
+    });
+    expect(brief.markdown).toContain("# 2025 Reading Brief");
+    expect(brief.markdown).toContain("I finished 1 book and 320 pages.");
   });
 });
 

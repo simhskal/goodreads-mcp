@@ -1,7 +1,9 @@
 # Goodreads MCP
 
-Use your Goodreads shelves and reading history from Claude Code, Codex, and
-other Model Context Protocol clients—without sharing a Goodreads password.
+Turn your Goodreads shelves and reading history into private context for Claude
+Code, Codex, and other Model Context Protocol clients—without sharing a
+Goodreads password. Ask what to read next, find the books that stayed with you,
+or create a Markdown-ready reading brief you can share.
 
 Goodreads MCP reads supported Goodreads RSS feeds and optional Goodreads CSV
 exports. The local server runs entirely on your machine. The stateless Vercel
@@ -24,6 +26,7 @@ Streamable HTTP MCP endpoint on Cloudflare Workers.
 | `get_currently_reading` | Read the `currently-reading` shelf                                |
 | `get_recently_read`     | Return recently completed books                                   |
 | `reading_stats`         | Calculate counts, ratings, pages, and pace, optionally by year    |
+| `reading_brief`         | Create a fact-only, shareable Markdown reading summary            |
 | `search_library`        | Search your own library by title, author, or ISBN                 |
 | `get_book`              | Find a library book and enrich ISBN metadata through Open Library |
 
@@ -31,6 +34,15 @@ Streamable HTTP MCP endpoint on Cloudflare Workers.
 
 Requirements: Node.js 20 or newer. The guided setup also requires a locally
 installed Google Chrome or Chromium browser.
+
+## Start with a real question
+
+After connecting, copy one of these into your AI client:
+
+- “Create my reading brief for 2026 and make it ready to share.”
+- “Which books did I rate five stars, and what do they have in common?”
+- “Pick three books from my to-read shelf based on my favorite authors.”
+- “Which unfinished series should I return to?”
 
 ### Set up your Goodreads connection
 

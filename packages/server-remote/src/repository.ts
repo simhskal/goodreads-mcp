@@ -136,6 +136,95 @@ export class LibraryRepository {
       .first();
   }
 
+  async readingBrief(userId: string, year?: number) {
+    const filter = year ? " AND substr(date_read,1,4)=?" : "";
+    const values = year ? [userId, String(year)] : [userId];
+    const [stats, authors, favorites, recent] = await Promise.all([
+      this.stats(userId, year),
+      this.db
+        .prepare(
+          `SELECT author, COUNT(*) AS count FROM books
+          WHERE user_id=? AND shelf='read'${filter}
+          GROUP BY author ORDER BY count DESC, author ASC LIMIT 3`,
+        )
+        .bind(...values)
+        .all<{ author: string; count: number }>(),
+      this.db
+        .prepare(
+          `SELECT title, author, rating, date_read AS dateRead FROM books
+          WHERE user_id=? AND shelf='read' AND rating > 0${filter}
+          ORDER BY rating DESC, date_read DESC LIMIT 3`,
+        )
+        .bind(...values)
+        .all<{
+          title: string;
+          author: string;
+          rating: number;
+          dateRead: string | null;
+        }>(),
+      this.db
+        .prepare(
+          `SELECT title, author, rating, date_read AS dateRead FROM books
+          WHERE user_id=? AND shelf='read'${filter}
+          ORDER BY date_read DESC LIMIT 3`,
+        )
+        .bind(...values)
+        .all<{
+          title: string;
+          author: string;
+          rating: number | null;
+          dateRead: string | null;
+        }>(),
+    ]);
+    const label = year ?? "Reading";
+    const topAuthor = authors.results[0];
+    const favoriteLines = favorites.results.length
+      ? favorites.results
+          .map(
+            (book) => `- *${book.title}* by ${book.author} — ${book.rating}/5`,
+          )
+          .join("\n")
+      : "- Add Goodreads ratings to surface your favorites here.";
+    const recentLines = recent.results.length
+      ? recent.results
+          .map((book) => `- *${book.title}* by ${book.author}`)
+          .join("\n")
+      : "- No finished books yet.";
+    const booksRead = Number(stats?.booksRead ?? 0);
+    const averageRating = Number(stats?.averageRating ?? 0);
+
+    return {
+      title: `${label} Reading Brief`,
+      year: year ?? null,
+      stats: {
+        booksRead,
+        averageRating: averageRating || null,
+      },
+      topAuthors: authors.results,
+      favoriteBooks: favorites.results,
+      recentBooks: recent.results,
+      markdown: [
+        `# ${label} Reading Brief`,
+        "",
+        `I finished ${booksRead} book${booksRead === 1 ? "" : "s"}.`,
+        averageRating
+          ? `My average rating was ${averageRating.toFixed(1)}/5.`
+          : "I have not rated any finished books yet.",
+        topAuthor
+          ? `The author I returned to most was ${topAuthor.author} (${topAuthor.count} books).`
+          : "",
+        "",
+        "## Favorites",
+        favoriteLines,
+        "",
+        "## Most recent",
+        recentLines,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    };
+  }
+
   async deleteUser(userId: string) {
     await this.db.prepare("DELETE FROM users WHERE id=?").bind(userId).run();
   }

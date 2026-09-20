@@ -8,7 +8,29 @@
       content="Ask better questions about your Goodreads library, notice patterns in what you read, and choose your next book."
     />
     <meta name="theme-color" content="#f7f4ee" />
+    <meta
+      property="og:title"
+      content="Goodreads MCP — Your reading history, usable by your AI"
+    />
+    <meta
+      property="og:description"
+      content="Ask better questions about what you have read. Private by default, with no Goodreads password required."
+    />
+    <meta name="twitter:card" content="summary" />
     <title>Goodreads MCP — You’ve read more than you remember</title>
+    <script>
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
+      window.va("beforeSend", function (event) {
+        var url = new URL(event.url);
+        url.search = "";
+        return Object.assign({}, event, { url: url.toString() });
+      });
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <style>
       :root {
         color-scheme: light;
@@ -151,28 +173,6 @@
         align-items: center;
         min-height: 650px;
         padding: 88px 0 82px;
-      }
-
-      .eyebrow,
-      .kicker,
-      .status {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        color: var(--accent);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-      }
-
-      .eyebrow::before,
-      .status::before {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: currentColor;
-        content: "";
       }
 
       h1,
@@ -550,18 +550,8 @@
         font-weight: 800;
       }
 
-      .step-label {
-        float: right;
-        margin-top: 17px;
-        color: var(--muted);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-      }
-
       .step h3 {
-        clear: both;
-        margin: 35px 0 15px;
+        margin: 28px 0 15px;
         font-family: var(--sans);
         font-size: 24px;
         font-weight: 500;
@@ -908,9 +898,6 @@
       <main>
         <section class="hero">
           <div>
-            <span class="eyebrow"
-              >Your Goodreads library, with a question attached</span
-            >
             <h1>You’ve read more than you remember.</h1>
             <p class="lede">
               Goodreads is good at keeping a list. Goodreads MCP lets you ask it
@@ -957,24 +944,23 @@
             aria-label="Example question and answer from your Goodreads library"
           >
             <div class="paper-card question-card">
-              <span class="kicker">Ask a real question</span>
-              <h2>“What books changed how I think about work?”</h2>
+              <h2>“Make me a reading brief I can share.”</h2>
               <div class="answer-list">
                 <div class="answer-row">
                   <span class="answer-number">1</span>
-                  <span>The Design of Everyday Things · Don Norman</span>
+                  <span>42 books finished · 14,806 pages</span>
                 </div>
                 <div class="answer-row">
                   <span class="answer-number">2</span>
-                  <span>Thinking in Systems · Donella Meadows</span>
+                  <span>4.6/5 average rating · 31 books rated</span>
                 </div>
                 <div class="answer-row">
                   <span class="answer-number">3</span>
-                  <span>Range · David Epstein</span>
+                  <span>Most-read author · Ursula K. Le Guin</span>
                 </div>
               </div>
               <div class="answer-link">
-                The answer starts with your shelves →
+                Fact-only Markdown, ready to make your own →
               </div>
             </div>
           </div>
@@ -1017,13 +1003,19 @@
               </p>
             </article>
           </div>
+
+          <div class="ready-card" aria-label="Four prompts to try first">
+            Start with one of these: “Create my reading brief for 2026.” · “What
+            do my five-star books have in common?” · “Pick three books from my
+            to-read shelf.” · “Which unfinished series should I return to?”
+            <strong>Copy a prompt. Ask a real question.</strong>
+          </div>
         </section>
 
         <section class="section" id="setup">
           <div class="setup-section">
             <div class="setup-heading">
               <div>
-                <span class="kicker">Start here</span>
                 <h2>Connect it once. Then just ask.</h2>
               </div>
               <p>
@@ -1035,7 +1027,6 @@
             <div class="steps">
               <article class="step">
                 <span class="number">1</span>
-                <span class="step-label">YOUR APP</span>
                 <h3>Tell us where to connect</h3>
                 <p>
                   Choose Claude or Codex and run one command. A browser window
@@ -1069,7 +1060,6 @@
 
               <article class="step">
                 <span class="number">2</span>
-                <span class="step-label">YOUR GOODREADS</span>
                 <h3>Sign in normally</h3>
                 <p>
                   Goodreads is the only place that sees your password. We’ll
@@ -1101,7 +1091,6 @@
 
               <article class="step">
                 <span class="number">3</span>
-                <span class="step-label">YOU’RE IN</span>
                 <h3>Ask the obvious question</h3>
                 <p>
                   The setup saves the connection on your computer. Then ask
