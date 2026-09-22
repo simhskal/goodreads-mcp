@@ -16,8 +16,8 @@
     "@cloudflare/workers-oauth-provider": "^0.10.3",
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "agents": "^0.23.0",
-    "zod": "^4.6.4"
+    "agents": "^0.24.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.22.0",

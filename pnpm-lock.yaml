@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
-        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4)
+        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5)
       mcp-handler:
-        specifier: 2.1.1
-        version: 2.1.1(@modelcontextprotocol/server@2.0.0-beta.5)
+        specifier: 2.2.0
+        version: 2.2.0(@modelcontextprotocol/server@2.0.0-beta.5)
       zod:
-        specifier: 4.6.4
-        version: 4.6.4
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@changesets/cli':
         specifier: 3.0.3
@@ -50,7 +50,7 @@ importers:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
-        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4)
+        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5)
       '@organized-chaos/goodreads-mcp-core':
         specifier: workspace:*
         version: link:../core
@@ -58,8 +58,8 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       zod:
-        specifier: 4.6.4
-        version: 4.6.4
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@types/node':
         specifier: ^26.6.2
@@ -81,16 +81,16 @@ importers:
         version: 0.10.3
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
-        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4)
+        version: 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5)
       '@organized-chaos/goodreads-mcp-core':
         specifier: workspace:*
         version: link:../core
       agents:
-        specifier: ^0.23.0
-        version: 0.23.0(@babel/core@8.0.1)(@babel/runtime@7.29.7)(@modelcontextprotocol/client@2.0.0-beta.5)(@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4))(@modelcontextprotocol/server@2.0.0-beta.5)(react@19.2.8)(rolldown@1.2.0)(vite@7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1))(zod@4.6.4)
+        specifier: ^0.24.0
+        version: 0.24.0(@babel/core@8.0.1)(@babel/runtime@7.29.7)(@modelcontextprotocol/client@2.0.0-beta.5)(@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5))(@modelcontextprotocol/server@2.0.0-beta.5)(react@19.2.8)(rolldown@1.2.0)(vite@7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1))(zod@4.6.5)
       zod:
-        specifier: ^4.6.4
-        version: 4.6.4
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: ^0.22.0
@@ -110,10 +110,6 @@ importers:
 
 packages:
 
-  '@babel/code-frame@8.0.0':
-    resolution: {integrity: sha512-dYYg153EyN2Ekbqw2zAsbd6/JR+9N2SEoC7YV2GyyqMM7x9bLDTjBD6XBhSMLH0wtIVyJj03jWNriQhaN+eoCw==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
   '@babel/code-frame@8.0.6':
     resolution: {integrity: sha512-uMHhvmDmwFiLuiozaoRYTZHqMFuu3fem/X9JY78lohAuLoh8LSGGC8JqUzo2cVuBsBxkjMZNk56CE7ock8Xxkw==}
     engines: {node: ^22.18.0 || >=24.11.0}
@@ -124,10 +120,6 @@ packages:
 
   '@babel/core@8.0.1':
     resolution: {integrity: sha512-5FgxM4dLQpMJHSiVATk8foW263dVHQHBVpXYiimNECVWG01f4nFyEbQixeT6Mwvg7TayREJ2gpKl3o2RoMdnqw==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@babel/generator@8.0.5':
-    resolution: {integrity: sha512-f/TuhuMAxJqhwxEGNsJrswuG9VHmh0oNFoQoo6TbpgtFAz9wYZXcTAcWZMHfp7ljesr0RG04bp3Aos9GI59L7w==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/generator@8.0.6':
@@ -142,15 +134,11 @@ packages:
     resolution: {integrity: sha512-HTrtZ4+iA0+kzdbCgvdSk1U4pEl3BvpGnlUbualCGNbrVhhQvhgBzurTUmqpWyvyHbWYWaIfdx2mOlL9LJjsew==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
-  '@babel/helper-create-class-features-plugin@8.0.5':
-    resolution: {integrity: sha512-ckUE7tmolBbW4QV02lD874sWSPy8da2A09i/h0qS+IWolR+WiNhpq7C/rHZm00uOIkUb0Cp6+0Cy1ku/wj5uQQ==}
+  '@babel/helper-create-class-features-plugin@8.0.6':
+    resolution: {integrity: sha512-Hy7wG2Pk1LnAkFMq0CbBk789XMTYVzYGxR7tKgk+TOpZckQRME3Tdou4mMT/8DFjJFxFZ8R6UsS4DR/duBKlVA==}
     engines: {node: ^22.18.0 || >=24.11.0}
     peerDependencies:
       '@babel/core': ^8.0.0
-
-  '@babel/helper-globals@8.0.0':
-    resolution: {integrity: sha512-lLozHOM6sWWlxNo8CYqHy4MBZeTvHXNgVPBfPOGsjPKUzHC2Az9QwB6gxdQmpwHl6GlQtbGgS+lj5887guDiLw==}
-    engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/helper-globals@8.0.6':
     resolution: {integrity: sha512-OdnA/N52LhzFpeUuVz5YGuSWjc7TPHiFmVYZbPlSgExocO2GwbxVpSni9MVs5wwW+wZ4kPuwBEBN9pIPDYz1mA==}
@@ -180,16 +168,8 @@ packages:
     resolution: {integrity: sha512-xmCA9kP3IhySsqhzwIdWGlDN/1A4cCKNBO/uwZx/3YzmDoMePwno2Q5/Bq0q+tYaKbeF940YiKV/kaW8Mzvpjw==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
-  '@babel/helper-string-parser@8.0.0':
-    resolution: {integrity: sha512-6mJgmFFFIIO82vvoLt9XtRC7/TkzXfts1t/SpRX4IHSzMgqoPYCWesVu1udUPUWioAE/2fcG6WuI8zrkE1gwrg==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
   '@babel/helper-string-parser@8.0.6':
     resolution: {integrity: sha512-+6HYEBnsDRZHJtUTAEfMQd0zMDqdFHS7C+5vAsEZqBUr3vEMWOWlHJ0Jz1gS8jJIlCvLsuA6ivmeoqzH936YcA==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@babel/helper-validator-identifier@8.0.4':
-    resolution: {integrity: sha512-4wFaiLd0bVo4cIoTXI3zKI038NIWE/cr3jvBjejOVYVxV/m8Ltav1USiGzG1fmS5J2RhgEOgXNNK46cRPnRsrg==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/helper-validator-identifier@8.0.6':
@@ -203,11 +183,6 @@ packages:
   '@babel/helpers@8.0.5':
     resolution: {integrity: sha512-fQtPOXjYOYv85PIdwotp2TJGVYOycX0PQq+l844fFAxOULtBy8BVF35GyeueX0r4KvDthqPH5xAI1clQPk/2uA==}
     engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@babel/parser@8.0.5':
-    resolution: {integrity: sha512-51RXvQNFakaS0bTpYiGkxNbUVwkPO4kONv6EVLorZABxsx+KZ6Z7uSYvi/wmKS/+X+rfj9RvOw0/ZNh+cmI0Rw==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-    hasBin: true
 
   '@babel/parser@8.0.6':
     resolution: {integrity: sha512-LpGDIYJAzc3Y3PT9x+FxBrGYu2PlWxLmyN7SwPTzaX0LSwEmFJBsRnPBqmaXF2r1v+Zhz6lNiEJ+7yKtM5+Ugg==}
@@ -238,16 +213,8 @@ packages:
     resolution: {integrity: sha512-eAD0QW/AlbamBbw0FeGiwasbCVPq5ncW0HNVyLP3B9czqLyh4gvw+5JTSNt6le9+ziAU7mqDZsKTHf3jTb4chQ==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
-  '@babel/traverse@8.0.5':
-    resolution: {integrity: sha512-XFfnuvapSc/vJOcUO7kwORSvpBIvraofKEZ2dhT0PjiF21BRCD7YbAFC8UEeDJNeLoQz82/gVqzgX5hCzkCbdg==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
   '@babel/traverse@8.0.6':
     resolution: {integrity: sha512-ilYV+qLStGzSKLipJlETdvdtpK3rAuwfCmCoGKv15MU4EoeIuLkespSNoNLFGOPSciEHx9TLWtN5mv0fz5w5mQ==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@babel/types@8.0.5':
-    resolution: {integrity: sha512-eVdMqi3ej5aHhyQ2Si6yD2cAWeV8FJK9UrhK5aL0Sd8hu5GhT+YswhVNbVheOGVYMg8kuGuMaUpkB3stjj4z8A==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/types@8.0.6':
@@ -1525,8 +1492,8 @@ packages:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
 
-  agents@0.23.0:
-    resolution: {integrity: sha512-V6K9vSaUn9AWQUKj4rQl6Q+4Q2EJ7+TYwaakY1uBXb9RJvSqIwv25SPjZKZA5Mjy0lCUnBoExJlzUeFERKYrUQ==}
+  agents@0.24.0:
+    resolution: {integrity: sha512-TOh4h2skWdilyHavxjiqzJPRBbCoQuEmWYHM6fTS73tNKicrJi+NL75073K5QaSm+UXqQuB2qKnQ1k1nSyKCbw==}
     peerDependencies:
       '@ai-sdk/react': ^3.0.0 || ^4.0.0
       '@cloudflare/codemode': '>=0.5.0'
@@ -1898,8 +1865,8 @@ packages:
   jose@6.2.8:
     resolution: {integrity: sha512-Bsdjwm3Qsd/P0jR+BHDe3LytDfY7WBq2HmCCLIwuVRHMuEC9ae7/R474GIUdF1NgCyZjzVo/A9DOiOBtXq8ZoQ==}
 
-  js-base64@3.9.3:
-    resolution: {integrity: sha512-uwYQp+VJ38FVvtim6qNbit6e9uT6dwWQ4Y1+H9TxhW5hcHjpHwoxlR0nMpqUmIFOmu4VqMxwdJA88gIVuZJQ/g==}
+  js-base64@3.9.4:
+    resolution: {integrity: sha512-PtOMXpEGuP0RRiRXsjzHzl44dMHxSu2CPvAhinupR1tBa88me+1DPqsobl7eupn5UukjLkln1ZnAOAOXOrYG0Q==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -1940,8 +1907,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  mcp-handler@2.1.1:
-    resolution: {integrity: sha512-D/PAwxF9TexmixJY+FZMgYq9SSbGm3vtcUjwUHZ8tYYuOtGT3/KgAKBjO3UJZoXgW8nHDtv8ySOICMEZPD0b/Q==}
+  mcp-handler@2.2.0:
+    resolution: {integrity: sha512-loJsIem4jM1jLUsI4x2errOHSzvU+Et6XV4Aqq1AEUkHOqridUoY4dLM02OlRfsku+OjtMlk+tHyYjpfO65X6g==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -2428,15 +2395,10 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
-  zod@4.6.4:
-    resolution: {integrity: sha512-AXSD6hvGdvRjajG/l1cC+d6IrhH+sjmPKtYeQdJIK8MFJl3LyClzS+o/YsVC+zQZPupAaeH5skwwm8YqYH7BqA==}
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
-
-  '@babel/code-frame@8.0.0':
-    dependencies:
-      '@babel/helper-validator-identifier': 8.0.4
-      js-tokens: 10.0.0
 
   '@babel/code-frame@8.0.6':
     dependencies:
@@ -2464,15 +2426,6 @@ snapshots:
       obug: 2.2.1
       semver: 7.8.5
 
-  '@babel/generator@8.0.5':
-    dependencies:
-      '@babel/parser': 8.0.5
-      '@babel/types': 8.0.5
-      '@jridgewell/gen-mapping': 0.4.0-beta.0
-      '@jridgewell/trace-mapping': 0.3.31
-      '@types/jsesc': 2.5.1
-      jsesc: 3.1.0
-
   '@babel/generator@8.0.6':
     dependencies:
       '@babel/parser': 8.0.6
@@ -2484,7 +2437,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@8.0.0':
     dependencies:
-      '@babel/types': 8.0.5
+      '@babel/types': 8.0.6
 
   '@babel/helper-compilation-targets@8.0.6':
     dependencies:
@@ -2494,7 +2447,7 @@ snapshots:
       flru: 1.0.2
       verkit: 0.3.2
 
-  '@babel/helper-create-class-features-plugin@8.0.5(@babel/core@8.0.1)':
+  '@babel/helper-create-class-features-plugin@8.0.6(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
       '@babel/helper-annotate-as-pure': 8.0.0
@@ -2502,21 +2455,19 @@ snapshots:
       '@babel/helper-optimise-call-expression': 8.0.0
       '@babel/helper-replace-supers': 8.0.1(@babel/core@8.0.1)
       '@babel/helper-skip-transparent-expression-wrappers': 8.0.0
-      '@babel/traverse': 8.0.5
+      '@babel/traverse': 8.0.6
       verkit: 0.3.2
-
-  '@babel/helper-globals@8.0.0': {}
 
   '@babel/helper-globals@8.0.6': {}
 
   '@babel/helper-member-expression-to-functions@8.0.5':
     dependencies:
-      '@babel/traverse': 8.0.5
-      '@babel/types': 8.0.5
+      '@babel/traverse': 8.0.6
+      '@babel/types': 8.0.6
 
   '@babel/helper-optimise-call-expression@8.0.0':
     dependencies:
-      '@babel/types': 8.0.5
+      '@babel/types': 8.0.6
 
   '@babel/helper-plugin-utils@8.0.1(@babel/core@8.0.1)':
     dependencies:
@@ -2527,18 +2478,14 @@ snapshots:
       '@babel/core': 8.0.1
       '@babel/helper-member-expression-to-functions': 8.0.5
       '@babel/helper-optimise-call-expression': 8.0.0
-      '@babel/traverse': 8.0.5
+      '@babel/traverse': 8.0.6
 
   '@babel/helper-skip-transparent-expression-wrappers@8.0.0':
     dependencies:
-      '@babel/traverse': 8.0.5
-      '@babel/types': 8.0.5
-
-  '@babel/helper-string-parser@8.0.0': {}
+      '@babel/traverse': 8.0.6
+      '@babel/types': 8.0.6
 
   '@babel/helper-string-parser@8.0.6': {}
-
-  '@babel/helper-validator-identifier@8.0.4': {}
 
   '@babel/helper-validator-identifier@8.0.6': {}
 
@@ -2549,10 +2496,6 @@ snapshots:
       '@babel/template': 8.0.0
       '@babel/types': 8.0.6
 
-  '@babel/parser@8.0.5':
-    dependencies:
-      '@babel/types': 8.0.5
-
   '@babel/parser@8.0.6':
     dependencies:
       '@babel/types': 8.0.6
@@ -2560,7 +2503,7 @@ snapshots:
   '@babel/plugin-proposal-decorators@8.0.2(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
-      '@babel/helper-create-class-features-plugin': 8.0.5(@babel/core@8.0.1)
+      '@babel/helper-create-class-features-plugin': 8.0.6(@babel/core@8.0.1)
       '@babel/helper-plugin-utils': 8.0.1(@babel/core@8.0.1)
       '@babel/plugin-syntax-decorators': 8.0.1(@babel/core@8.0.1)
 
@@ -2577,19 +2520,9 @@ snapshots:
 
   '@babel/template@8.0.0':
     dependencies:
-      '@babel/code-frame': 8.0.0
-      '@babel/parser': 8.0.5
-      '@babel/types': 8.0.5
-
-  '@babel/traverse@8.0.5':
-    dependencies:
-      '@babel/code-frame': 8.0.0
-      '@babel/generator': 8.0.5
-      '@babel/helper-globals': 8.0.0
-      '@babel/parser': 8.0.5
-      '@babel/template': 8.0.0
-      '@babel/types': 8.0.5
-      obug: 2.2.1
+      '@babel/code-frame': 8.0.6
+      '@babel/parser': 8.0.6
+      '@babel/types': 8.0.6
 
   '@babel/traverse@8.0.6':
     dependencies:
@@ -2600,11 +2533,6 @@ snapshots:
       '@babel/template': 8.0.0
       '@babel/types': 8.0.6
       obug: 2.2.1
-
-  '@babel/types@8.0.5':
-    dependencies:
-      '@babel/helper-string-parser': 8.0.0
-      '@babel/helper-validator-identifier': 8.0.4
 
   '@babel/types@8.0.6':
     dependencies:
@@ -3229,13 +3157,13 @@ snapshots:
       eventsource-parser: 3.1.1
       jose: 6.2.12
       pkce-challenge: 5.0.1
-      zod: 4.6.4
+      zod: 4.6.5
 
   '@modelcontextprotocol/core@2.0.0-beta.5':
     dependencies:
-      zod: 4.6.4
+      zod: 4.6.5
 
-  '@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4)':
+  '@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5)':
     dependencies:
       '@hono/node-server': 2.1.0(hono@4.13.0)
       ajv: 8.20.0
@@ -3252,8 +3180,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 4.6.4
-      zod-to-json-schema: 3.25.2(zod@4.6.4)
+      zod: 4.6.5
+      zod-to-json-schema: 3.25.2(zod@4.6.5)
     optionalDependencies:
       '@cfworker/json-schema': 4.1.1
     transitivePeerDependencies:
@@ -3262,7 +3190,7 @@ snapshots:
   '@modelcontextprotocol/server@2.0.0-beta.5':
     dependencies:
       '@modelcontextprotocol/core': 2.0.0-beta.5
-      zod: 4.6.4
+      zod: 4.6.5
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
@@ -3549,12 +3477,12 @@ snapshots:
       mime-types: 3.0.2
       negotiator: 1.0.0
 
-  agents@0.23.0(@babel/core@8.0.1)(@babel/runtime@7.29.7)(@modelcontextprotocol/client@2.0.0-beta.5)(@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4))(@modelcontextprotocol/server@2.0.0-beta.5)(react@19.2.8)(rolldown@1.2.0)(vite@7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1))(zod@4.6.4):
+  agents@0.24.0(@babel/core@8.0.1)(@babel/runtime@7.29.7)(@modelcontextprotocol/client@2.0.0-beta.5)(@modelcontextprotocol/sdk@1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5))(@modelcontextprotocol/server@2.0.0-beta.5)(react@19.2.8)(rolldown@1.2.0)(vite@7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1))(zod@4.6.5):
     dependencies:
       '@babel/plugin-proposal-decorators': 8.0.2(@babel/core@8.0.1)
       '@cfworker/json-schema': 4.1.1
       '@modelcontextprotocol/client': 2.0.0-beta.5
-      '@modelcontextprotocol/sdk': 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.4)
+      '@modelcontextprotocol/sdk': 1.30.0(@cfworker/json-schema@4.1.1)(zod@4.6.5)
       '@modelcontextprotocol/server': 2.0.0-beta.5
       '@rolldown/plugin-babel': 0.2.4(@babel/core@8.0.1)(@babel/runtime@7.29.7)(rolldown@1.2.0)(vite@7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1))
       capnweb: 0.12.0
@@ -3565,7 +3493,7 @@ snapshots:
       partysocket: 1.3.0(react@19.2.8)
       postal-mime: 2.7.6
       yaml: 2.9.1
-      zod: 4.6.4
+      zod: 4.6.5
     optionalDependencies:
       react: 19.2.8
       vite: 7.3.6(@types/node@26.6.2)(tsx@4.23.13)(yaml@2.9.1)
@@ -3926,7 +3854,7 @@ snapshots:
 
   jose@6.2.8: {}
 
-  js-base64@3.9.3: {}
+  js-base64@3.9.4: {}
 
   js-tokens@10.0.0: {}
 
@@ -3957,7 +3885,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-handler@2.1.1(@modelcontextprotocol/server@2.0.0-beta.5):
+  mcp-handler@2.2.0(@modelcontextprotocol/server@2.0.0-beta.5):
     dependencies:
       '@modelcontextprotocol/server': 2.0.0-beta.5
       chalk: 5.6.2
@@ -3983,7 +3911,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
       '@babel/runtime-corejs3': 7.29.7
-      js-base64: 3.9.3
+      js-base64: 3.9.4
       mime-types: 2.1.35
 
   miniflare@5.20260815.0-alpha:
@@ -4491,10 +4419,10 @@ snapshots:
       cookie: 1.1.1
       youch-core: 0.3.3
 
-  zod-to-json-schema@3.25.2(zod@4.6.4):
+  zod-to-json-schema@3.25.2(zod@4.6.5):
     dependencies:
-      zod: 4.6.4
+      zod: 4.6.5
 
   zod@4.4.3: {}
 
-  zod@4.6.4: {}
+  zod@4.6.5: {}
