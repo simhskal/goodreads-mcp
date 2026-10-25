@@ -9,7 +9,7 @@ const route = (request: Request) => {
       const service = () =>
         (library ??= new GoodreadsRssLibraryService(readConfig(request)));
 
-      registerTools(server, {
+      registerTools(server as unknown as Parameters<typeof registerTools>[0], {
         listShelves: () => service().listShelves(),
         getReadingList: (shelf, limit) =>
           service().getReadingList(shelf, limit),
@@ -21,10 +21,8 @@ const route = (request: Request) => {
         getBook: (lookup) => service().getBook(lookup),
       });
     },
-    {},
     {
-      basePath: "",
-      maxDuration: 60,
+      serverInfo: { name: "goodreads-mcp", version: "0.1.0" },
       verboseLogs: process.env.NODE_ENV !== "production",
     },
   );

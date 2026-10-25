@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { expect, it } from "vitest";
 import { parseRss } from "../src/rss.js";
 
 it("parses Goodreads RSS item fields", () => {
