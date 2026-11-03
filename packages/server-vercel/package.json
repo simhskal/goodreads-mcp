@@ -1,0 +1,27 @@
+{
+  "name": "@goodreads-mcp/server-vercel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pretypecheck": "pnpm --filter @organized-chaos/goodreads-mcp-core build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@better-auth/cimd": "^1.7.13",
+    "@better-auth/mcp": "^1.7.13",
+    "@better-auth/oauth-provider": "^1.7.13",
+    "@neondatabase/serverless": "^1.2.0",
+    "@organized-chaos/goodreads-mcp-core": "workspace:*",
+    "better-auth": "^1.7.13",
+    "kysely": "^0.29.7",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
+    "@types/ws": "^8.18.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

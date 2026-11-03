@@ -41,7 +41,7 @@ pnpm workspace, TypeScript, ESM throughout. Node.js 20+.
 ```text
 packages/core           RSS parsing, CSV import, library queries, stats, Open Library
 packages/server-local   stdio MCP server, published to npm as `goodreads-mcp`
-packages/server-remote   Cloudflare Worker: OAuth 2.1 provider, D1/KV storage, onboarding UI
+packages/server-vercel  Vercel OAuth 2.1 provider, Postgres storage, onboarding UI
 api/server.ts           Single-user Vercel Streamable HTTP endpoint (rewritten from /mcp)
 public/index.html       Static landing page for the Vercel deployment
 ```
@@ -51,7 +51,7 @@ Package names:
 - `@organized-chaos/goodreads-mcp-core` — shared library, built to `dist/` and consumed via
   `workspace:*`
 - `goodreads-mcp` — the published stdio server binary
-- `@goodreads-mcp/server-remote` — private Worker package
+- `@goodreads-mcp/server-vercel` — private hosted-server package
 
 ### Three deployment targets, one tool surface
 
@@ -64,13 +64,13 @@ The same seven tools (`list_shelves`, `get_reading_list`,
 2. **Vercel (single user)** — `api/server.ts` wraps `mcp-handler` and reuses
    `registerTools` and `readConfig` from `server-local`. Intended for one
    Goodreads account, no OAuth.
-3. **Cloudflare Worker (multi-user)** — adds OAuth 2.1 with dynamic client
-   registration, PKCE, refresh tokens, per-account D1 storage, CSV upload, and
+3. **Vercel OAuth (multi-user)** — adds OAuth 2.1 with dynamic client
+   registration, PKCE, refresh tokens, encrypted per-account Postgres storage, CSV upload, and
    `delete_account`.
 
-**When adding or changing a tool, update all three.** Tool registration lives in
-`packages/server-local/src/server.ts` (shared by local and Vercel) and
-`packages/server-remote/src/mcp.ts`.
+**When adding or changing a tool, update all three.** Shared tool registration
+lives in `packages/server-local/src/server.ts`; OAuth-only account operations
+live in `api/oauth-mcp.ts`.
 
 ## Commands
 
@@ -89,15 +89,13 @@ Package-scoped work:
 
 ```sh
 pnpm --filter goodreads-mcp dev                       # stdio server via tsx
-pnpm --filter @goodreads-mcp/server-remote dev        # wrangler dev
-pnpm --filter @goodreads-mcp/server-remote db:migrate:local
-pnpm --filter @goodreads-mcp/server-remote deploy
+pnpm --filter @goodreads-mcp/server-vercel typecheck
+pnpm --filter @goodreads-mcp/server-vercel test
 ```
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install --frozen-lockfile`,
 `pnpm check`, and `pnpm build` on every PR and push to `main`. Vercel deploys the
-repo separately through its Git integration. Cloudflare Worker deployment is an
-optional, manual self-hosting path.
+repo separately through its Git integration.
 
 ## Conventions
 
@@ -106,14 +104,13 @@ optional, manual self-hosting path.
   `nodenext`-style resolution the project uses; omitting it breaks the build.
 - `packages/core/src/index.ts` is a barrel of `export *`. Add new modules there.
 - Validate tool inputs with `zod` (v4). Keep versions pinned exactly where they
-  already are pinned (`@modelcontextprotocol/sdk`, `zod`, `wrangler`).
+  already are pinned (`@modelcontextprotocol/sdk`, `zod`).
 - MCP tool handlers return through the `jsonResult` / `errorResult` helpers so
   successes and failures have a consistent shape. Errors are surfaced as
   `isError` results with a human-readable message, not thrown.
 - Prettier is the single formatting authority. Do not hand-format; run
   `pnpm format`.
-- Tests are Vitest, colocated (`src/*.test.ts`) or in `test/`. The Worker package
-  uses `@cloudflare/vitest-pool-workers`.
+- Tests are Vitest, colocated (`src/*.test.ts`) or in `test/`.
 - **Add tests for any parsing or query change.** RSS and CSV parsing are the
   highest-risk surfaces in the codebase.
 
@@ -127,8 +124,9 @@ optional, manual self-hosting path.
   `packages/`.
 - `pretypecheck` hooks build `@organized-chaos/goodreads-mcp-core` first; if typecheck fails with
   missing `dist/` types, run `pnpm build` once.
-- The Worker's `wrangler.jsonc` contains placeholder binding IDs. A fresh
-  self-host must create its own D1 database and KV namespaces and replace them.
+- The OAuth Vercel endpoint requires the two SQL migrations plus
+  `DATABASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, and
+  `GOODREADS_CREDENTIAL_KEY`.
 - RSS responses may be cached up to 15 minutes. Stale results during manual
   testing are usually the cache, not a bug.
 
@@ -137,5 +135,5 @@ optional, manual self-hosting path.
 1. `pnpm check` and `pnpm build` both pass.
 2. New parsing/query behavior has tests, with invented fixture data.
 3. No secrets, real user IDs, RSS keys, or exported libraries added.
-4. Tool changes applied consistently across local, Vercel, and Worker targets.
+4. Tool changes applied consistently across local, stateless Vercel, and OAuth Vercel targets.
 5. README updated if setup, tools, or deployment steps changed.

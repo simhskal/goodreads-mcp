@@ -4,9 +4,7 @@ import {
 } from "@organized-chaos/goodreads-mcp-core";
 import type { StoredBook } from "./types.js";
 
-export { parseGoodreadsCsv };
-
-function parseGoodreadsCsv(input: string): StoredBook[] {
+export function parseGoodreadsCsv(input: string): StoredBook[] {
   return parseCoreCsv(input).map(fromCoreBook);
 }
 
