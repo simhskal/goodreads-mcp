@@ -41,6 +41,6 @@
     "better-auth": "^1.7.13",
     "better-call": "1.4.4",
     "mcp-handler": "2.1.1",
-    "zod": "4.6.4"
+    "zod": "4.6.6"
   }
 }
