@@ -19,7 +19,7 @@ export const auth = betterAuth({
   appName: "Goodreads MCP",
   baseURL: publicBaseUrl(),
   basePath: authBasePath,
-  database: getAuthDatabase(),
+  database: { db: getAuthDatabase(), type: "postgres" },
   secret: process.env.BETTER_AUTH_SECRET,
   plugins: [
     anonymous({ disableDeleteAnonymousUser: true }),
