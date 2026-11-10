@@ -9,14 +9,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@better-auth/cimd": "^1.7.13",
-    "@better-auth/mcp": "^1.7.13",
-    "@better-auth/oauth-provider": "^1.7.13",
+    "@better-auth/cimd": "^1.7.18",
+    "@better-auth/mcp": "^1.7.18",
+    "@better-auth/oauth-provider": "^1.7.18",
     "@neondatabase/serverless": "^1.2.0",
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
-    "better-auth": "^1.7.13",
-    "kysely": "^0.29.7",
-    "ws": "^8.22.0"
+    "better-auth": "^1.7.18",
+    "kysely": "^0.29.8",
+    "ws": "^8.22.1"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.11",
