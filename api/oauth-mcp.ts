@@ -8,7 +8,8 @@ import {
 import { registerTools } from "../packages/server-local/src/server.js";
 import {
   auth,
-  getPool,
+  getDatabase,
+  guardAbuse,
   LibraryRepository,
   mcpResource,
   StoredLibraryService,
@@ -25,7 +26,7 @@ const route = requireMcpAuth(
       );
 
     const library = new StoredLibraryService(
-      new LibraryRepository(getPool()),
+      new LibraryRepository(getDatabase()),
       authUserId,
     );
     const grantedScopes = new Set(
@@ -45,7 +46,7 @@ const route = requireMcpAuth(
           {
             title: "Delete stored Goodreads data",
             description:
-              "Permanently delete credentials and imported library data for this connection.",
+              "Permanently delete this account: Goodreads credentials, imported books, the login user, sessions, and OAuth grants.",
             inputSchema: { confirm: z.literal("DELETE") },
           },
           async () => {
@@ -77,4 +78,8 @@ const route = requireMcpAuth(
   },
 );
 
-export const POST = route;
+export async function POST(request: Request): Promise<Response> {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
+  return route(request);
+}

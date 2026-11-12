@@ -4,7 +4,7 @@ import { mcp } from "@better-auth/mcp";
 import { betterAuth, type BetterAuthPlugin } from "better-auth";
 import { anonymous, jwt } from "better-auth/plugins";
 import { authBasePath, mcpResource, publicBaseUrl } from "./config.js";
-import { getAuthDatabase, getPool } from "./db.js";
+import { getAuthDatabase, getDatabase } from "./db.js";
 import { LibraryRepository } from "./repository.js";
 
 const scopes = [
@@ -22,7 +22,13 @@ export const auth = betterAuth({
   database: getAuthDatabase(),
   secret: process.env.BETTER_AUTH_SECRET,
   plugins: [
-    anonymous({ disableDeleteAnonymousUser: true }),
+    anonymous({
+      // Hosted accounts stay anonymous. The plugin would delete them when a
+      // later sign-in links over the session, and its delete endpoint does
+      // not remove stored library data. Unused anonymous users are purged
+      // by the daily cron instead.
+      disableDeleteAnonymousUser: true,
+    }),
     jwt(),
     mcp({
       loginPage: "/sign-in",
@@ -33,13 +39,16 @@ export const auth = betterAuth({
       clientRegistrationDefaultResources: [mcpResource()],
       clientRegistrationDefaultScopes: [...scopes],
       allowDynamicClientRegistration: true,
+      // MCP clients register before the reader signs in. Registration stays
+      // open to those clients, with per-IP throttles and a purge of clients
+      // that never receive a grant.
       allowUnauthenticatedClientRegistration: true,
       clientRegistrationDefaultApplicationType: "infer",
       postLogin: {
         page: "/connect",
         consentReferenceId: ({ user }) => user.id,
         shouldRedirect: async ({ user }) => {
-          const profile = await new LibraryRepository(getPool()).profile(
+          const profile = await new LibraryRepository(getDatabase()).profile(
             user.id,
           );
           return !profile;

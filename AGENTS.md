@@ -124,9 +124,11 @@ repo separately through its Git integration.
   `packages/`.
 - `pretypecheck` hooks build `@organized-chaos/goodreads-mcp-core` first; if typecheck fails with
   missing `dist/` types, run `pnpm build` once.
-- The OAuth Vercel endpoint requires the two SQL migrations plus
-  `DATABASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, and
-  `GOODREADS_CREDENTIAL_KEY`.
+- The OAuth Vercel endpoint requires the three SQL migrations plus
+  `DATABASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`,
+  `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`. `middleware.ts` rate limits
+  `/mcp`, `/oauth/mcp`, `/api/auth/*`, and `/connect`. The daily cron in
+  `vercel.json` purges unused anonymous users and unused OAuth clients.
 - RSS responses may be cached up to 15 minutes. Stale results during manual
   testing are usually the cache, not a bug.
 

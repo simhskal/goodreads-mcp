@@ -218,16 +218,56 @@ For a manual deployment:
 1. Fork or clone this repository and run `pnpm install`.
 2. Add a Postgres integration from the Vercel Marketplace and use its
    `DATABASE_URL` environment variable.
-3. Apply `migrations/0001_better_auth.sql` and
-   `migrations/0002_goodreads_storage.sql` to that database.
-4. Set `BETTER_AUTH_URL` to the production origin and create two independent
-   secrets: `BETTER_AUTH_SECRET` and a base64-encoded 32-byte
-   `GOODREADS_CREDENTIAL_KEY`.
+3. Apply `migrations/0001_better_auth.sql`,
+   `migrations/0002_goodreads_storage.sql`, and
+   `migrations/0003_abuse_controls.sql` to that database.
+4. Set `BETTER_AUTH_URL` to the production origin and create three independent
+   secrets: `BETTER_AUTH_SECRET`, a base64-encoded 32-byte
+   `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`.
 5. Deploy. Connect MCP clients to `https://YOUR_DOMAIN/oauth/mcp`.
+   `vercel.json` registers a daily cron at `/api/cron/purge-unused`. Confirm
+   the job is listed for the project. Vercel calls it with
+   `Authorization: Bearer $CRON_SECRET`. If Deployment Protection is enabled,
+   allow Vercel Cron to reach that path.
 
 The OAuth endpoint uses Better Auth for DCR, PKCE, refresh tokens, and
 protected-resource metadata. Goodreads RSS keys are encrypted before storage;
 CSV rows and the 15-minute RSS cache live in Postgres.
+
+### Abuse controls
+
+Routing Middleware (`middleware.ts`) rate limits `/mcp`, `/oauth/mcp`,
+`/api/auth/*`, and `/connect` before the route runs when
+`ABUSE_MIDDLEWARE_SECRET`, `BETTER_AUTH_SECRET`, or `CRON_SECRET` is set. It
+marks that request so the route handler does not count it a second time. The
+handlers apply the same limits when the mark is absent, including a stateless
+deployment that has none of those secrets. Each route has a per-IP window and,
+when the request carries one, a per-credential window. Credentials
+are the Goodreads user id on `/mcp`, the bearer token on `/oauth/mcp`, and the
+Better Auth session cookie or bearer token on `/connect` and `/api/auth/*`.
+The limiter stores a SHA-256 digest of that credential. It does not store the
+RSS key, access token, or session token. Anonymous sign-in
+(`/api/auth/sign-in/anonymous`) and dynamic client registration
+(`/api/auth/oauth2/register`) have stricter per-IP limits plus a global hourly
+ceiling.
+
+Limits are fixed windows. The shared counters live in `abuse_rate_limits` when
+`DATABASE_URL` is set, so every instance enforces the same budget. A deployment
+without `DATABASE_URL` keeps counters in memory for that instance only. Apply
+`migrations/0003_abuse_controls.sql` before serving traffic with a database;
+until that table exists, OAuth, auth, and connect return 503 and `/mcp` falls
+back to the in-memory counters.
+
+Unauthenticated dynamic client registration stays enabled. MCP clients register
+before the reader signs in, and turning that off breaks login for Claude,
+Codex, and other clients that follow the MCP authorization spec. Registration
+is throttled, and the daily cron deletes anonymous users who never connected a
+library and OAuth clients that never received a token, refresh token, or
+consent. Retention defaults to 24 hours for unused anonymous users and 7 days
+for unused clients. Override them with `ABUSE_ANONYMOUS_TTL_HOURS` and
+`ABUSE_OAUTH_CLIENT_TTL_HOURS`.
+
+The numeric limits live in `packages/server-vercel/src/abuse.ts`.
 
 ## Development
 
@@ -259,9 +299,12 @@ stateless Vercel endpoint receives the Goodreads identity and optional RSS key
 in HTTPS request headers and does not persist them. The OAuth Vercel endpoint
 stores the Goodreads identity, an encrypted RSS key, imported CSV rows, and
 OAuth grants required to serve each account. Neither endpoint receives your
-Goodreads password. RSS responses may be cached for up to 15 minutes. Use the
-authenticated `delete_account` MCP tool to remove stored Goodreads profile and
-library data, then revoke the connection in your MCP client.
+Goodreads password. RSS responses may be cached for up to 15 minutes. When
+`DATABASE_URL` is set, rate limiting also stores the client IP and a hash of
+the request credential. Use the authenticated `delete_account` MCP tool to
+remove the Goodreads profile, imported books, login user, sessions, and OAuth
+grants for that account. Remove the connection in the MCP client so it
+discards its local token.
 
 Open Library receives ISBN queries when `get_book` performs enrichment. Review
 the policies of Goodreads, Open Library, your database provider, Vercel, and

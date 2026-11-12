@@ -8,8 +8,17 @@
     },
     "api/oauth-mcp.ts": {
       "maxDuration": 60
+    },
+    "api/cron/purge-unused.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/purge-unused",
+      "schedule": "0 4 * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/mcp", "destination": "/api/server" },
     { "source": "/oauth/mcp", "destination": "/api/oauth-mcp" },

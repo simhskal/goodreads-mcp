@@ -3,7 +3,8 @@ import {
   cleanRssKey,
   encryptCredential,
   escapeHtml,
-  getPool,
+  getDatabase,
+  guardAbuse,
   htmlPage,
   jsonForScript,
   LibraryRepository,
@@ -13,6 +14,8 @@ import {
 } from "../packages/server-vercel/src/index.js";
 
 export async function GET(request: Request): Promise<Response> {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return new Response("Unauthorized", { status: 401 });
   try {
@@ -28,6 +31,8 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,7 +40,7 @@ export async function POST(request: Request): Promise<Response> {
     const form = await request.formData();
     const identity = parseGoodreadsIdentity(String(form.get("profile") ?? ""));
     const rssKey = cleanRssKey(String(form.get("rss_key") ?? ""));
-    const repository = new LibraryRepository(getPool());
+    const repository = new LibraryRepository(getDatabase());
     await repository.saveProfile(
       session.user.id,
       identity.userId,

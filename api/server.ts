@@ -1,8 +1,12 @@
 import { createMcpHandler } from "mcp-handler";
 import { GoodreadsRssLibraryService } from "../packages/core/src/index.js";
 import { registerTools } from "../packages/server-local/src/server.js";
+import { guardAbuse } from "../packages/server-vercel/src/abuse.js";
 
-const route = (request: Request) => {
+const route = async (request: Request) => {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
+
   const handler = createMcpHandler(
     (server) => {
       let library: GoodreadsRssLibraryService | undefined;

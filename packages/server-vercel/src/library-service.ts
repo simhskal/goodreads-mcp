@@ -85,7 +85,7 @@ export class StoredLibraryService {
     return {
       deleted: true,
       message:
-        "Stored Goodreads credentials and library data were permanently deleted. Revoke this MCP connection in your client.",
+        "Stored Goodreads credentials, imported books, the login user, sessions, and OAuth grants were permanently deleted. Remove this connection in your MCP client.",
     };
   }
 
