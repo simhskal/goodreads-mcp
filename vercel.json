@@ -12,6 +12,7 @@
   },
   "rewrites": [
     { "source": "/mcp", "destination": "/api/server" },
+    { "source": "/health", "destination": "/api/health" },
     { "source": "/oauth/mcp", "destination": "/api/oauth-mcp" },
     { "source": "/sign-in", "destination": "/api/sign-in" },
     { "source": "/connect", "destination": "/api/connect" },

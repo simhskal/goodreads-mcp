@@ -6,10 +6,10 @@ Goodreads password. Ask what to read next, find the books that stayed with you,
 or create a Markdown-ready reading brief you can share.
 
 Goodreads MCP reads supported Goodreads RSS feeds and optional Goodreads CSV
-exports. The local server runs entirely on your machine. The stateless Vercel
-server receives your Goodreads identity from client-configured HTTP headers.
-The multi-user Vercel server adds OAuth 2.1 login, encrypted per-account
-storage, and a Streamable HTTP MCP endpoint backed by Postgres.
+exports. The local server runs entirely on your machine. The shared Vercel
+deployment authenticates clients with OAuth and stores an encrypted RSS key
+per account. A self-hosted single-user deployment can still receive a
+Goodreads user ID and optional RSS key from client headers on that host.
 
 > [!IMPORTANT]
 > Goodreads retired its public API. This project does not scrape Goodreads,
@@ -61,9 +61,11 @@ configuration, and reports only whether each value was found. It never asks
 for, reads, or stores your Goodreads password or session cookies. The browser
 session is closed when setup finishes.
 
-The helper configures the Vercel-hosted endpoint at
-`https://goodreads-mcp-chi.vercel.app/mcp`. If you do not want to use the
-guided helper, the manual configuration below remains supported.
+The helper configures the hosted OAuth endpoint at
+`https://goodreads-mcp-chi.vercel.app/oauth/mcp`. It does not write an RSS key
+into that client config. Enter the key later on the OAuth connect page, where
+it is encrypted before storage. If you do not want to use the guided helper,
+the manual configuration below remains supported.
 
 If you prefer to complete the connection manually, your only Goodreads
 credential work should still happen directly on Goodreads. The setup sequence
@@ -128,84 +130,80 @@ GOODREADS_USER_ID = "12345678"
 GOODREADS_RSS_KEY = "your-rss-key"
 ```
 
-## Use the OAuth hosted server
+## Connect to the hosted server
 
-After deploying, connect a Streamable HTTP client to `/mcp`:
+The shared deployment is
+[goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/).
+Connect clients to its OAuth endpoint:
+
+[`https://goodreads-mcp-chi.vercel.app/oauth/mcp`](https://goodreads-mcp-chi.vercel.app/oauth/mcp)
+
+Sign in through your MCP client. On the connect page, paste your Goodreads
+profile URL (for example `https://www.goodreads.com/user/show/12345678-name`)
+and optional RSS key. The key is encrypted before storage. It is not written
+into client config and is not sent as a request header. The OAuth provider
+supports dynamic client registration, PKCE, refresh tokens, and
+protected-resource metadata.
+
+`/mcp` on this shared host is disabled. Requests receive HTTP 410 and the
+OAuth URL above. A health check that does not open a database connection is
+at [`/health`](https://goodreads-mcp-chi.vercel.app/health). It returns 503,
+with the missing variable names, until OAuth is configured.
+
+### Claude
+
+[Add Goodreads to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Goodreads&connectorUrl=https%3A%2F%2Fgoodreads-mcp-chi.vercel.app%2Foauth%2Fmcp)
+
+That link opens Claude's custom connector dialog with the OAuth endpoint
+filled in. Confirm the URL, then sign in.
+
+Claude Code:
 
 ```sh
-claude mcp add --transport http goodreads https://YOUR_DOMAIN/oauth/mcp
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
 claude mcp login goodreads
-
-codex mcp add goodreads --url https://YOUR_DOMAIN/oauth/mcp
-codex mcp login goodreads
 ```
 
-The OAuth login opens the Vercel connect page. Paste your Goodreads profile
-URL (for example `https://www.goodreads.com/user/show/12345678-name`) and
-optional RSS key. The OAuth provider supports dynamic client registration,
-PKCE, refresh tokens, and protected-resource metadata for compatible clients.
+### Cursor
 
-## Connect to the Vercel server
+[Add Goodreads to Cursor](https://cursor.com/install-mcp?name=goodreads&config=eyJ1cmwiOiJodHRwczovL2dvb2RyZWFkcy1tY3AtY2hpLnZlcmNlbC5hcHAvb2F1dGgvbWNwIn0%3D)
 
-The canonical hosted deployment is available at
-[goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/), with its
-Streamable HTTP MCP endpoint at
-[`https://goodreads-mcp-chi.vercel.app/mcp`](https://goodreads-mcp-chi.vercel.app/mcp).
-The home page includes a guided setup checklist, Goodreads user-ID helper, and
-copyable commands for Codex and Claude Code.
+Cursor asks you to confirm the server, then starts the OAuth sign-in. The
+same install link as a deeplink:
 
-The Vercel deployment exposes the same RSS-backed tools at `/mcp`. Keep
-`GOODREADS_USER_ID` and the optional `GOODREADS_RSS_KEY` on your machine; the
-MCP client sends them as HTTPS headers with each request. Treat the RSS key as a
-secret. Do not add account credentials to the Vercel project.
-
-Set the values in the shell that launches your client:
-
-```sh
-export GOODREADS_USER_ID=12345678
-export GOODREADS_RSS_KEY=your-rss-key
+```text
+cursor://anysphere.cursor-deeplink/mcp/install?name=goodreads&config=eyJ1cmwiOiJodHRwczovL2dvb2RyZWFkcy1tY3AtY2hpLnZlcmNlbC5hcHAvb2F1dGgvbWNwIn0%3D
 ```
 
 ### Codex
 
+Codex does not publish a browser install link. Add the OAuth endpoint, then
+sign in:
+
+```sh
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/oauth/mcp
+codex mcp login goodreads
+```
+
+Manual Codex config, with no Goodreads headers:
+
 ```toml
 # ~/.codex/config.toml
 [mcp_servers.goodreads]
-url = "https://goodreads-mcp-chi.vercel.app/mcp"
-
-[mcp_servers.goodreads.env_http_headers]
-"X-Goodreads-User-ID" = "GOODREADS_USER_ID"
-"X-Goodreads-RSS-Key" = "GOODREADS_RSS_KEY"
+url = "https://goodreads-mcp-chi.vercel.app/oauth/mcp"
 ```
 
-The guided setup command writes literal values under
-`[mcp_servers.goodreads.http_headers]` instead, with the config file restricted
-to your user account.
+The guided setup command writes that URL, plus a Goodreads user ID header, and
+leaves the RSS key out. The config file is restricted to your user account.
 
-### Claude Code
+## Self-host the stateless endpoint
 
-```json
-{
-  "mcpServers": {
-    "goodreads": {
-      "type": "http",
-      "url": "https://goodreads-mcp-chi.vercel.app/mcp",
-      "headers": {
-        "X-Goodreads-User-ID": "${GOODREADS_USER_ID}",
-        "X-Goodreads-RSS-Key": "${GOODREADS_RSS_KEY}"
-      }
-    }
-  }
-}
-```
-
-Restart the client after exporting the variables. Do not run
-`codex mcp login goodreads`; the stateless endpoint uses client headers rather
-than OAuth. Use the OAuth endpoint when you need login-once setup and stored CSV
-imports. Its path is `/oauth/mcp`.
-
-To self-host the stateless endpoint, deploy the repository without Goodreads
-environment variables:
+A deployment you control can still serve header-based `/mcp` for one Goodreads
+account. That path stays available only when `VERCEL_PROJECT_PRODUCTION_URL`
+is not one of the shared hosts above. Keep `X-Goodreads-User-ID` and the
+optional `X-Goodreads-RSS-Key` in the client that talks to your own host. The
+server removes the RSS key header before the MCP handler runs, so handler
+logs do not include it. Do not point those headers at the shared deployment.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsimhskal%2Fgoodreads-mcp)
 
@@ -224,6 +222,8 @@ For a manual deployment:
    secrets: `BETTER_AUTH_SECRET` and a base64-encoded 32-byte
    `GOODREADS_CREDENTIAL_KEY`.
 5. Deploy. Connect MCP clients to `https://YOUR_DOMAIN/oauth/mcp`.
+6. Open `/health`. It returns 200 when those four variables are set and 503,
+   naming any that are missing. It does not connect to Postgres.
 
 The OAuth endpoint uses Better Auth for DCR, PKCE, refresh tokens, and
 protected-resource metadata. Goodreads RSS keys are encrypted before storage;
@@ -244,8 +244,9 @@ Workspace layout:
 packages/core           RSS, CSV, library queries, stats, Open Library
 packages/server-local   stdio MCP server published as goodreads-mcp
 packages/server-vercel  OAuth, Postgres storage, and hosted library service
-api/server.ts           Stateless Vercel Streamable HTTP endpoint at /mcp
+api/server.ts           Stateless Vercel endpoint at /mcp (disabled on the shared host)
 api/oauth-mcp.ts        OAuth Vercel Streamable HTTP endpoint at /oauth/mcp
+api/health.ts           Config health check; does not open a database connection
 ```
 
 See [AGENTS.md](AGENTS.md) for an architecture and conventions brief,
@@ -255,11 +256,13 @@ See [AGENTS.md](AGENTS.md) for an architecture and conventions brief,
 ## Privacy
 
 The local server keeps your library and credentials on your machine. The
-stateless Vercel endpoint receives the Goodreads identity and optional RSS key
-in HTTPS request headers and does not persist them. The OAuth Vercel endpoint
-stores the Goodreads identity, an encrypted RSS key, imported CSV rows, and
-OAuth grants required to serve each account. Neither endpoint receives your
-Goodreads password. RSS responses may be cached for up to 15 minutes. Use the
+shared Vercel deployment stores the Goodreads identity, an encrypted RSS key,
+imported CSV rows, and OAuth grants required to serve each account. Its
+public `/mcp` path does not accept header credentials. A self-hosted
+stateless endpoint receives the Goodreads identity and optional RSS key in
+HTTPS request headers and does not persist them; it strips the RSS key header
+before handler logging. Neither path receives your Goodreads password. RSS
+responses may be cached for up to 15 minutes. Use the
 authenticated `delete_account` MCP tool to remove stored Goodreads profile and
 library data, then revoke the connection in your MCP client.
 

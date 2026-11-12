@@ -3,9 +3,12 @@ import { constants } from "node:fs";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { promisify } from "node:util";
+import {
+  DEFAULT_REMOTE_ENDPOINT,
+  endpointAcceptsClientRssKey,
+} from "./hosted.js";
 
-export const DEFAULT_REMOTE_ENDPOINT =
-  "https://goodreads-mcp-chi.vercel.app/mcp";
+export { DEFAULT_REMOTE_ENDPOINT };
 
 const execFileAsync = promisify(execFile);
 
@@ -49,9 +52,10 @@ export function formatSetupSummary(
   client: SetupClient,
   destination: string,
   credentials: GoodreadsCredentials,
+  endpoint?: string,
 ): string {
   const rssStatus = credentials.rssKey ? "found" : "not found (public feed)";
-  return [
+  const lines = [
     "Goodreads details found:",
     `- Goodreads user ID: found`,
     `- RSS key: ${rssStatus}`,
@@ -60,7 +64,47 @@ export function formatSetupSummary(
     `  ${destination}`,
     "",
     "The Goodreads password and browser session will not be saved.",
-  ].join("\n");
+  ];
+  if (endpoint && !endpointAcceptsClientRssKey(endpoint)) {
+    lines.push(
+      "",
+      "The RSS key is not written into this client config. The hosted server asks for it during OAuth connect and encrypts it before storage.",
+    );
+  }
+  return lines.join("\n");
+}
+
+export function clientHeaderEntries(
+  endpoint: string,
+  credentials: GoodreadsCredentials,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    "X-Goodreads-User-ID": credentials.userId,
+  };
+  if (credentials.rssKey && endpointAcceptsClientRssKey(endpoint)) {
+    headers["X-Goodreads-RSS-Key"] = credentials.rssKey;
+  }
+  return headers;
+}
+
+export function claudeMcpAddArgs(
+  endpoint: string,
+  credentials: GoodreadsCredentials,
+): string[] {
+  const headers = Object.entries(
+    clientHeaderEntries(endpoint, credentials),
+  ).map(([name, value]) => `${name}: ${value}`);
+  return [
+    "mcp",
+    "add",
+    "--scope",
+    "user",
+    "--transport",
+    "http",
+    ...headers.flatMap((header) => ["--header", header]),
+    "goodreads",
+    endpoint,
+  ];
 }
 
 export function quoteTomlString(value: string): string {
@@ -114,12 +158,11 @@ export function buildCodexConfig(
   });
   content = migrateCodexHeaderSection(content);
 
-  const headers: Record<string, string> = {
-    '"X-Goodreads-User-ID"': credentials.userId,
-  };
-  if (credentials.rssKey) {
-    headers['"X-Goodreads-RSS-Key"'] = credentials.rssKey;
-  }
+  const headers = Object.fromEntries(
+    Object.entries(clientHeaderEntries(endpoint, credentials)).map(
+      ([name, value]) => [`"${name}"`, value],
+    ),
+  );
   return upsertTomlSection(
     content,
     "mcp_servers.goodreads.http_headers",
@@ -157,27 +200,9 @@ export async function writeClaudeConfig(
   endpoint: string,
   credentials: GoodreadsCredentials,
 ): Promise<void> {
-  const headers = [`X-Goodreads-User-ID: ${credentials.userId}`];
-  if (credentials.rssKey) {
-    headers.push(`X-Goodreads-RSS-Key: ${credentials.rssKey}`);
-  }
-
-  await execFileAsync(
-    "claude",
-    [
-      "mcp",
-      "add",
-      "--scope",
-      "user",
-      "--transport",
-      "http",
-      "--header",
-      ...headers,
-      "goodreads",
-      endpoint,
-    ],
-    { windowsHide: true },
-  );
+  await execFileAsync("claude", claudeMcpAddArgs(endpoint, credentials), {
+    windowsHide: true,
+  });
 }
 
 export async function runSetup(options: {
@@ -197,7 +222,9 @@ export async function runSetup(options: {
         ? `${options.home ?? homedir()}/.codex/config.toml`
         : "Claude user MCP settings";
 
-    console.log(formatSetupSummary(options.client, destination, credentials));
+    console.log(
+      formatSetupSummary(options.client, destination, credentials, endpoint),
+    );
     const confirmation = await options.prompter.ask(
       "Write this local configuration now? [y/N] ",
     );
@@ -212,7 +239,16 @@ export async function runSetup(options: {
       await writeClaudeConfig(endpoint, credentials);
     }
 
-    console.log(`Goodreads is connected to ${options.client}.`);
+    if (endpointAcceptsClientRssKey(endpoint)) {
+      console.log(`Goodreads is connected to ${options.client}.`);
+    } else {
+      console.log(
+        `The hosted Goodreads endpoint is saved for ${options.client}.`,
+      );
+      console.log(
+        "Sign in when the client connects, and enter the RSS key on the connect page. It is not stored in this client config.",
+      );
+    }
     console.log(
       "Quit and reopen your AI client before trying your first question.",
     );

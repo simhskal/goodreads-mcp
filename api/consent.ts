@@ -5,8 +5,11 @@ import {
   jsonForScript,
   oauthQuery,
 } from "../packages/server-vercel/src/html.js";
+import { oauthUnavailableResponse } from "../packages/server-vercel/src/oauth-guard.js";
 
 export async function GET(request: Request): Promise<Response> {
+  const unavailable = oauthUnavailableResponse();
+  if (unavailable) return unavailable;
   try {
     const query = oauthQuery(request);
     const secret = process.env.BETTER_AUTH_SECRET;

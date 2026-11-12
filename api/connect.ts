@@ -1,5 +1,4 @@
 import {
-  auth,
   cleanRssKey,
   encryptCredential,
   escapeHtml,
@@ -8,12 +7,15 @@ import {
   jsonForScript,
   LibraryRepository,
   oauthQuery,
+  openAuth,
   parseGoodreadsCsv,
   parseGoodreadsIdentity,
 } from "../packages/server-vercel/src/index.js";
 
 export async function GET(request: Request): Promise<Response> {
-  const session = await auth.api.getSession({ headers: request.headers });
+  const ready = openAuth();
+  if (!ready.ok) return ready.response;
+  const session = await ready.auth.api.getSession({ headers: request.headers });
   if (!session) return new Response("Unauthorized", { status: 401 });
   try {
     const query = oauthQuery(request);
@@ -28,7 +30,9 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const session = await auth.api.getSession({ headers: request.headers });
+  const ready = openAuth();
+  if (!ready.ok) return ready.response;
+  const session = await ready.auth.api.getSession({ headers: request.headers });
   if (!session)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {

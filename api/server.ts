@@ -1,13 +1,21 @@
 import { createMcpHandler } from "mcp-handler";
 import { GoodreadsRssLibraryService } from "../packages/core/src/index.js";
+import { redactRssKeyHeader } from "../packages/server-local/src/headers.js";
+import { sharedDeploymentMcpResponse } from "../packages/server-local/src/hosted.js";
 import { registerTools } from "../packages/server-local/src/server.js";
 
 const route = (request: Request) => {
+  const deprecated = sharedDeploymentMcpResponse();
+  if (deprecated) return deprecated;
+
+  const { request: sanitized, rssKey } = redactRssKeyHeader(request);
   const handler = createMcpHandler(
     (server) => {
       let library: GoodreadsRssLibraryService | undefined;
       const service = () =>
-        (library ??= new GoodreadsRssLibraryService(readConfig(request)));
+        (library ??= new GoodreadsRssLibraryService(
+          readConfig(sanitized, rssKey),
+        ));
 
       registerTools(server as unknown as Parameters<typeof registerTools>[0], {
         listShelves: () => service().listShelves(),
@@ -27,12 +35,11 @@ const route = (request: Request) => {
     },
   );
 
-  return handler(request);
+  return handler(sanitized);
 };
 
-function readConfig(request: Request) {
+function readConfig(request: Request, rssKey: string | undefined) {
   const userId = request.headers.get("x-goodreads-user-id")?.trim();
-  const rssKey = request.headers.get("x-goodreads-rss-key")?.trim();
 
   if (!userId) {
     throw new Error(
