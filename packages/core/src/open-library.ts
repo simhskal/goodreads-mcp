@@ -1,4 +1,5 @@
 import type { OpenLibraryMetadata } from "./types.js";
+import { fetchTextBounded, OPEN_LIBRARY_MAX_BYTES } from "./http.js";
 import { normalizeIsbn } from "./util.js";
 
 export async function fetchOpenLibraryBook(
@@ -12,13 +13,15 @@ export async function fetchOpenLibraryBook(
   url.searchParams.set("bibkeys", key);
   url.searchParams.set("format", "json");
   url.searchParams.set("jscmd", "data");
-  const response = await (options.fetch ?? globalThis.fetch)(
-    url,
-    options.signal ? { signal: options.signal } : {},
-  );
+  const response = await fetchTextBounded(url, {
+    allowedHosts: ["openlibrary.org"],
+    maxBytes: OPEN_LIBRARY_MAX_BYTES,
+    ...(options.fetch ? { fetch: options.fetch } : {}),
+    ...(options.signal ? { signal: options.signal } : {}),
+  });
   if (!response.ok)
     throw new Error(`Open Library request failed (${response.status})`);
-  const payload = (await response.json()) as Record<
+  let payload: Record<
     string,
     {
       title?: string;
@@ -31,6 +34,14 @@ export async function fetchOpenLibraryBook(
       identifiers?: { isbn_10?: string[]; isbn_13?: string[] };
     }
   >;
+  try {
+    payload = JSON.parse(response.text) as typeof payload;
+  } catch {
+    throw new Error("Open Library returned invalid JSON.");
+  }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Open Library returned invalid JSON.");
+  }
   const data = payload[key];
   if (!data) return undefined;
   const result: OpenLibraryMetadata = {};

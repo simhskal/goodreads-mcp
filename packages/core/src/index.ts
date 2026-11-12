@@ -1,4 +1,6 @@
 export * from "./types.js";
+export * from "./http.js";
+export * from "./errors.js";
 export * from "./rss.js";
 export * from "./csv.js";
 export * from "./library.js";

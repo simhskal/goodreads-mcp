@@ -22,5 +22,14 @@ describe("readConfig", () => {
     expect(() => readConfig({ GOODREADS_USER_ID: "user-name" })).toThrow(
       "must contain only digits",
     );
+    expect(() => readConfig({ GOODREADS_USER_ID: "1".repeat(21) })).toThrow(
+      "at most 20 digits",
+    );
+    expect(() =>
+      readConfig({
+        GOODREADS_USER_ID: "12345",
+        GOODREADS_RSS_KEY: "k".repeat(257),
+      }),
+    ).toThrow("at most 256");
   });
 });

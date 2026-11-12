@@ -3,7 +3,12 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
 import { betterAuth, type BetterAuthPlugin } from "better-auth";
 import { anonymous, jwt } from "better-auth/plugins";
-import { authBasePath, mcpResource, publicBaseUrl } from "./config.js";
+import {
+  authBasePath,
+  authSecret,
+  mcpResource,
+  publicBaseUrl,
+} from "./config.js";
 import { getAuthDatabase, getPool } from "./db.js";
 import { LibraryRepository } from "./repository.js";
 
@@ -15,12 +20,14 @@ const scopes = [
   "account:write",
 ] as const;
 
+const secret = authSecret();
+
 export const auth = betterAuth({
   appName: "Goodreads MCP",
   baseURL: publicBaseUrl(),
   basePath: authBasePath,
   database: getAuthDatabase(),
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret,
   plugins: [
     anonymous({ disableDeleteAnonymousUser: true }),
     jwt(),

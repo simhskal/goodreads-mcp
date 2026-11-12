@@ -1,4 +1,7 @@
-import { fetchOpenLibraryBook } from "@organized-chaos/goodreads-mcp-core";
+import {
+  clientFacingMessage,
+  fetchOpenLibraryBook,
+} from "@organized-chaos/goodreads-mcp-core";
 import { decryptCredential } from "./crypto.js";
 import { LibraryRepository } from "./repository.js";
 import { fetchShelf } from "./rss.js";
@@ -107,7 +110,7 @@ export class StoredLibraryService {
 }
 
 function message(error: unknown): string {
-  return error instanceof Error ? error.message : "Live RSS refresh failed.";
+  return clientFacingMessage(error, "Live RSS refresh failed.");
 }
 
 function monthsBetween(first: string, last: string): number {
