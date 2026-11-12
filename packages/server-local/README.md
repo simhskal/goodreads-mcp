@@ -11,6 +11,24 @@ Goodreads APIs.
 
 Project website: [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/)
 
+## Hosted server
+
+To connect without a local install, add the hosted endpoint and sign in. Paste
+your Goodreads profile URL on the connect page.
+
+```sh
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
+claude mcp login goodreads
+```
+
+```sh
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/oauth/mcp
+codex mcp login goodreads
+```
+
+The sections below are the local server, which keeps Goodreads connection
+details on your machine.
+
 ## Requirements
 
 - Node.js 20 or newer

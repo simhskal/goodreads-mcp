@@ -1,6 +1,7 @@
 {
   "name": "@organized-chaos/goodreads-mcp",
   "version": "0.2.0",
+  "mcpName": "io.github.simhskal/goodreads-mcp",
   "description": "Turn your Goodreads history into private context for Claude and Codex.",
   "type": "module",
   "bin": {

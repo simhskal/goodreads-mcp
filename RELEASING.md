@@ -23,3 +23,12 @@ Local validation:
 pnpm changeset status
 pnpm release:verify
 ```
+
+## MCP Registry
+
+npm publish does not list the server in the official MCP Registry. The version
+PR must set `version` and `packages[0].version` in `server.json` to the new
+`@organized-chaos/goodreads-mcp` version, or `pnpm check` fails. Run
+`mcp-publisher publish` only after that version is on npm and its `package.json`
+contains `mcpName`. The checklist is in
+[CONTRIBUTING.md](CONTRIBUTING.md#list-the-server-in-directories).
