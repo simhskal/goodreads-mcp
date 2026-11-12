@@ -15,6 +15,16 @@ describe("Goodreads identity", () => {
 
   it("accepts a numeric user id", () => {
     expect(parseGoodreadsIdentity(" 42 ").userId).toBe("42");
+    expect(parseGoodreadsIdentity("1".repeat(20)).userId).toBe("1".repeat(20));
+  });
+
+  it("rejects an oversized user id", () => {
+    expect(() => parseGoodreadsIdentity("1".repeat(21))).toThrow();
+    expect(() =>
+      parseGoodreadsIdentity(
+        `https://www.goodreads.com/user/show/${"1".repeat(21)}`,
+      ),
+    ).toThrow();
   });
 
   it("rejects unrelated hosts and malformed RSS keys", () => {

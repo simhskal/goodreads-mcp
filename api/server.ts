@@ -30,9 +30,12 @@ const route = (request: Request) => {
   return handler(request);
 };
 
-function readConfig(request: Request) {
-  const userId = request.headers.get("x-goodreads-user-id")?.trim();
-  const rssKey = request.headers.get("x-goodreads-rss-key")?.trim();
+export function statelessLibraryConfig(headers: Pick<Headers, "get">): {
+  userId: string;
+  rssKey?: string;
+} {
+  const userId = headers.get("x-goodreads-user-id")?.trim();
+  const rssKey = headers.get("x-goodreads-rss-key")?.trim();
 
   if (!userId) {
     throw new Error(
@@ -44,7 +47,19 @@ function readConfig(request: Request) {
     throw new Error("X-Goodreads-User-ID must contain only digits.");
   }
 
+  if (userId.length > 20) {
+    throw new Error("X-Goodreads-User-ID must be at most 20 digits.");
+  }
+
+  if (rssKey && rssKey.length > 256) {
+    throw new Error("X-Goodreads-RSS-Key is too long.");
+  }
+
   return { userId, ...(rssKey ? { rssKey } : {}) };
+}
+
+function readConfig(request: Request) {
+  return statelessLibraryConfig(request.headers);
 }
 
 export { route as DELETE, route as GET, route as POST };

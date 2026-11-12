@@ -83,7 +83,10 @@ Goodreads yourself in that window, then press Enter in the terminal. It finds
 your profile ID and RSS link locally, asks before changing your AI client's
 configuration, and reports only whether each value was found. It never asks
 for, reads, or stores your Goodreads password or session cookies. The browser
-session is closed when setup finishes.
+session is closed when setup finishes. Claude Code's user-scoped server is
+written to `~/.claude.json`. The RSS key is stored in that file and is not
+passed on a process command line. Codex configuration is written to
+`~/.codex/config.toml`. Both files are readable only by your user account.
 
 The helper configures the Vercel-hosted endpoint at
 `https://goodreads-mcp-chi.vercel.app/mcp`. If you do not want to use the

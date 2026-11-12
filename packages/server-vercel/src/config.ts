@@ -22,6 +22,16 @@ export function mcpResource(): string {
   return `${publicBaseUrl()}/oauth/mcp`;
 }
 
+export function authSecret(env: NodeJS.ProcessEnv = process.env): string {
+  const secret = env.BETTER_AUTH_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      "BETTER_AUTH_SECRET must be set to a string of at least 32 characters.",
+    );
+  }
+  return secret;
+}
+
 function stripTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
 }
