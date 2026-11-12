@@ -246,15 +246,24 @@ logs do not include it. Do not point those headers at the shared deployment.
 For a manual deployment:
 
 1. Fork or clone this repository and run `pnpm install`.
-2. Add a Postgres integration from the Vercel Marketplace and use its
-   `DATABASE_URL` environment variable.
-3. Apply `migrations/0001_better_auth.sql`,
-   `migrations/0002_goodreads_storage.sql`, and
-   `migrations/0003_abuse_controls.sql` to that database.
-4. Set `BETTER_AUTH_URL` to the production origin and create three independent
+2. Install the Supabase integration from the Vercel Marketplace and keep the
+   `DATABASE_URL` it provides. That URL is the transaction pooler (port 6543).
+   The hosted server connects with `pg`. It does not use Neon. When the
+   integration also sets `POSTGRES_URL_NON_POOLING` (session mode, port 5432
+   on the same pooler), schema changes use that URL. Otherwise they use
+   `DATABASE_URL`.
+3. Set `BETTER_AUTH_URL` to the production origin and create three independent
    secrets: `BETTER_AUTH_SECRET`, a base64-encoded 32-byte
    `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`.
-5. Deploy. Connect MCP clients to `https://YOUR_DOMAIN/oauth/mcp`.
+4. Deploy. `pnpm build` runs `pnpm db:migrate` first. That applies every file
+   in `migrations/` in order, each in its own transaction, and records the
+   filename in `schema_migrations`. A later build skips files that are already
+   recorded, including preview builds that point at the same database. When
+   neither `POSTGRES_URL_NON_POOLING` nor `DATABASE_URL` is set, the build logs
+   `Skipping database migrations: neither POSTGRES_URL_NON_POOLING nor DATABASE_URL is set.`
+   and continues, so CI and forks without a database still build. The log line
+   names the variable that was used and does not include the connection string.
+5. Connect MCP clients to `https://YOUR_DOMAIN/oauth/mcp`.
    `vercel.json` registers a daily cron at `/api/cron/purge-unused`. Confirm
    the job is listed for the project. Vercel calls it with
    `Authorization: Bearer $CRON_SECRET`. If Deployment Protection is enabled,
@@ -285,10 +294,9 @@ ceiling.
 
 Limits are fixed windows. The shared counters live in `abuse_rate_limits` when
 `DATABASE_URL` is set, so every instance enforces the same budget. A deployment
-without `DATABASE_URL` keeps counters in memory for that instance only. Apply
-`migrations/0003_abuse_controls.sql` before serving traffic with a database;
-until that table exists, OAuth, auth, and connect return 503 and `/mcp` falls
-back to the in-memory counters.
+without `DATABASE_URL` keeps counters in memory for that instance only. The
+deploy migration creates that table. Until it exists, OAuth, auth, and connect
+return 503 and `/mcp` falls back to the in-memory counters.
 
 Unauthenticated dynamic client registration stays enabled. MCP clients register
 before the reader signs in, and turning that off breaks login for Claude,
@@ -309,6 +317,10 @@ pnpm install
 pnpm check
 pnpm build
 ```
+
+`pnpm build` runs `pnpm db:migrate` before the package builds. That command
+applies `migrations/*.sql` when `POSTGRES_URL_NON_POOLING` or `DATABASE_URL`
+is present and logs a skip line when neither is set.
 
 Workspace layout:
 

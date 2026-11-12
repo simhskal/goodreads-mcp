@@ -24,8 +24,8 @@ describe("OAuth environment guard", () => {
     expect(missingOAuthEnv()).toEqual([...REQUIRED_OAUTH_ENV]);
     const message = oauthConfigMessage(missingOAuthEnv());
     for (const name of REQUIRED_OAUTH_ENV) expect(message).toContain(name);
-    expect(message).toContain("migrations/0001_better_auth.sql");
-    expect(message).toContain("migrations/0002_goodreads_storage.sql");
+    expect(message).toContain("Supabase");
+    expect(message).toContain("Schema migrations run during deploy");
     expect(message).not.toMatch(/postgres(?:ql)?:\/\//);
   });
 

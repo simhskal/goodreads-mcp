@@ -21,8 +21,8 @@ export function oauthConfigMessage(missing: readonly string[]): string {
   return [
     "Goodreads MCP OAuth cannot start.",
     `Missing environment: ${missing.join(", ")}.`,
-    "Set DATABASE_URL to the Postgres connection string, BETTER_AUTH_URL to the public origin (for example https://goodreads-mcp-chi.vercel.app), BETTER_AUTH_SECRET to a long random secret, and GOODREADS_CREDENTIAL_KEY to a base64-encoded 32-byte key.",
-    "Apply migrations/0001_better_auth.sql and migrations/0002_goodreads_storage.sql, then redeploy.",
+    "Set DATABASE_URL to the Supabase transaction-pooler connection string from the Vercel Supabase integration, BETTER_AUTH_URL to the public origin (for example https://goodreads-mcp-chi.vercel.app), BETTER_AUTH_SECRET to a long random secret, and GOODREADS_CREDENTIAL_KEY to a base64-encoded 32-byte key.",
+    "Schema migrations run during deploy. Redeploy after setting the variables.",
   ].join(" ");
 }
 

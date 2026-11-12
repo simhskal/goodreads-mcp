@@ -6,21 +6,22 @@
   "scripts": {
     "pretypecheck": "pnpm --filter @organized-chaos/goodreads-mcp-core build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrate": "tsx src/migrate-cli.ts"
   },
   "dependencies": {
     "@better-auth/cimd": "^1.7.18",
     "@better-auth/mcp": "^1.7.18",
     "@better-auth/oauth-provider": "^1.7.18",
-    "@neondatabase/serverless": "^1.2.0",
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "better-auth": "^1.7.18",
     "kysely": "^0.29.8",
-    "ws": "^8.22.2"
+    "pg": "^8.23.1",
+    "tsx": "^4.23.15"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.15",
-    "@types/ws": "^8.18.2",
+    "@types/pg": "^8.23.1",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   }

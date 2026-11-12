@@ -79,7 +79,8 @@ corepack enable
 pnpm install
 
 pnpm check       # format:check + typecheck + test — run this before every commit
-pnpm build
+pnpm build       # runs db:migrate, then builds packages
+pnpm db:migrate  # apply hosted SQL migrations, or skip when no database URL is set
 pnpm format     # prettier --write .
 pnpm test
 pnpm typecheck
@@ -124,9 +125,12 @@ repo separately through its Git integration.
   `packages/`.
 - `pretypecheck` hooks build `@organized-chaos/goodreads-mcp-core` first; if typecheck fails with
   missing `dist/` types, run `pnpm build` once.
-- The OAuth Vercel endpoint requires the three SQL migrations plus
-  `DATABASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`,
-  `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`. `middleware.ts` rate limits
+- The OAuth Vercel endpoint stores data in Supabase Postgres through `pg`.
+  `pnpm build` applies `migrations/*.sql` when `POSTGRES_URL_NON_POOLING` or
+  `DATABASE_URL` is set, and logs a skip line when neither is set (CI and
+  forks). Required environment: `DATABASE_URL`, `BETTER_AUTH_URL`,
+  `BETTER_AUTH_SECRET`, `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`.
+  `middleware.ts` rate limits
   `/mcp`, `/oauth/mcp`, `/api/auth/*`, and `/connect`. The daily cron in
   `vercel.json` purges unused anonymous users and unused OAuth clients.
 - RSS responses may be cached up to 15 minutes. Stale results during manual

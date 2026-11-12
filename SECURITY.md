@@ -53,7 +53,7 @@ records directly.
 The hosted server rate limits `/mcp`, `/oauth/mcp`, `/api/auth/*`, and
 `/connect` per client IP and per credential. Anonymous sign-in and dynamic
 client registration have additional limits. See the README deployment section
-for the Postgres migration, `CRON_SECRET`, and the daily purge of unused
+for the deploy-time Postgres migrations, `CRON_SECRET`, and the daily purge of unused
 anonymous users and unused OAuth clients.
 
 MCP clients register themselves before a person signs in. Unauthenticated
