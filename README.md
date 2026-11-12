@@ -1,15 +1,39 @@
 # Goodreads MCP
 
-Turn your Goodreads shelves and reading history into private context for Claude
-Code, Codex, and other Model Context Protocol clients—without sharing a
-Goodreads password. Ask what to read next, find the books that stayed with you,
-or create a Markdown-ready reading brief you can share.
+Ask what to read next from your own Goodreads shelves and ratings. Your
+Goodreads password stays on Goodreads. The server reads RSS feeds and CSV
+exports you choose to share.
 
-Goodreads MCP reads supported Goodreads RSS feeds and optional Goodreads CSV
-exports. The local server runs entirely on your machine. The stateless Vercel
-server receives your Goodreads identity from client-configured HTTP headers.
-The multi-user Vercel server adds OAuth 2.1 login, encrypted per-account
-storage, and a Streamable HTTP MCP endpoint backed by Postgres.
+**Clients:** Claude Code, Codex, and any other MCP client.
+
+**Try this:** “Which books did I rate five stars, and what should I read next?”
+
+## Install
+
+The hosted server takes about a minute. Add it, sign in, and paste your
+Goodreads profile URL (the address containing `/user/show/` and your numeric
+id). Add the shelf RSS key only when your shelves are private.
+
+Hosted endpoint:
+[`https://goodreads-mcp-chi.vercel.app/oauth/mcp`](https://goodreads-mcp-chi.vercel.app/oauth/mcp)
+
+### Claude Code
+
+```sh
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
+claude mcp login goodreads
+```
+
+### Codex
+
+```sh
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/oauth/mcp
+codex mcp login goodreads
+```
+
+To keep the library on your machine, run
+`npx -y @organized-chaos/goodreads-mcp` instead. Configuration is in
+[Run locally](#run-locally).
 
 > [!IMPORTANT]
 > Goodreads retired its public API. This project does not scrape Goodreads,
@@ -121,7 +145,7 @@ claude mcp add goodreads \
 # ~/.codex/config.toml
 [mcp_servers.goodreads]
 command = "npx"
-args = ["-y", "goodreads-mcp"]
+args = ["-y", "@organized-chaos/goodreads-mcp"]
 
 [mcp_servers.goodreads.env]
 GOODREADS_USER_ID = "12345678"
@@ -130,7 +154,7 @@ GOODREADS_RSS_KEY = "your-rss-key"
 
 ## Use the OAuth hosted server
 
-After deploying, connect a Streamable HTTP client to `/mcp`:
+After deploying, connect a Streamable HTTP client to `/oauth/mcp`:
 
 ```sh
 claude mcp add --transport http goodreads https://YOUR_DOMAIN/oauth/mcp
@@ -242,7 +266,7 @@ Workspace layout:
 
 ```text
 packages/core           RSS, CSV, library queries, stats, Open Library
-packages/server-local   stdio MCP server published as goodreads-mcp
+packages/server-local   stdio MCP server published as @organized-chaos/goodreads-mcp
 packages/server-vercel  OAuth, Postgres storage, and hosted library service
 api/server.ts           Stateless Vercel Streamable HTTP endpoint at /mcp
 api/oauth-mcp.ts        OAuth Vercel Streamable HTTP endpoint at /oauth/mcp

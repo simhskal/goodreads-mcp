@@ -1,0 +1,45 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.chaosorganized/goodreads-mcp",
+  "title": "Goodreads MCP",
+  "description": "Read your Goodreads shelves in Claude, Codex, and other MCP clients.",
+  "websiteUrl": "https://goodreads-mcp-chi.vercel.app",
+  "repository": {
+    "url": "https://github.com/simhskal/goodreads-mcp",
+    "source": "github",
+    "id": "1314423726"
+  },
+  "version": "0.2.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@organized-chaos/goodreads-mcp",
+      "version": "0.2.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GOODREADS_USER_ID",
+          "description": "Numeric id from your Goodreads profile URL.",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "GOODREADS_RSS_KEY",
+          "description": "Shelf RSS key. Omit it when your shelves are public.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://goodreads-mcp-chi.vercel.app/oauth/mcp"
+    }
+  ]
+}
