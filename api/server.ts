@@ -1,5 +1,7 @@
 import { createMcpHandler } from "mcp-handler";
 import { GoodreadsRssLibraryService } from "../packages/core/src/index.js";
+import { redactRssKeyHeader } from "../packages/server-local/src/headers.js";
+import { sharedDeploymentMcpResponse } from "../packages/server-local/src/hosted.js";
 import { registerTools } from "../packages/server-local/src/server.js";
 import { guardAbuse } from "../packages/server-vercel/src/abuse.js";
 
@@ -7,11 +9,17 @@ const route = async (request: Request) => {
   const limited = await guardAbuse(request);
   if (limited) return limited;
 
+  const deprecated = sharedDeploymentMcpResponse();
+  if (deprecated) return deprecated;
+
+  const { request: sanitized, rssKey } = redactRssKeyHeader(request);
   const handler = createMcpHandler(
     (server) => {
       let library: GoodreadsRssLibraryService | undefined;
       const service = () =>
-        (library ??= new GoodreadsRssLibraryService(readConfig(request)));
+        (library ??= new GoodreadsRssLibraryService(
+          readConfig(sanitized, rssKey),
+        ));
 
       registerTools(server as unknown as Parameters<typeof registerTools>[0], {
         listShelves: () => service().listShelves(),
@@ -31,12 +39,15 @@ const route = async (request: Request) => {
     },
   );
 
-  return handler(request);
+  return handler(sanitized);
 };
 
-function readConfig(request: Request) {
-  const userId = request.headers.get("x-goodreads-user-id")?.trim();
-  const rssKey = request.headers.get("x-goodreads-rss-key")?.trim();
+export function statelessLibraryConfig(headers: Pick<Headers, "get">): {
+  userId: string;
+  rssKey?: string;
+} {
+  const userId = headers.get("x-goodreads-user-id")?.trim();
+  const rssKey = headers.get("x-goodreads-rss-key")?.trim();
 
   if (!userId) {
     throw new Error(
@@ -48,7 +59,24 @@ function readConfig(request: Request) {
     throw new Error("X-Goodreads-User-ID must contain only digits.");
   }
 
+  if (userId.length > 20) {
+    throw new Error("X-Goodreads-User-ID must be at most 20 digits.");
+  }
+
+  if (rssKey && rssKey.length > 256) {
+    throw new Error("X-Goodreads-RSS-Key is too long.");
+  }
+
   return { userId, ...(rssKey ? { rssKey } : {}) };
+}
+
+function readConfig(request: Request, rssKey: string | undefined) {
+  return statelessLibraryConfig({
+    get(name: string) {
+      if (name.toLowerCase() === "x-goodreads-rss-key") return rssKey ?? null;
+      return request.headers.get(name);
+    },
+  });
 }
 
 export { route as DELETE, route as GET, route as POST };

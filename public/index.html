@@ -1135,17 +1135,15 @@ environment:
               <article class="command-card">
                 <h3>Hosted on Vercel</h3>
                 <p>
-                  A small hosted endpoint handles requests. Your Goodreads
-                  details are sent with each request and are not saved.
+                  The shared host uses OAuth. Sign in through your client, then
+                  enter the optional RSS key on the connect page. It is
+                  encrypted before storage.
                 </p>
                 <div class="config-block">
-                  <pre><code>url: https://goodreads-mcp-chi.vercel.app/mcp
-headers:
-  X-Goodreads-User-ID: GOODREADS_USER_ID
-  X-Goodreads-RSS-Key: GOODREADS_RSS_KEY</code></pre>
+                  <pre><code>url: https://goodreads-mcp-chi.vercel.app/oauth/mcp</code></pre>
                   <button
                     class="copy"
-                    data-copy="https://goodreads-mcp-chi.vercel.app/mcp"
+                    data-copy="https://goodreads-mcp-chi.vercel.app/oauth/mcp"
                     type="button"
                   >
                     Copy
@@ -1157,8 +1155,9 @@ headers:
               <span aria-hidden="true">↳</span>
               <span
                 ><strong>We’ve kept this deliberately boring.</strong> No
-                Goodreads password, no session cookies, no scraping, and no
-                saved library credentials.</span
+                Goodreads password, no session cookies, and no scraping. The
+                hosted server encrypts the optional RSS key before storing
+                it.</span
               >
             </div>
           </div>

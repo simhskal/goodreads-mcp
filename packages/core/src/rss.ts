@@ -1,4 +1,5 @@
 import type { Book, GoodreadsRssOptions } from "./types.js";
+import { fetchTextBounded, RSS_MAX_BYTES } from "./http.js";
 import {
   clean,
   normalizeIsbn,
@@ -95,11 +96,18 @@ export function goodreadsRssUrl(
 ): string {
   if (!/^\d+$/.test(options.userId))
     throw new Error("Goodreads user ID must contain only digits");
+  if (options.userId.length > 20)
+    throw new Error("Goodreads user ID is too long.");
+  if (options.key && options.key.length > 256)
+    throw new Error("Goodreads RSS key is too long.");
+  const shelf = options.shelf ?? "read";
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(shelf))
+    throw new Error("Invalid shelf name.");
   const url = new URL(
     `https://www.goodreads.com/review/list_rss/${options.userId}`,
   );
   if (options.key) url.searchParams.set("key", options.key);
-  url.searchParams.set("shelf", options.shelf ?? "read");
+  url.searchParams.set("shelf", shelf);
   if (options.limit !== undefined)
     url.searchParams.set("per_page", String(options.limit));
   return url.toString();
@@ -108,14 +116,16 @@ export function goodreadsRssUrl(
 export async function fetchGoodreadsRss(
   options: GoodreadsRssOptions,
 ): Promise<Book[]> {
-  const fetcher = options.fetch ?? globalThis.fetch;
-  const response = await fetcher(goodreadsRssUrl(options), {
+  const response = await fetchTextBounded(goodreadsRssUrl(options), {
+    allowedHosts: ["goodreads.com"],
+    maxBytes: RSS_MAX_BYTES,
     headers: {
       accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
     },
+    ...(options.fetch ? { fetch: options.fetch } : {}),
     ...(options.signal ? { signal: options.signal } : {}),
   });
   if (!response.ok)
     throw new Error(`Goodreads RSS request failed (${response.status})`);
-  return parseGoodreadsRss(await response.text(), options.shelf ?? "read");
+  return parseGoodreadsRss(response.text, options.shelf ?? "read");
 }

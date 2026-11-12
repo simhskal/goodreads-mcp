@@ -9,6 +9,37 @@ export interface Database {
   transaction?<T>(fn: (db: Database) => Promise<T>): Promise<T>;
 }
 
+const BOOK_COLUMNS = 13;
+const BOOK_IMPORT_BATCH = 100;
+const MAX_IMPORT_BOOKS = 50_000;
+
+export function goodreadsBookInsertSql(rowCount: number): string {
+  if (
+    !Number.isInteger(rowCount) ||
+    rowCount < 1 ||
+    rowCount > BOOK_IMPORT_BATCH
+  ) {
+    throw new Error("Book import batch must contain between 1 and 100 rows.");
+  }
+  const tuples = Array.from({ length: rowCount }, (_, row) => {
+    const values = Array.from(
+      { length: BOOK_COLUMNS },
+      (_, column) => `$${row * BOOK_COLUMNS + column + 1}`,
+    );
+    return `(${values.join(",")})`;
+  });
+  return `INSERT INTO goodreads_books
+      (auth_user_id, goodreads_id, title, author, isbn, isbn13, shelf,
+       rating, average_rating, date_read, date_added, review, source)
+     VALUES ${tuples.join(",")}
+     ON CONFLICT (auth_user_id, goodreads_id, shelf, source) DO UPDATE SET
+       title = EXCLUDED.title, author = EXCLUDED.author,
+       isbn = EXCLUDED.isbn, isbn13 = EXCLUDED.isbn13,
+       rating = EXCLUDED.rating, average_rating = EXCLUDED.average_rating,
+       date_read = EXCLUDED.date_read, date_added = EXCLUDED.date_added,
+       review = EXCLUDED.review`;
+}
+
 export class LibraryRepository {
   constructor(private readonly db: Database) {}
 
@@ -44,33 +75,15 @@ export class LibraryRepository {
   }
 
   async importBooks(authUserId: string, books: StoredBook[]): Promise<number> {
-    for (const book of books) {
+    if (books.length > MAX_IMPORT_BOOKS) {
+      throw new Error("Too many books to import.");
+    }
+    const unique = dedupeBooks(books);
+    for (let offset = 0; offset < unique.length; offset += BOOK_IMPORT_BATCH) {
+      const batch = unique.slice(offset, offset + BOOK_IMPORT_BATCH);
       await this.db.query(
-        `INSERT INTO goodreads_books
-          (auth_user_id, goodreads_id, title, author, isbn, isbn13, shelf,
-           rating, average_rating, date_read, date_added, review, source)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-         ON CONFLICT (auth_user_id, goodreads_id, shelf, source) DO UPDATE SET
-           title = EXCLUDED.title, author = EXCLUDED.author,
-           isbn = EXCLUDED.isbn, isbn13 = EXCLUDED.isbn13,
-           rating = EXCLUDED.rating, average_rating = EXCLUDED.average_rating,
-           date_read = EXCLUDED.date_read, date_added = EXCLUDED.date_added,
-           review = EXCLUDED.review`,
-        [
-          authUserId,
-          book.goodreadsId ?? "",
-          book.title,
-          book.author,
-          book.isbn ?? null,
-          book.isbn13 ?? null,
-          book.shelf,
-          book.rating ?? null,
-          book.averageRating ?? null,
-          book.dateRead ?? null,
-          book.dateAdded ?? null,
-          book.review ?? null,
-          book.source,
-        ],
+        goodreadsBookInsertSql(batch.length),
+        batch.flatMap((book) => bookValues(authUserId, book)),
       );
     }
     return books.length;
@@ -354,6 +367,32 @@ async function deleteAuthGraph(db: Database, ids: string[]): Promise<void> {
   await db.query(`DELETE FROM "account" WHERE "userId" = ANY($1::text[])`, [
     ids,
   ]);
+}
+
+function bookValues(authUserId: string, book: StoredBook): unknown[] {
+  return [
+    authUserId,
+    book.goodreadsId ?? "",
+    book.title,
+    book.author,
+    book.isbn ?? null,
+    book.isbn13 ?? null,
+    book.shelf,
+    book.rating ?? null,
+    book.averageRating ?? null,
+    book.dateRead ?? null,
+    book.dateAdded ?? null,
+    book.review ?? null,
+    book.source,
+  ];
+}
+
+function dedupeBooks(books: StoredBook[]): StoredBook[] {
+  const byKey = new Map<string, StoredBook>();
+  for (const book of books) {
+    byKey.set(`${book.goodreadsId ?? ""}\0${book.shelf}\0${book.source}`, book);
+  }
+  return [...byKey.values()];
 }
 
 function escapeLike(value: string): string {

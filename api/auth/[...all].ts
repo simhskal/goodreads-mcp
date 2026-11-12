@@ -1,11 +1,13 @@
 import { guardAbuse } from "../../packages/server-vercel/src/abuse.js";
-import { auth } from "../../packages/server-vercel/src/auth.js";
+import { openAuth } from "../../packages/server-vercel/src/auth.js";
 
-const handle = async (request: Request) => {
+const route = async (request: Request) => {
   const limited = await guardAbuse(request);
   if (limited) return limited;
-  return auth.handler(request);
+  const ready = openAuth();
+  if (!ready.ok) return ready.response;
+  return ready.auth.handler(request);
 };
 
-export const GET = handle;
-export const POST = handle;
+export const GET = route;
+export const POST = route;

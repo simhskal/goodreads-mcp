@@ -11,7 +11,11 @@ neonConfig.webSocketConstructor = ws;
 export function getPool(): Pool {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error("DATABASE_URL is required.");
+    if (!connectionString) {
+      throw new Error(
+        "DATABASE_URL is required. OAuth routes stay unavailable until DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, and GOODREADS_CREDENTIAL_KEY are set.",
+      );
+    }
     pool = new Pool({ connectionString, max: 5 });
   }
   return pool;

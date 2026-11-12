@@ -1,13 +1,12 @@
-import { execFile } from "node:child_process";
 import { constants } from "node:fs";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { promisify } from "node:util";
+import {
+  DEFAULT_REMOTE_ENDPOINT,
+  endpointAcceptsClientRssKey,
+} from "./hosted.js";
 
-export const DEFAULT_REMOTE_ENDPOINT =
-  "https://goodreads-mcp-chi.vercel.app/mcp";
-
-const execFileAsync = promisify(execFile);
+export { DEFAULT_REMOTE_ENDPOINT };
 
 export type SetupClient = "claude" | "codex";
 
@@ -29,17 +28,25 @@ export interface SetupPrompter {
 
 export function parseGoodreadsUserId(value: string): string | undefined {
   const match = value.match(
-    /(?:https?:\/\/)?(?:www\.)?goodreads\.com\/user\/show\/(\d+)/i,
+    /(?:https?:\/\/)?(?:www\.)?goodreads\.com\/user\/show\/(\d{1,20})(?!\d)/i,
   );
   if (match) return match[1];
-  return /^\d+$/.test(value.trim()) ? value.trim() : undefined;
+  const trimmed = value.trim();
+  return /^\d{1,20}$/.test(trimmed) ? trimmed : undefined;
 }
+
+const RSS_KEY = /^[A-Za-z0-9_-]{6,256}$/;
+const GOODREADS_HOST = /^(?:www\.)?goodreads\.com$/i;
 
 export function parseGoodreadsRssKey(value: string): string | undefined {
   try {
-    const url = new URL(value);
+    const url = new URL(value, "https://www.goodreads.com");
+    if (url.protocol !== "https:" && url.protocol !== "http:") return undefined;
+    if (!GOODREADS_HOST.test(url.hostname)) return undefined;
+    if (!url.pathname.includes("/review/list_rss/")) return undefined;
     const key = url.searchParams.get("key")?.trim();
-    return key || undefined;
+    if (!key || !RSS_KEY.test(key)) return undefined;
+    return key;
   } catch {
     return undefined;
   }
@@ -49,9 +56,10 @@ export function formatSetupSummary(
   client: SetupClient,
   destination: string,
   credentials: GoodreadsCredentials,
+  endpoint?: string,
 ): string {
   const rssStatus = credentials.rssKey ? "found" : "not found (public feed)";
-  return [
+  const lines = [
     "Goodreads details found:",
     `- Goodreads user ID: found`,
     `- RSS key: ${rssStatus}`,
@@ -60,7 +68,47 @@ export function formatSetupSummary(
     `  ${destination}`,
     "",
     "The Goodreads password and browser session will not be saved.",
-  ].join("\n");
+  ];
+  if (endpoint && !endpointAcceptsClientRssKey(endpoint)) {
+    lines.push(
+      "",
+      "The RSS key is not written into this client config. The hosted server asks for it during OAuth connect and encrypts it before storage.",
+    );
+  }
+  return lines.join("\n");
+}
+
+export function clientHeaderEntries(
+  endpoint: string,
+  credentials: GoodreadsCredentials,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    "X-Goodreads-User-ID": credentials.userId,
+  };
+  if (credentials.rssKey && endpointAcceptsClientRssKey(endpoint)) {
+    headers["X-Goodreads-RSS-Key"] = credentials.rssKey;
+  }
+  return headers;
+}
+
+export function claudeMcpAddArgs(
+  endpoint: string,
+  credentials: GoodreadsCredentials,
+): string[] {
+  const headers = Object.entries(
+    clientHeaderEntries(endpoint, credentials),
+  ).map(([name, value]) => `${name}: ${value}`);
+  return [
+    "mcp",
+    "add",
+    "--scope",
+    "user",
+    "--transport",
+    "http",
+    ...headers.flatMap((header) => ["--header", header]),
+    "goodreads",
+    endpoint,
+  ];
 }
 
 export function quoteTomlString(value: string): string {
@@ -114,12 +162,11 @@ export function buildCodexConfig(
   });
   content = migrateCodexHeaderSection(content);
 
-  const headers: Record<string, string> = {
-    '"X-Goodreads-User-ID"': credentials.userId,
-  };
-  if (credentials.rssKey) {
-    headers['"X-Goodreads-RSS-Key"'] = credentials.rssKey;
-  }
+  const headers = Object.fromEntries(
+    Object.entries(clientHeaderEntries(endpoint, credentials)).map(
+      ([name, value]) => [`"${name}"`, value],
+    ),
+  );
   return upsertTomlSection(
     content,
     "mcp_servers.goodreads.http_headers",
@@ -153,31 +200,50 @@ export async function writeCodexConfig(
   return path;
 }
 
+export function buildClaudeConfig(
+  existing: string,
+  endpoint: string,
+  credentials: GoodreadsCredentials,
+): string {
+  let parsed: unknown;
+  try {
+    parsed = existing.trim() ? JSON.parse(existing) : {};
+  } catch {
+    throw new Error("Claude configuration is not valid JSON.");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("Claude configuration is not a JSON object.");
+  }
+  const config = parsed as Record<string, unknown>;
+  const current = config.mcpServers;
+  const mcpServers: Record<string, unknown> =
+    current && typeof current === "object" && !Array.isArray(current)
+      ? { ...(current as Record<string, unknown>) }
+      : {};
+  mcpServers.goodreads = {
+    type: "http",
+    url: endpoint,
+    headers: clientHeaderEntries(endpoint, credentials),
+  };
+  config.mcpServers = mcpServers;
+  return `${JSON.stringify(config, null, 2)}\n`;
+}
+
+// Claude's `mcp add` commands put header values on argv. Write the user
+// config file instead so the RSS key stays out of the process command line.
 export async function writeClaudeConfig(
   endpoint: string,
   credentials: GoodreadsCredentials,
-): Promise<void> {
-  const headers = [`X-Goodreads-User-ID: ${credentials.userId}`];
-  if (credentials.rssKey) {
-    headers.push(`X-Goodreads-RSS-Key: ${credentials.rssKey}`);
-  }
-
-  await execFileAsync(
-    "claude",
-    [
-      "mcp",
-      "add",
-      "--scope",
-      "user",
-      "--transport",
-      "http",
-      "--header",
-      ...headers,
-      "goodreads",
-      endpoint,
-    ],
-    { windowsHide: true },
-  );
+  home = homedir(),
+): Promise<string> {
+  const path = `${home}/.claude.json`;
+  const existing = await readOptionalFile(path);
+  const updated = buildClaudeConfig(existing, endpoint, credentials);
+  await writeFile(path, updated, {
+    mode: constants.S_IRUSR | constants.S_IWUSR,
+  });
+  await chmod(path, constants.S_IRUSR | constants.S_IWUSR);
+  return path;
 }
 
 export async function runSetup(options: {
@@ -188,16 +254,19 @@ export async function runSetup(options: {
   home?: string;
 }): Promise<void> {
   const endpoint = options.endpoint ?? DEFAULT_REMOTE_ENDPOINT;
+  const home = options.home ?? homedir();
   await options.browser.open();
   try {
     await options.browser.waitForUser();
     const credentials = await options.browser.findCredentials();
     const destination =
       options.client === "codex"
-        ? `${options.home ?? homedir()}/.codex/config.toml`
-        : "Claude user MCP settings";
+        ? `${home}/.codex/config.toml`
+        : `${home}/.claude.json`;
 
-    console.log(formatSetupSummary(options.client, destination, credentials));
+    console.log(
+      formatSetupSummary(options.client, destination, credentials, endpoint),
+    );
     const confirmation = await options.prompter.ask(
       "Write this local configuration now? [y/N] ",
     );
@@ -207,12 +276,21 @@ export async function runSetup(options: {
     }
 
     if (options.client === "codex") {
-      await writeCodexConfig(endpoint, credentials, options.home);
+      await writeCodexConfig(endpoint, credentials, home);
     } else {
-      await writeClaudeConfig(endpoint, credentials);
+      await writeClaudeConfig(endpoint, credentials, home);
     }
 
-    console.log(`Goodreads is connected to ${options.client}.`);
+    if (endpointAcceptsClientRssKey(endpoint)) {
+      console.log(`Goodreads is connected to ${options.client}.`);
+    } else {
+      console.log(
+        `The hosted Goodreads endpoint is saved for ${options.client}.`,
+      );
+      console.log(
+        "Sign in when the client connects, and enter the RSS key on the connect page. It is not stored in this client config.",
+      );
+    }
     console.log(
       "Quit and reopen your AI client before trying your first question.",
     );

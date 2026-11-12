@@ -2,6 +2,7 @@ export * from "./abuse.js";
 export * from "./auth.js";
 export * from "./cron-auth.js";
 export * from "./config.js";
+export * from "./oauth-guard.js";
 export * from "./crypto.js";
 export * from "./csv.js";
 export * from "./db.js";
