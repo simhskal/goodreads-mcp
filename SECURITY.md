@@ -21,6 +21,13 @@ variables.
 The hosted path uses Goodreads RSS, user-provided CSV exports, and Open Library.
 It intentionally does not scrape Goodreads or call private Goodreads APIs.
 
+The shared deployment at `goodreads-mcp-chi.vercel.app` does not accept
+Goodreads credentials on `/mcp`. That path responds with HTTP 410 and points
+clients to `/oauth/mcp`. RSS keys for that host belong in the OAuth connect
+flow. Self-hosted single-user deployments can still use header-based `/mcp`;
+the server removes `X-Goodreads-RSS-Key` from the request before the MCP
+handler logs anything.
+
 Outbound RSS and Open Library requests time out, limit the response body, and
 follow redirects only when the next URL stays on `goodreads.com` or
 `openlibrary.org` respectively. Tool and connect errors returned to clients

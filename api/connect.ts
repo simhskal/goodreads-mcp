@@ -3,7 +3,6 @@ import {
   safeClientMessage,
 } from "../packages/core/src/errors.js";
 import {
-  auth,
   cleanRssKey,
   encryptCredential,
   escapeHtml,
@@ -12,13 +11,18 @@ import {
   jsonForScript,
   LibraryRepository,
   oauthQuery,
+  openAuth,
   parseGoodreadsCsv,
   parseGoodreadsIdentity,
 } from "../packages/server-vercel/src/index.js";
 
 export async function GET(request: Request): Promise<Response> {
+  const ready = openAuth();
+  if (!ready.ok) return ready.response;
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await ready.auth.api.getSession({
+      headers: request.headers,
+    });
     if (!session) return new Response("Unauthorized", { status: 401 });
     return connectPage(oauthQuery(request));
   } catch (error) {
@@ -28,8 +32,12 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const ready = openAuth();
+  if (!ready.ok) return ready.response;
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await ready.auth.api.getSession({
+      headers: request.headers,
+    });
     if (!session)
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     const form = await request.formData();

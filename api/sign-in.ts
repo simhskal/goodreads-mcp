@@ -5,10 +5,13 @@ import {
   jsonForScript,
   oauthQuery,
 } from "../packages/server-vercel/src/html.js";
+import { oauthUnavailableResponse } from "../packages/server-vercel/src/oauth-guard.js";
 
 export function GET(request: Request): Response {
   try {
     const query = oauthQuery(request);
+    const unavailable = oauthUnavailableResponse();
+    if (unavailable) return unavailable;
     return htmlPage(
       "Connecting Goodreads MCP",
       `<h1>Connecting Goodreads</h1><p id="status">Creating a private connection for your library…</p><p class="note">No Goodreads password or session cookie is requested.</p>`,

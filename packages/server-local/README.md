@@ -45,10 +45,11 @@ npx -y @organized-chaos/goodreads-mcp setup --client codex
 ```
 
 The helper opens a temporary browser window and finds your Goodreads profile
-ID and RSS connection locally. Sign in directly on Goodreads; the helper never
-reads or stores your Goodreads password or browser session cookies. It asks
-before changing your local AI client configuration. Claude Code is updated in
-`~/.claude.json` without putting the RSS key on the Claude process command
+ID locally. For the hosted endpoint it saves the OAuth URL and does not write
+your RSS key into the client config. Sign in directly on Goodreads; the helper
+never reads or stores your Goodreads password or browser session cookies. It
+asks before changing your local AI client configuration. Claude Code is updated
+in `~/.claude.json` without putting the RSS key on the Claude process command
 line. Codex is updated in `~/.codex/config.toml`.
 
 ## First prompts
