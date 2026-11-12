@@ -1,6 +1,5 @@
 import { next } from "@vercel/functions";
 import {
-  ABUSE_MATCHER,
   abuseCheckValue,
   abuseHandoffSecret,
   abuseSurface,
@@ -8,9 +7,21 @@ import {
   openAbuseStore,
 } from "./packages/server-vercel/src/abuse.js";
 
+// Vercel's static config parser rejects array spreads in this export.
 export const config = {
   runtime: "nodejs",
-  matcher: [...ABUSE_MATCHER],
+  matcher: [
+    "/mcp",
+    "/mcp/:path*",
+    "/api/server",
+    "/oauth/mcp",
+    "/oauth/mcp/:path*",
+    "/api/oauth-mcp",
+    "/connect",
+    "/api/connect",
+    "/api/auth",
+    "/api/auth/:path*",
+  ],
 };
 
 export default async function middleware(request: Request): Promise<Response> {

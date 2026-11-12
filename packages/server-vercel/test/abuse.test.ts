@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import middleware from "../../../middleware.js";
+import middleware, { config as middlewareConfig } from "../../../middleware.js";
 import {
   ABUSE_MATCHER,
   MemoryRateLimitStore,
@@ -61,6 +61,7 @@ describe("abuse limits", () => {
         "/connect",
       ]),
     );
+    expect(middlewareConfig.matcher).toEqual([...ABUSE_MATCHER]);
   });
 
   it("prefers the Vercel client IP and ignores credential secrets", async () => {
