@@ -37,7 +37,7 @@ const serverJson = JSON.parse(
 
 describe("MCP registry metadata", () => {
   it("matches the published npm package and hosted endpoint", () => {
-    expect(packageJson.mcpName).toBe("io.github.simhskal/goodreads-mcp");
+    expect(packageJson.mcpName).toBe("io.github.chaosorganized/goodreads-mcp");
     expect(serverJson.name).toBe(packageJson.mcpName);
     expect(serverJson.$schema).toBe(
       "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",

@@ -19,7 +19,7 @@ exports; fixtures must use invented data.
 ## List the server in directories
 
 `server.json` at the repository root is the official MCP Registry entry. Its
-`name`, `io.github.simhskal/goodreads-mcp`, must match `mcpName` in
+`name`, `io.github.chaosorganized/goodreads-mcp`, must match `mcpName` in
 `packages/server-local/package.json`. The registry reads that field from the
 public npm tarball, so the field has to be in a published version. Schema:
 [server.schema.json (2025-12-11)](https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json).
@@ -32,16 +32,16 @@ Publishing steps:
    `@organized-chaos/goodreads-mcp` with `mcpName`. In that same PR, set
    `version` and `packages[0].version` in `server.json` to the new package
    version. `pnpm check` fails when they differ.
-2. Install `mcp-publisher` and sign in as the GitHub user `simhskal`:
-   `mcp-publisher login github`. GitHub login can publish only the
-   `io.github.simhskal/*` namespace
+2. Install `mcp-publisher` and sign in with a GitHub account that belongs to
+   the `chaosorganized` organization: `mcp-publisher login github`. That login
+   can publish the `io.github.chaosorganized/*` namespace
    ([authentication](https://modelcontextprotocol.io/registry/authentication)).
 3. From the repository root, after that npm version is live, run
    `mcp-publisher publish`.
 4. Confirm the listing:
 
    ```sh
-   curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.simhskal/goodreads-mcp"
+   curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.chaosorganized/goodreads-mcp"
    ```
 
 The npm package is the local stdio server (`npx -y @organized-chaos/goodreads-mcp`).

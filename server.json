@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.simhskal/goodreads-mcp",
+  "name": "io.github.chaosorganized/goodreads-mcp",
   "title": "Goodreads MCP",
   "description": "Read your Goodreads shelves in Claude, Codex, and other MCP clients.",
   "websiteUrl": "https://goodreads-mcp-chi.vercel.app",
