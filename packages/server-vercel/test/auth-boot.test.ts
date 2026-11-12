@@ -46,6 +46,7 @@ describe("OAuth module boot", () => {
       expect(await response.json()).toMatchObject({
         error: "oauth_unavailable",
       });
+      expect(metadata.OPTIONS().status).toBe(204);
     } finally {
       error.mockRestore();
     }
