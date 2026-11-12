@@ -3,8 +3,12 @@ import { GoodreadsRssLibraryService } from "../packages/core/src/index.js";
 import { redactRssKeyHeader } from "../packages/server-local/src/headers.js";
 import { sharedDeploymentMcpResponse } from "../packages/server-local/src/hosted.js";
 import { registerTools } from "../packages/server-local/src/server.js";
+import { guardAbuse } from "../packages/server-vercel/src/abuse.js";
 
-const route = (request: Request) => {
+const route = async (request: Request) => {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
+
   const deprecated = sharedDeploymentMcpResponse();
   if (deprecated) return deprecated;
 

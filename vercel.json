@@ -8,8 +8,17 @@
     },
     "api/oauth-mcp.ts": {
       "maxDuration": 60
+    },
+    "api/cron/purge-unused.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/purge-unused",
+      "schedule": "0 4 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -115,12 +124,30 @@
     }
   ],
   "rewrites": [
-    { "source": "/mcp", "destination": "/api/server" },
-    { "source": "/health", "destination": "/api/health" },
-    { "source": "/oauth/mcp", "destination": "/api/oauth-mcp" },
-    { "source": "/sign-in", "destination": "/api/sign-in" },
-    { "source": "/connect", "destination": "/api/connect" },
-    { "source": "/consent", "destination": "/api/consent" },
+    {
+      "source": "/mcp",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/oauth/mcp",
+      "destination": "/api/oauth-mcp"
+    },
+    {
+      "source": "/sign-in",
+      "destination": "/api/sign-in"
+    },
+    {
+      "source": "/connect",
+      "destination": "/api/connect"
+    },
+    {
+      "source": "/consent",
+      "destination": "/api/consent"
+    },
     {
       "source": "/.well-known/oauth-protected-resource",
       "destination": "/api/oauth-protected-resource"

@@ -6,6 +6,7 @@ export interface Database {
     text: string,
     values?: unknown[],
   ): Promise<{ rows: Row[] }>;
+  transaction?<T>(fn: (db: Database) => Promise<T>): Promise<T>;
 }
 
 const BOOK_COLUMNS = 13;
@@ -248,15 +249,124 @@ export class LibraryRepository {
   }
 
   async deleteUser(authUserId: string): Promise<void> {
-    await this.db.query(
-      "DELETE FROM goodreads_profiles WHERE auth_user_id = $1",
-      [authUserId],
-    );
-    await this.db.query(
-      "DELETE FROM goodreads_rss_cache WHERE cache_key LIKE $1",
-      [`rss:${escapeLike(authUserId)}:%`],
-    );
+    await this.transaction(async (db) => {
+      await deleteAuthGraph(db, [authUserId]);
+      await db.query("DELETE FROM goodreads_profiles WHERE auth_user_id = $1", [
+        authUserId,
+      ]);
+      await db.query(
+        "DELETE FROM goodreads_rss_cache WHERE cache_key LIKE $1",
+        [`rss:${escapeLike(authUserId)}:%`],
+      );
+      await db.query(`DELETE FROM "user" WHERE id = $1`, [authUserId]);
+    });
   }
+
+  async purgeUnusedAnonymousUsers(cutoff: Date): Promise<number> {
+    return this.transaction(async (db) => {
+      const doomed = await db.query<{ id: string }>(
+        `SELECT u.id FROM "user" u
+         WHERE u."isAnonymous" IS TRUE
+           AND u."createdAt" < $1
+           AND NOT EXISTS (
+             SELECT 1 FROM goodreads_profiles p WHERE p.auth_user_id = u.id
+           )`,
+        [cutoff],
+      );
+      const ids = doomed.rows.map((row) => row.id);
+      if (!ids.length) return 0;
+      await deleteAuthGraph(db, ids);
+      await db.query(
+        `DELETE FROM goodreads_rss_cache WHERE cache_key LIKE ANY($1::text[])`,
+        [ids.map((id) => `rss:${escapeLike(id)}:%`)],
+      );
+      const deleted = await db.query(
+        `DELETE FROM "user" WHERE id = ANY($1::text[]) RETURNING id`,
+        [ids],
+      );
+      return deleted.rows.length;
+    });
+  }
+
+  async purgeUnusedOauthClients(cutoff: Date): Promise<number> {
+    const deleted = await this.db.query(
+      `DELETE FROM "oauthClient" AS client
+       WHERE client."userId" IS NULL
+         AND (client."createdAt" IS NULL OR client."createdAt" < $1)
+         AND NOT EXISTS (
+           SELECT 1 FROM "oauthAccessToken" AS token
+           WHERE token."clientId" = client."clientId"
+         )
+         AND NOT EXISTS (
+           SELECT 1 FROM "oauthRefreshToken" AS token
+           WHERE token."clientId" = client."clientId"
+         )
+         AND NOT EXISTS (
+           SELECT 1 FROM "oauthConsent" AS consent
+           WHERE consent."clientId" = client."clientId"
+         )
+       RETURNING client.id`,
+      [cutoff],
+    );
+    return deleted.rows.length;
+  }
+
+  async purgeExpiredRateLimits(cutoff: Date): Promise<number> {
+    const deleted = await this.db.query(
+      "DELETE FROM abuse_rate_limits WHERE reset_at < $1 RETURNING bucket",
+      [cutoff],
+    );
+    return deleted.rows.length;
+  }
+
+  private async transaction<T>(fn: (db: Database) => Promise<T>): Promise<T> {
+    if (!this.db.transaction) return fn(this.db);
+    return this.db.transaction(fn);
+  }
+}
+
+async function deleteAuthGraph(db: Database, ids: string[]): Promise<void> {
+  await db.query(
+    `DELETE FROM "oauthAccessToken"
+     WHERE "userId" = ANY($1::text[])
+        OR "referenceId" = ANY($1::text[])
+        OR "sessionId" IN (
+          SELECT id FROM "session" WHERE "userId" = ANY($1::text[])
+        )
+        OR "refreshId" IN (
+          SELECT id FROM "oauthRefreshToken"
+          WHERE "userId" = ANY($1::text[])
+             OR "referenceId" = ANY($1::text[])
+             OR "sessionId" IN (
+               SELECT id FROM "session" WHERE "userId" = ANY($1::text[])
+             )
+        )`,
+    [ids],
+  );
+  await db.query(
+    `DELETE FROM "oauthRefreshToken"
+     WHERE "userId" = ANY($1::text[])
+        OR "referenceId" = ANY($1::text[])
+        OR "sessionId" IN (
+          SELECT id FROM "session" WHERE "userId" = ANY($1::text[])
+        )`,
+    [ids],
+  );
+  await db.query(
+    `DELETE FROM "oauthConsent"
+     WHERE "userId" = ANY($1::text[]) OR "referenceId" = ANY($1::text[])`,
+    [ids],
+  );
+  await db.query(
+    `UPDATE "oauthClient" SET "userId" = NULL WHERE "userId" = ANY($1::text[])`,
+    [ids],
+  );
+  await db.query(`DELETE FROM "session" WHERE "userId" = ANY($1::text[])`, [
+    ids,
+  ]);
+  await db.query(`DELETE FROM "account" WHERE "userId" = ANY($1::text[])`, [
+    ids,
+  ]);
 }
 
 function bookValues(authUserId: string, book: StoredBook): unknown[] {

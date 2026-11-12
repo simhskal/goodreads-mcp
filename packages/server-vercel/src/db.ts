@@ -1,6 +1,7 @@
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { Kysely, PostgresDialect } from "kysely";
 import ws from "ws";
+import type { Database } from "./repository.js";
 
 let pool: Pool | undefined;
 let database: Kysely<Record<string, never>> | undefined;
@@ -18,6 +19,29 @@ export function getPool(): Pool {
     pool = new Pool({ connectionString, max: 5 });
   }
   return pool;
+}
+
+export function getDatabase(): Database {
+  const pool = getPool();
+  return {
+    query: (text, values) => pool.query(text, values),
+    async transaction(fn) {
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        const result = await fn({
+          query: (text, values) => client.query(text, values),
+        });
+        await client.query("COMMIT");
+        return result;
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+  };
 }
 
 export function getAuthDatabase(): Kysely<Record<string, never>> {

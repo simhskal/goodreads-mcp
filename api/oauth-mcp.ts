@@ -7,7 +7,8 @@ import {
 } from "../packages/server-local/src/result.js";
 import { registerTools } from "../packages/server-local/src/server.js";
 import {
-  getPool,
+  getDatabase,
+  guardAbuse,
   LibraryRepository,
   mcpResource,
   openAuth,
@@ -30,7 +31,7 @@ function mcpRoute(auth: GoodreadsAuth) {
         );
 
       const library = new StoredLibraryService(
-        new LibraryRepository(getPool()),
+        new LibraryRepository(getDatabase()),
         authUserId,
       );
       const grantedScopes = new Set(
@@ -50,7 +51,7 @@ function mcpRoute(auth: GoodreadsAuth) {
             {
               title: "Delete stored Goodreads data",
               description:
-                "Permanently delete credentials and imported library data for this connection.",
+                "Permanently delete this account: Goodreads credentials, imported books, the login user, sessions, and OAuth grants.",
               inputSchema: { confirm: z.literal("DELETE") },
             },
             async () => {
@@ -84,7 +85,9 @@ function mcpRoute(auth: GoodreadsAuth) {
   return route;
 }
 
-export function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
+  const limited = await guardAbuse(request);
+  if (limited) return limited;
   const ready = openAuth();
   if (!ready.ok) return ready.response;
   return mcpRoute(ready.auth)(request);
