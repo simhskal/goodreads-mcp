@@ -7,34 +7,59 @@ import {
   stableBookId,
 } from "./util.js";
 
+export const MAX_CSV_DATA_ROWS = 50_000;
+export const MAX_CSV_FIELD_LENGTH = 100_000;
+export const MAX_CSV_COLUMNS = 64;
+
 function rows(input: string): string[][] {
   const result: string[][] = [];
   let row: string[] = [];
   let field = "";
   let quoted = false;
+
+  const append = (char: string) => {
+    if (field.length >= MAX_CSV_FIELD_LENGTH) {
+      throw new Error("A CSV field exceeds the length limit.");
+    }
+    field += char;
+  };
+  const finishField = () => {
+    if (row.length >= MAX_CSV_COLUMNS) {
+      throw new Error("A CSV row has too many columns.");
+    }
+    row.push(field);
+    field = "";
+  };
+  const finishRow = () => {
+    finishField();
+    const completed = row;
+    row = [];
+    if (completed.every((value) => value === "")) return;
+    if (result.length > MAX_CSV_DATA_ROWS) {
+      throw new Error("CSV exports are limited to 50000 books.");
+    }
+    result.push(completed);
+  };
+
   for (let index = 0; index < input.length; index++) {
     const char = input[index]!;
     if (quoted) {
       if (char === '"' && input[index + 1] === '"') {
-        field += '"';
+        append('"');
         index++;
       } else if (char === '"') quoted = false;
-      else field += char;
+      else append(char);
     } else if (char === '"') quoted = true;
-    else if (char === ",") {
-      row.push(field);
-      field = "";
-    } else if (char === "\n") {
-      row.push(field.replace(/\r$/, ""));
-      result.push(row);
-      row = [];
-      field = "";
-    } else field += char;
+    else if (char === ",") finishField();
+    else if (char === "\n") {
+      if (field.endsWith("\r")) field = field.slice(0, -1);
+      finishRow();
+    } else append(char);
   }
   if (quoted) throw new Error("Invalid CSV: unterminated quoted field");
   if (field || row.length) {
-    row.push(field.replace(/\r$/, ""));
-    result.push(row);
+    if (field.endsWith("\r")) field = field.slice(0, -1);
+    finishRow();
   }
   return result;
 }

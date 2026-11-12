@@ -11,6 +11,24 @@ Goodreads APIs.
 
 Project website: [goodreads-mcp-chi.vercel.app](https://goodreads-mcp-chi.vercel.app/)
 
+## Hosted server
+
+To connect without a local install, add the hosted endpoint and sign in. Paste
+your Goodreads profile URL on the connect page.
+
+```sh
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
+claude mcp login goodreads
+```
+
+```sh
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/oauth/mcp
+codex mcp login goodreads
+```
+
+The sections below are the local server, which keeps Goodreads connection
+details on your machine.
+
 ## Requirements
 
 - Node.js 20 or newer
@@ -30,7 +48,9 @@ The helper opens a temporary browser window and finds your Goodreads profile
 ID locally. For the hosted endpoint it saves the OAuth URL and does not write
 your RSS key into the client config. Sign in directly on Goodreads; the helper
 never reads or stores your Goodreads password or browser session cookies. It
-asks before changing your local AI client configuration.
+asks before changing your local AI client configuration. Claude Code is updated
+in `~/.claude.json` without putting the RSS key on the Claude process command
+line. Codex is updated in `~/.codex/config.toml`.
 
 ## First prompts
 

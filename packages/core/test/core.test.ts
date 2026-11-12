@@ -5,6 +5,8 @@ import {
   fetchOpenLibraryBook,
   getCurrentlyReading,
   getReadingList,
+  MAX_CSV_DATA_ROWS,
+  MAX_CSV_FIELD_LENGTH,
   parseGoodreadsCsv,
   parseGoodreadsRss,
   readingBrief,
@@ -62,6 +64,27 @@ describe("Goodreads inputs", () => {
       pages: 320,
     });
     expect(books[1]?.shelf).toBe("currently-reading");
+  });
+
+  it("rejects oversized CSV rows, fields, and column counts", () => {
+    const header = "Title,Author\n";
+    expect(() =>
+      parseGoodreadsCsv(header + "A,B\n".repeat(MAX_CSV_DATA_ROWS + 1)),
+    ).toThrow("50000");
+    expect(() =>
+      parseGoodreadsCsv(`${header}${"a".repeat(MAX_CSV_FIELD_LENGTH + 1)},B`),
+    ).toThrow("length limit");
+    expect(() => parseGoodreadsCsv(`${"x,".repeat(64)}x`)).toThrow("columns");
+  });
+
+  it("rejects Goodreads redirects that leave goodreads.com", async () => {
+    const fetcher = vi.fn(async () =>
+      Response.redirect("https://evil.example/rss", 302),
+    );
+    await expect(
+      fetchGoodreadsRss({ userId: "123", shelf: "read", fetch: fetcher }),
+    ).rejects.toThrow("Redirect target is not allowed.");
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
 

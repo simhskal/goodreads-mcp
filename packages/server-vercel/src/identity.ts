@@ -1,12 +1,14 @@
 const PROFILE =
-  /^https?:\/\/(?:www\.)?goodreads\.com\/user\/show\/(\d+)(?:[/-].*)?$/i;
+  /^https?:\/\/(?:www\.)?goodreads\.com\/user\/show\/(\d{1,20})(?:[/-].*)?$/i;
 
 export function parseGoodreadsIdentity(value: string): {
   userId: string;
   profileUrl: string;
 } {
   const trimmed = value.trim();
-  const userId = /^\d+$/.test(trimmed) ? trimmed : PROFILE.exec(trimmed)?.[1];
+  const userId = /^\d{1,20}$/.test(trimmed)
+    ? trimmed
+    : PROFILE.exec(trimmed)?.[1];
   if (!userId) {
     throw new Error(
       "Enter a Goodreads user ID or a goodreads.com/user/show profile URL.",

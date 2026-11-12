@@ -1,4 +1,8 @@
 import {
+  logInternalError,
+  safeClientMessage,
+} from "../packages/core/src/errors.js";
+import {
   cleanRssKey,
   encryptCredential,
   escapeHtml,
@@ -15,27 +19,27 @@ import {
 export async function GET(request: Request): Promise<Response> {
   const ready = openAuth();
   if (!ready.ok) return ready.response;
-  const session = await ready.auth.api.getSession({ headers: request.headers });
-  if (!session) return new Response("Unauthorized", { status: 401 });
   try {
-    const query = oauthQuery(request);
-    return connectPage(query);
+    const session = await ready.auth.api.getSession({
+      headers: request.headers,
+    });
+    if (!session) return new Response("Unauthorized", { status: 401 });
+    return connectPage(oauthQuery(request));
   } catch (error) {
-    return connectPage(
-      "",
-      error instanceof Error ? error.message : "Invalid request.",
-      400,
-    );
+    const failure = connectFailure(error);
+    return connectPage("", failure.message, failure.status);
   }
 }
 
 export async function POST(request: Request): Promise<Response> {
   const ready = openAuth();
   if (!ready.ok) return ready.response;
-  const session = await ready.auth.api.getSession({ headers: request.headers });
-  if (!session)
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
+    const session = await ready.auth.api.getSession({
+      headers: request.headers,
+    });
+    if (!session)
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     const form = await request.formData();
     const identity = parseGoodreadsIdentity(String(form.get("profile") ?? ""));
     const rssKey = cleanRssKey(String(form.get("rss_key") ?? ""));
@@ -57,16 +61,19 @@ export async function POST(request: Request): Promise<Response> {
     }
     return Response.json({ connected: true });
   } catch (error) {
+    const failure = connectFailure(error);
     return Response.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Could not connect Goodreads.",
-      },
-      { status: 400 },
+      { error: failure.message },
+      { status: failure.status },
     );
   }
+}
+
+function connectFailure(error: unknown): { message: string; status: number } {
+  const safe = safeClientMessage(error);
+  if (safe) return { message: safe, status: 400 };
+  logInternalError(error);
+  return { message: "Could not connect Goodreads.", status: 500 };
 }
 
 function connectPage(query: string, error?: string, status = 200): Response {

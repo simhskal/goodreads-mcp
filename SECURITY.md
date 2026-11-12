@@ -28,6 +28,15 @@ flow. Self-hosted single-user deployments can still use header-based `/mcp`;
 the server removes `X-Goodreads-RSS-Key` from the request before the MCP
 handler logs anything.
 
+Outbound RSS and Open Library requests time out, limit the response body, and
+follow redirects only when the next URL stays on `goodreads.com` or
+`openlibrary.org` respectively. Tool and connect errors returned to clients
+use stable public messages. Internal failures, including missing configuration,
+are logged on the server with RSS key query parameters redacted.
+
+Shelf names, search text, Goodreads user IDs, CSV row counts, and CSV field
+lengths are bounded. Imported books are written in batches.
+
 ## Deleting hosted data
 
 Use the authenticated `delete_account` MCP tool, then revoke the connection in

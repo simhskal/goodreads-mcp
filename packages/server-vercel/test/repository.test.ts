@@ -2,7 +2,11 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
-import { LibraryRepository, type Database } from "../src/repository.js";
+import {
+  goodreadsBookInsertSql,
+  LibraryRepository,
+  type Database,
+} from "../src/repository.js";
 
 let pool: PGlite;
 let repository: LibraryRepository;
@@ -17,6 +21,19 @@ beforeEach(async () => {
     await pool.exec(migration);
   }
   repository = new LibraryRepository(pool as unknown as Database);
+});
+
+describe("book import SQL", () => {
+  it("builds one batched upsert", () => {
+    const sql = goodreadsBookInsertSql(2);
+    expect(sql.match(/INSERT INTO goodreads_books/g)).toHaveLength(1);
+    expect(sql).toContain("($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)");
+    expect(sql).toContain(
+      "($14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)",
+    );
+    expect(sql.match(/ON CONFLICT/g)).toHaveLength(1);
+    expect(() => goodreadsBookInsertSql(101)).toThrow();
+  });
 });
 
 describe("Postgres library repository", () => {
@@ -57,6 +74,27 @@ describe("Postgres library repository", () => {
     await expect(repository.list("auth-1", "read", 10)).resolves.toEqual([
       expect.objectContaining({ title: "Updated title", rating: 5 }),
     ]);
+  });
+
+  it("upserts duplicate books in one batch and continues across batches", async () => {
+    await repository.saveProfile(
+      "auth-1",
+      "42",
+      "https://www.goodreads.com/user/show/42",
+    );
+    const books = Array.from({ length: 101 }, (_, index) => ({
+      goodreadsId: String(index === 100 ? 0 : index),
+      title: `Title ${index}`,
+      author: "Ada",
+      shelf: "read",
+      source: "csv" as const,
+    }));
+    await repository.importBooks("auth-1", books);
+    const stored = await repository.list("auth-1", "read", 200);
+    expect(stored).toHaveLength(100);
+    expect(stored).toEqual(
+      expect.arrayContaining([expect.objectContaining({ title: "Title 100" })]),
+    );
   });
 
   it("isolates accounts and cascades deletion", async () => {

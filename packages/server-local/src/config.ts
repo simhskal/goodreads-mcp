@@ -21,6 +21,14 @@ export function readConfig(
     );
   }
 
+  if (userId.length > 20) {
+    throw new Error("GOODREADS_USER_ID must be at most 20 digits.");
+  }
+
+  if (rssKey && rssKey.length > 256) {
+    throw new Error("GOODREADS_RSS_KEY must be at most 256 characters.");
+  }
+
   return {
     userId,
     ...(rssKey ? { rssKey } : {}),

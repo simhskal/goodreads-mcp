@@ -21,6 +21,37 @@ const limit = z
   .default(20)
   .describe("Maximum number of books to return (1–100)");
 
+export const shelfInput = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]+$/)
+  .describe("Shelf slug, such as read, currently-reading, or to-read");
+
+export const searchQueryInput = z
+  .string()
+  .trim()
+  .min(1)
+  .max(200)
+  .describe("Text to search for");
+
+const isbnInput = z
+  .string()
+  .trim()
+  .min(1)
+  .max(32)
+  .optional()
+  .describe("ISBN-10 or ISBN-13");
+
+const titleInput = z
+  .string()
+  .trim()
+  .min(1)
+  .max(500)
+  .optional()
+  .describe("Exact book title");
+
 function tool(handler: () => Promise<unknown>) {
   return async () => {
     try {
@@ -52,11 +83,7 @@ export function registerTools<T extends Pick<McpServer, "registerTool">>(
       description:
         "Get books from a Goodreads shelf, including author, ISBN, ratings, and reading dates.",
       inputSchema: {
-        shelf: z
-          .string()
-          .trim()
-          .min(1)
-          .describe("Shelf slug, such as read, currently-reading, or to-read"),
+        shelf: shelfInput,
         limit,
       },
     },
@@ -160,7 +187,7 @@ export function registerTools<T extends Pick<McpServer, "registerTool">>(
       description:
         "Search the user's RSS-visible Goodreads books by title, author, ISBN, or shelf.",
       inputSchema: {
-        query: z.string().trim().min(1).describe("Text to search for"),
+        query: searchQueryInput,
         limit,
       },
     },
@@ -180,13 +207,8 @@ export function registerTools<T extends Pick<McpServer, "registerTool">>(
       description:
         "Find a book in the user's library by ISBN or exact title and enrich ISBN lookups with Open Library metadata.",
       inputSchema: {
-        isbn: z
-          .string()
-          .trim()
-          .min(1)
-          .optional()
-          .describe("ISBN-10 or ISBN-13"),
-        title: z.string().trim().min(1).optional().describe("Exact book title"),
+        isbn: isbnInput,
+        title: titleInput,
       },
     },
     async ({ isbn, title }) => {

@@ -1,15 +1,53 @@
 # Goodreads MCP
 
-Turn your Goodreads shelves and reading history into private context for Claude
-Code, Codex, and other Model Context Protocol clients—without sharing a
-Goodreads password. Ask what to read next, find the books that stayed with you,
-or create a Markdown-ready reading brief you can share.
+Ask what to read next from your own Goodreads shelves and ratings. Your
+Goodreads password stays on Goodreads. The server reads RSS feeds and CSV
+exports you choose to share.
 
-Goodreads MCP reads supported Goodreads RSS feeds and optional Goodreads CSV
-exports. The local server runs entirely on your machine. The shared Vercel
-deployment authenticates clients with OAuth and stores an encrypted RSS key
-per account. A self-hosted single-user deployment can still receive a
-Goodreads user ID and optional RSS key from client headers on that host.
+**Clients:** Claude, Claude Code, Cursor, Codex, and any other MCP client.
+
+**Try this:** “Which books did I rate five stars, and what should I read next?”
+
+## Install
+
+The hosted server takes about a minute. Add it, sign in, and paste your
+Goodreads profile URL (the address containing `/user/show/` and your numeric
+id). Add the shelf RSS key only when your shelves are private. The key is
+entered on the connect page and encrypted before storage. It is not sent as a
+request header.
+
+Hosted endpoint:
+[`https://goodreads-mcp-chi.vercel.app/oauth/mcp`](https://goodreads-mcp-chi.vercel.app/oauth/mcp)
+
+`/mcp` on this shared host is disabled and responds with HTTP 410. A health
+check that does not open a database connection is at
+[`/health`](https://goodreads-mcp-chi.vercel.app/health).
+
+### Claude
+
+[Add Goodreads to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Goodreads&connectorUrl=https%3A%2F%2Fgoodreads-mcp-chi.vercel.app%2Foauth%2Fmcp)
+
+### Claude Code
+
+```sh
+claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
+claude mcp login goodreads
+```
+
+### Cursor
+
+[Add Goodreads to Cursor](https://cursor.com/install-mcp?name=goodreads&config=eyJ1cmwiOiJodHRwczovL2dvb2RyZWFkcy1tY3AtY2hpLnZlcmNlbC5hcHAvb2F1dGgvbWNwIn0%3D)
+
+### Codex
+
+```sh
+codex mcp add goodreads --url https://goodreads-mcp-chi.vercel.app/oauth/mcp
+codex mcp login goodreads
+```
+
+To keep the library on your machine, run
+`npx -y @organized-chaos/goodreads-mcp` instead. Configuration is in
+[Run locally](#run-locally).
 
 > [!IMPORTANT]
 > Goodreads retired its public API. This project does not scrape Goodreads,
@@ -59,7 +97,10 @@ Goodreads yourself in that window, then press Enter in the terminal. It finds
 your profile ID and RSS link locally, asks before changing your AI client's
 configuration, and reports only whether each value was found. It never asks
 for, reads, or stores your Goodreads password or session cookies. The browser
-session is closed when setup finishes.
+session is closed when setup finishes. Claude Code's user-scoped server is
+written to `~/.claude.json`. The RSS key is stored in that file and is not
+passed on a process command line. Codex configuration is written to
+`~/.codex/config.toml`. Both files are readable only by your user account.
 
 The helper configures the hosted OAuth endpoint at
 `https://goodreads-mcp-chi.vercel.app/oauth/mcp`. It does not write an RSS key
@@ -123,7 +164,7 @@ claude mcp add goodreads \
 # ~/.codex/config.toml
 [mcp_servers.goodreads]
 command = "npx"
-args = ["-y", "goodreads-mcp"]
+args = ["-y", "@organized-chaos/goodreads-mcp"]
 
 [mcp_servers.goodreads.env]
 GOODREADS_USER_ID = "12345678"
@@ -145,19 +186,10 @@ into client config and is not sent as a request header. The OAuth provider
 supports dynamic client registration, PKCE, refresh tokens, and
 protected-resource metadata.
 
-`/mcp` on this shared host is disabled. Requests receive HTTP 410 and the
-OAuth URL above. A health check that does not open a database connection is
-at [`/health`](https://goodreads-mcp-chi.vercel.app/health). It returns 503,
-with the missing variable names, until OAuth is configured.
+`/health` returns 503, with the missing variable names, until OAuth is
+configured. It does not connect to Postgres.
 
-### Claude
-
-[Add Goodreads to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Goodreads&connectorUrl=https%3A%2F%2Fgoodreads-mcp-chi.vercel.app%2Foauth%2Fmcp)
-
-That link opens Claude's custom connector dialog with the OAuth endpoint
-filled in. Confirm the URL, then sign in.
-
-Claude Code:
+### Claude Code
 
 ```sh
 claude mcp add --transport http goodreads https://goodreads-mcp-chi.vercel.app/oauth/mcp
@@ -242,7 +274,7 @@ Workspace layout:
 
 ```text
 packages/core           RSS, CSV, library queries, stats, Open Library
-packages/server-local   stdio MCP server published as goodreads-mcp
+packages/server-local   stdio MCP server published as @organized-chaos/goodreads-mcp
 packages/server-vercel  OAuth, Postgres storage, and hosted library service
 api/server.ts           Stateless Vercel endpoint at /mcp (disabled on the shared host)
 api/oauth-mcp.ts        OAuth Vercel Streamable HTTP endpoint at /oauth/mcp

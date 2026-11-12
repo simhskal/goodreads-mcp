@@ -3,7 +3,12 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
 import { betterAuth, type BetterAuthPlugin } from "better-auth";
 import { anonymous, jwt } from "better-auth/plugins";
-import { authBasePath, mcpResource, publicBaseUrl } from "./config.js";
+import {
+  authBasePath,
+  authSecret,
+  mcpResource,
+  publicBaseUrl,
+} from "./config.js";
 import { getAuthDatabase, getPool } from "./db.js";
 import {
   missingOAuthEnv,
@@ -23,15 +28,13 @@ const scopes = [
 function createAuth() {
   const missing = missingOAuthEnv();
   if (missing.length > 0) throw new Error(oauthConfigMessage(missing));
-  const secret = process.env.BETTER_AUTH_SECRET;
-  if (!secret) throw new Error(oauthConfigMessage(["BETTER_AUTH_SECRET"]));
 
   return betterAuth({
     appName: "Goodreads MCP",
     baseURL: publicBaseUrl(),
     basePath: authBasePath,
     database: getAuthDatabase(),
-    secret,
+    secret: authSecret(),
     plugins: [
       anonymous({ disableDeleteAnonymousUser: true }),
       jwt(),

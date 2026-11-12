@@ -1,4 +1,6 @@
+import { clientFacingMessage } from "../packages/core/src/errors.js";
 import {
+  escapeHtml,
   htmlPage,
   jsonForScript,
   oauthQuery,
@@ -6,10 +8,10 @@ import {
 import { oauthUnavailableResponse } from "../packages/server-vercel/src/oauth-guard.js";
 
 export function GET(request: Request): Response {
-  const unavailable = oauthUnavailableResponse();
-  if (unavailable) return unavailable;
   try {
     const query = oauthQuery(request);
+    const unavailable = oauthUnavailableResponse();
+    if (unavailable) return unavailable;
     return htmlPage(
       "Connecting Goodreads MCP",
       `<h1>Connecting Goodreads</h1><p id="status">Creating a private connection for your library…</p><p class="note">No Goodreads password or session cookie is requested.</p>`,
@@ -20,11 +22,16 @@ export function GET(request: Request): Response {
       const result=await response.json();if(!response.ok||!result.url)throw new Error(result.message||'Could not continue authorization.');location.assign(result.url)}catch(error){status.className='error';status.textContent=error.message}})();`,
     );
   } catch (error) {
-    return htmlPage(
-      "Invalid OAuth request",
-      `<h1>Could not connect</h1><p class="error">${error instanceof Error ? error.message : "Invalid request."}</p>`,
-      "",
-      400,
-    );
+    return signInErrorPage(error);
   }
+}
+
+export function signInErrorPage(error: unknown): Response {
+  const message = clientFacingMessage(error, "Invalid request.");
+  return htmlPage(
+    "Invalid OAuth request",
+    `<h1>Could not connect</h1><p class="error">${escapeHtml(message)}</p>`,
+    "",
+    400,
+  );
 }
