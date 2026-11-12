@@ -16,7 +16,7 @@
     "@organized-chaos/goodreads-mcp-core": "workspace:*",
     "better-auth": "^1.7.18",
     "kysely": "^0.29.8",
-    "ws": "^8.22.1"
+    "ws": "^8.22.2"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.15",
