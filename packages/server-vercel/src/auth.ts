@@ -33,7 +33,16 @@ function createAuth() {
     appName: "Goodreads MCP",
     baseURL: publicBaseUrl(),
     basePath: authBasePath,
-    database: getAuthDatabase(),
+    // A bare Kysely instance is invisible to Better Auth 1.7. Its dialect is
+    // private, so the adapter's driver checks all miss and it throws
+    // "Failed to initialize database adapter" before running a query. Pass
+    // the instance with an explicit Postgres type. Transactions stay on one
+    // pooled client, which Supavisor transaction mode accepts.
+    database: {
+      db: getAuthDatabase(),
+      type: "postgres",
+      transaction: true,
+    },
     secret: authSecret(),
     plugins: [
       anonymous({

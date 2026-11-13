@@ -1,6 +1,7 @@
 import { Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
 import { sanitizeDbMessage, serverlessPoolConfig } from "./postgres-config.js";
+import { postgresTextArrayPlugin } from "./postgres-text-arrays.js";
 import type { Database } from "./repository.js";
 
 const { Pool } = pg;
@@ -61,8 +62,12 @@ export function getDatabase(): Database {
 }
 
 export function getAuthDatabase(): Kysely<Record<string, never>> {
-  database ??= new Kysely({
-    dialect: new PostgresDialect({ pool: getPool() }),
-  });
+  if (!database) {
+    // withPlugin widens Kysely's type parameter to unknown.
+    const kysely = new Kysely<Record<string, never>>({
+      dialect: new PostgresDialect({ pool: getPool() }),
+    }).withPlugin(postgresTextArrayPlugin);
+    database = kysely as Kysely<Record<string, never>>;
+  }
   return database;
 }
