@@ -133,6 +133,10 @@ repo separately through its Git integration.
   `middleware.ts` rate limits
   `/mcp`, `/oauth/mcp`, `/api/auth/*`, and `/connect`. The daily cron in
   `vercel.json` purges unused anonymous users and unused OAuth clients.
+- `api/auth/[...all].ts` only matches one path segment on Vercel.
+  `/api/auth/oauth2/register` and the other nested Better Auth routes depend
+  on the `/api/auth/:authPath*` rewrite in `vercel.json`. The function restores
+  that public path before the abuse check and Better Auth see the request.
 - RSS responses may be cached up to 15 minutes. Stale results during manual
   testing are usually the cache, not a bug.
 

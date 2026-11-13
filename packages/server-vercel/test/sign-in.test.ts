@@ -17,4 +17,33 @@ describe("sign-in errors", () => {
     );
     expect(body).not.toContain("<script>");
   });
+
+  it("posts the signed query with anonymous sign-in", async () => {
+    const previous = {
+      DATABASE_URL: process.env.DATABASE_URL,
+      BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+      BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+      GOODREADS_CREDENTIAL_KEY: process.env.GOODREADS_CREDENTIAL_KEY,
+    };
+    process.env.DATABASE_URL = "postgres://reader:secret@localhost/postgres";
+    process.env.BETTER_AUTH_SECRET = "x".repeat(32);
+    process.env.BETTER_AUTH_URL = "https://books.example.com";
+    process.env.GOODREADS_CREDENTIAL_KEY = "a".repeat(8);
+    try {
+      const page = GET(
+        new Request(
+          "https://books.example.com/sign-in?client_id=client-1&sig=abc",
+        ),
+      );
+      expect(page.status).toBe(200);
+      const html = await page.text();
+      expect(html).toContain("body:JSON.stringify({oauth_query:q})");
+      expect(html).toContain("client_id=client-1&sig=abc");
+    } finally {
+      for (const [name, value] of Object.entries(previous)) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
+    }
+  });
 });
