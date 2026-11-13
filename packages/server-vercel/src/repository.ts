@@ -1,4 +1,4 @@
-import type { QueryResultRow } from "@neondatabase/serverless";
+import type { QueryResultRow } from "pg";
 import type { GoodreadsProfile, StoredBook } from "./types.js";
 
 export interface Database {

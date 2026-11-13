@@ -1,14 +1,14 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
 import { Kysely, PostgresDialect } from "kysely";
-import ws from "ws";
+import pg from "pg";
+import { sanitizeDbMessage, serverlessPoolConfig } from "./postgres-config.js";
 import type { Database } from "./repository.js";
 
-let pool: Pool | undefined;
+const { Pool } = pg;
+
+let pool: pg.Pool | undefined;
 let database: Kysely<Record<string, never>> | undefined;
 
-neonConfig.webSocketConstructor = ws;
-
-export function getPool(): Pool {
+export function getPool(): pg.Pool {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
@@ -16,29 +16,45 @@ export function getPool(): Pool {
         "DATABASE_URL is required. OAuth routes stay unavailable until DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, and GOODREADS_CREDENTIAL_KEY are set.",
       );
     }
-    pool = new Pool({ connectionString, max: 5 });
+    pool = new Pool(serverlessPoolConfig(connectionString));
+    // An idle client error is emitted on the pool and would crash the isolate
+    // if nobody listened. The next query opens a new connection.
+    pool.on("error", (error: Error) => {
+      console.error(
+        `Postgres pool connection error: ${sanitizeDbMessage(error)}`,
+      );
+    });
   }
   return pool;
 }
 
 export function getDatabase(): Database {
-  const pool = getPool();
+  const active = getPool();
   return {
-    query: (text, values) => pool.query(text, values),
+    query: (text, values) =>
+      values === undefined ? active.query(text) : active.query(text, values),
     async transaction(fn) {
-      const client = await pool.connect();
+      const client = await active.connect();
+      let destroy = false;
       try {
         await client.query("BEGIN");
         const result = await fn({
-          query: (text, values) => client.query(text, values),
+          query: (text, values) =>
+            values === undefined
+              ? client.query(text)
+              : client.query(text, values),
         });
         await client.query("COMMIT");
         return result;
       } catch (error) {
-        await client.query("ROLLBACK");
+        try {
+          await client.query("ROLLBACK");
+        } catch {
+          destroy = true;
+        }
         throw error;
       } finally {
-        client.release();
+        client.release(destroy);
       }
     },
   };
@@ -46,9 +62,7 @@ export function getDatabase(): Database {
 
 export function getAuthDatabase(): Kysely<Record<string, never>> {
   database ??= new Kysely({
-    // Neon implements the node-postgres Pool contract at runtime. Its Client
-    // connect overload is intentionally narrower, so Kysely needs this bridge.
-    dialect: new PostgresDialect({ pool: getPool() as never }),
+    dialect: new PostgresDialect({ pool: getPool() }),
   });
   return database;
 }

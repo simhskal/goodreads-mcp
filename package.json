@@ -10,7 +10,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm db:migrate && pnpm -r build",
+    "db:migrate": "pnpm --filter @goodreads-mcp/server-vercel migrate",
     "check": "pnpm format:check && pnpm typecheck && pnpm test",
     "clean": "pnpm -r clean",
     "changeset": "changeset",
