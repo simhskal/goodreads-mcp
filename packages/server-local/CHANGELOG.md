@@ -1,5 +1,15 @@
 # @organized-chaos/goodreads-mcp
 
+## 0.2.1
+
+### Patch Changes
+
+- 241367f: Add `mcpName` so the official MCP Registry can verify the published npm package.
+- 01a3071: Point guided setup at the hosted OAuth endpoint and stop writing RSS keys into client config for that host.
+- 919247f: Harden outbound RSS and Open Library fetches with timeouts, response size caps, and host-restricted redirects. Return stable public errors to MCP clients, bound shelf, search, user ID, and CSV inputs, and write Claude setup config without placing the RSS key on the process command line.
+- Updated dependencies [919247f]
+  - @organized-chaos/goodreads-mcp-core@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
