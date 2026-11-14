@@ -275,6 +275,12 @@ The OAuth endpoint uses Better Auth for DCR, PKCE, refresh tokens, and
 protected-resource metadata. Goodreads RSS keys are encrypted before storage;
 CSV rows and the 15-minute RSS cache live in Postgres.
 
+Vercel’s file route for `api/auth/[...all].ts` matches a single path segment,
+so `/api/auth/jwks` is served directly and `/api/auth/oauth2/register` is not.
+`vercel.json` rewrites `/api/auth/:authPath*` to that function. Leave the
+rewrite in place; without it, dynamic client registration returns Vercel’s
+platform 404 and MCP clients cannot connect.
+
 ### Abuse controls
 
 Routing Middleware (`middleware.ts`) rate limits `/mcp`, `/oauth/mcp`,

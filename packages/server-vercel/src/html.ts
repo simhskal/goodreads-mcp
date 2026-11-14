@@ -43,7 +43,11 @@ export function escapeHtml(value: string): string {
 }
 
 export function oauthQuery(request: Request): string {
-  const value = new URL(request.url).searchParams.get("oauth_query");
+  const url = new URL(request.url);
+  // Older redirects wrapped the signed query in one parameter. Better Auth
+  // now puts that signed query on the page URL itself (`/sign-in?client_id=…&sig=…`).
+  const explicit = url.searchParams.get("oauth_query");
+  const value = explicit || url.search.replace(/^\?/, "");
   if (!value) throw new Error("The OAuth request is missing or expired.");
   return value;
 }

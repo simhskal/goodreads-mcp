@@ -163,6 +163,10 @@
     {
       "source": "/.well-known/oauth-authorization-server/api/auth",
       "destination": "/api/oauth-authorization-server"
+    },
+    {
+      "source": "/api/auth/:authPath*",
+      "destination": "/api/auth/[...all]"
     }
   ]
 }
