@@ -9,8 +9,8 @@ const route = async (request: Request) => {
   const limited = await guardAbuse(request);
   if (limited) return limited;
 
-  const deprecated = sharedDeploymentMcpResponse();
-  if (deprecated) return deprecated;
+  const redirect = sharedDeploymentMcpResponse(request);
+  if (redirect) return redirect;
 
   const { request: sanitized, rssKey } = redactRssKeyHeader(request);
   const handler = createMcpHandler(

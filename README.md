@@ -19,7 +19,8 @@ request header.
 Hosted endpoint:
 [`https://goodreads-mcp-chi.vercel.app/oauth/mcp`](https://goodreads-mcp-chi.vercel.app/oauth/mcp)
 
-`/mcp` on this shared host is disabled and responds with HTTP 410. A health
+`/mcp` on this shared host permanently redirects to `/oauth/mcp` with HTTP
+308, which keeps the request method, body, and query string. A health
 check that does not open a database connection is at
 [`/health`](https://goodreads-mcp-chi.vercel.app/health).
 
@@ -255,11 +256,17 @@ For a manual deployment:
 3. Set `BETTER_AUTH_URL` to the production origin and create three independent
    secrets: `BETTER_AUTH_SECRET`, a base64-encoded 32-byte
    `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`.
-4. Deploy. `pnpm build` runs `pnpm db:migrate` first. That applies every file
-   in `migrations/` in order, each in its own transaction, and records the
-   filename in `schema_migrations`. A later build skips files that are already
-   recorded, including preview builds that point at the same database. When
-   neither `POSTGRES_URL_NON_POOLING` nor `DATABASE_URL` is set, the build logs
+4. Deploy. `pnpm build` runs `pnpm db:migrate` first. Production builds, and
+   local or CI runs where `VERCEL_ENV` is unset, apply every file in
+   `migrations/` in order, each in its own transaction, and record the
+   filename in `schema_migrations`. A later production build skips files that
+   are already recorded. Preview and other non-production Vercel builds
+   (`VERCEL_ENV` set to anything other than `production`) log
+   `Skipping database migrations: VERCEL_ENV is preview, not production. Preview and production share the same database.`
+   and exit 0 without connecting. Preview and Production share the same
+   Supabase database, so only the production build migrates it. When
+   `VERCEL_ENV` is unset and neither `POSTGRES_URL_NON_POOLING` nor
+   `DATABASE_URL` is set, the build logs
    `Skipping database migrations: neither POSTGRES_URL_NON_POOLING nor DATABASE_URL is set.`
    and continues, so CI and forks without a database still build. The log line
    names the variable that was used and does not include the connection string.
@@ -324,9 +331,11 @@ pnpm check
 pnpm build
 ```
 
-`pnpm build` runs `pnpm db:migrate` before the package builds. That command
-applies `migrations/*.sql` when `POSTGRES_URL_NON_POOLING` or `DATABASE_URL`
-is present and logs a skip line when neither is set.
+`pnpm build` runs `pnpm db:migrate` before the package builds. When
+`VERCEL_ENV` is unset, that command applies `migrations/*.sql` if
+`POSTGRES_URL_NON_POOLING` or `DATABASE_URL` is present and logs a skip line
+when neither is set. When `VERCEL_ENV` is set to anything other than
+`production`, it logs a skip line and exits 0 without connecting.
 
 Workspace layout:
 
@@ -334,7 +343,7 @@ Workspace layout:
 packages/core           RSS, CSV, library queries, stats, Open Library
 packages/server-local   stdio MCP server published as @organized-chaos/goodreads-mcp
 packages/server-vercel  OAuth, Postgres storage, and hosted library service
-api/server.ts           Stateless Vercel endpoint at /mcp (disabled on the shared host)
+api/server.ts           Stateless Vercel endpoint at /mcp (308 to /oauth/mcp on the shared host)
 api/oauth-mcp.ts        OAuth Vercel Streamable HTTP endpoint at /oauth/mcp
 api/health.ts           Config health check; does not open a database connection
 ```

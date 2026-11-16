@@ -9,35 +9,41 @@ afterEach(() => {
 });
 
 describe("public /mcp route", () => {
-  it("rejects the shared deployment with a pointer to OAuth", async () => {
+  it("permanently redirects the shared deployment to OAuth and keeps the query", async () => {
     process.env[PRODUCTION_URL] = "goodreads-mcp-chi.vercel.app";
-    const { POST } = await import("../../../api/server.js");
-    const response = await POST(
-      new Request("https://goodreads-mcp-chi.vercel.app/mcp", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          accept: "application/json, text/event-stream",
-          "x-goodreads-user-id": "12345678",
-          "x-goodreads-rss-key": "abc123-private",
-        },
-        body: "{}",
-      }),
-    );
+    const { GET, POST } = await import("../../../api/server.js");
+    const headers = {
+      "content-type": "application/json",
+      accept: "application/json, text/event-stream",
+      "x-goodreads-user-id": "12345678",
+      "x-goodreads-rss-key": "abc123-private",
+    };
+    const target =
+      "https://goodreads-mcp-chi.vercel.app/oauth/mcp?shelf=to-read&limit=2";
 
-    expect(response.status).toBe(410);
-    const body = await response.json();
-    expect(body.endpoint).toBe(
-      "https://goodreads-mcp-chi.vercel.app/oauth/mcp",
-    );
-    expect(JSON.stringify(body)).not.toContain("abc123-private");
+    for (const method of ["GET", "POST"] as const) {
+      const response = await (method === "GET" ? GET : POST)(
+        new Request(
+          "https://goodreads-mcp-chi.vercel.app/mcp?shelf=to-read&limit=2",
+          {
+            method,
+            headers,
+            body: method === "POST" ? "{}" : undefined,
+          },
+        ),
+      );
+
+      expect(response.status).toBe(308);
+      expect(response.headers.get("location")).toBe(target);
+      expect(await response.text()).not.toContain("abc123-private");
+    }
   });
 
   it("keeps header auth on a self-hosted deployment and hides the RSS key", async () => {
     process.env[PRODUCTION_URL] = "books.example.com";
     const { POST } = await import("../../../api/server.js");
     const response = await POST(
-      new Request("https://books.example.com/mcp", {
+      new Request("https://books.example.com/mcp?shelf=read", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -58,7 +64,9 @@ describe("public /mcp route", () => {
       }),
     );
 
+    expect(response.status).not.toBe(308);
     expect(response.status).not.toBe(410);
+    expect(response.headers.get("location")).toBeNull();
     const text = await response.text();
     expect(text).not.toContain("abc123-private");
     expect(text).toContain("goodreads-mcp");

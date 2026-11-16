@@ -47,16 +47,36 @@ describe("shared deployment", () => {
     expect(isSharedPublicDeployment()).toBe(false);
   });
 
-  it("returns a deprecation response that names the OAuth endpoint", async () => {
+  it("permanently redirects /mcp to /oauth/mcp and keeps the query string", () => {
     process.env[PRODUCTION_URL] = "goodreads-mcp-chi.vercel.app";
-    const response = sharedDeploymentMcpResponse();
-    expect(response?.status).toBe(410);
-    expect(response?.headers.get("link")).toContain(DEFAULT_REMOTE_ENDPOINT);
-    const body = await response?.json();
-    expect(body).toMatchObject({
-      error: "deprecated",
-      endpoint: DEFAULT_REMOTE_ENDPOINT,
-    });
-    expect(body.message).toContain("Do not send a Goodreads RSS key");
+    const response = sharedDeploymentMcpResponse(
+      new Request(
+        "https://goodreads-mcp-chi.vercel.app/mcp?shelf=to-read&limit=2",
+      ),
+    );
+    expect(response?.status).toBe(308);
+    expect(response?.headers.get("location")).toBe(
+      "https://goodreads-mcp-chi.vercel.app/oauth/mcp?shelf=to-read&limit=2",
+    );
+  });
+
+  it("redirects /mcp with no query string to /oauth/mcp", () => {
+    process.env[PRODUCTION_URL] = "goodreads-mcp-chi.vercel.app";
+    const response = sharedDeploymentMcpResponse(
+      new Request("https://preview.example.vercel.app/mcp"),
+    );
+    expect(response?.status).toBe(308);
+    expect(response?.headers.get("location")).toBe(
+      "https://preview.example.vercel.app/oauth/mcp",
+    );
+  });
+
+  it("does not redirect a self-hosted deployment", () => {
+    process.env[PRODUCTION_URL] = "books.example.com";
+    expect(
+      sharedDeploymentMcpResponse(
+        new Request("https://books.example.com/mcp?shelf=read"),
+      ),
+    ).toBeUndefined();
   });
 });

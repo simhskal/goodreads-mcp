@@ -22,25 +22,28 @@ export function isSharedPublicDeployment(
   return host !== undefined && SHARED_DEPLOYMENT_HOSTS.has(host);
 }
 
+function oauthMcpRedirectLocation(requestUrl?: string): string {
+  if (!requestUrl) return "/oauth/mcp";
+  try {
+    const incoming = new URL(requestUrl);
+    return `${incoming.origin}/oauth/mcp${incoming.search}`;
+  } catch {
+    return "/oauth/mcp";
+  }
+}
+
 export function sharedDeploymentMcpResponse(
+  request?: Pick<Request, "url">,
   env: NodeJS.ProcessEnv = process.env,
 ): Response | undefined {
   if (!isSharedPublicDeployment(env)) return undefined;
-  const endpoint = DEFAULT_REMOTE_ENDPOINT;
-  return Response.json(
-    {
-      error: "deprecated",
-      message: `The public /mcp endpoint is disabled on this shared deployment. Connect your MCP client to ${endpoint} and sign in. Do not send a Goodreads RSS key in request headers.`,
-      endpoint,
+  // 308 keeps the method and body. The query string is copied onto /oauth/mcp.
+  return new Response(null, {
+    status: 308,
+    headers: {
+      location: oauthMcpRedirectLocation(request?.url),
     },
-    {
-      status: 410,
-      headers: {
-        "cache-control": "no-store",
-        link: `<${endpoint}>; rel="successor-version"`,
-      },
-    },
-  );
+  });
 }
 
 function normalizeHost(value: string | undefined): string | undefined {
