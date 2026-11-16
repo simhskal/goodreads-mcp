@@ -28,7 +28,8 @@ jobs:
       - uses: changesets/action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version-script: pnpm changeset version
+          # `pnpm run version` is the package script. `pnpm version` bumps the root package.
+          version-script: pnpm run version
           publish-script: pnpm release
           commit-message: "chore: version packages"
           pr-title: "chore: version packages"
