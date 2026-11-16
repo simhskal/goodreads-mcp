@@ -8,6 +8,7 @@ import {
   readMigrationFiles,
   runMigrationsFromEnv,
   selectMigrationTarget,
+  vercelMigrationSkipMessage,
   type MigrationClient,
   type MigrationConnector,
 } from "../src/migrate.js";
@@ -60,6 +61,99 @@ describe("migration target", () => {
       }),
     ).not.toContain(secret);
     expect(MIGRATION_SKIP_MESSAGE).not.toContain("postgres://");
+  });
+});
+
+describe("vercel environment gate", () => {
+  it("skips non-production Vercel builds without connecting", async () => {
+    let connected = false;
+    const connector: MigrationConnector = {
+      connect: async () => {
+        connected = true;
+        throw new Error("connect should not be called");
+      },
+    };
+    const database = {
+      POSTGRES_URL_NON_POOLING:
+        "postgres://migrator:s3cret-token@db.example:5432/library",
+      DATABASE_URL: "postgres://app:other-secret@db.example:6543/library",
+    };
+
+    for (const vercelEnv of ["preview", "development", ""]) {
+      const result = await runMigrationsFromEnv(
+        { ...database, VERCEL_ENV: vercelEnv },
+        connector,
+      );
+      expect(result.status).toBe("skipped");
+      if (result.status !== "skipped") continue;
+      expect(result.message).toBe(
+        vercelEnv === ""
+          ? "Skipping database migrations: VERCEL_ENV is set and is not production. Preview and production share the same database."
+          : `Skipping database migrations: VERCEL_ENV is ${vercelEnv}, not production. Preview and production share the same database.`,
+      );
+      expect(result.message).not.toContain("s3cret");
+      expect(result.message).not.toContain("postgres://");
+    }
+
+    const leaked = await runMigrationsFromEnv(
+      {
+        ...database,
+        VERCEL_ENV: "postgres://user:s3cret-token@db.example/library",
+      },
+      connector,
+    );
+    expect(leaked).toEqual({
+      status: "skipped",
+      message:
+        "Skipping database migrations: VERCEL_ENV is set and is not production. Preview and production share the same database.",
+    });
+    expect(JSON.stringify(leaked)).not.toContain("s3cret");
+    expect(connected).toBe(false);
+    expect(vercelMigrationSkipMessage({})).toBeUndefined();
+    expect(
+      vercelMigrationSkipMessage({ VERCEL_ENV: "production" }),
+    ).toBeUndefined();
+  });
+
+  it("still migrates when VERCEL_ENV is production or unset", async () => {
+    const databaseUrl = "postgres://migrator@db.example:5432/library";
+    const environments: NodeJS.ProcessEnv[] = [
+      { VERCEL_ENV: "production", DATABASE_URL: databaseUrl },
+      { DATABASE_URL: databaseUrl },
+    ];
+
+    for (const env of environments) {
+      let connected = false;
+      const result = await runMigrationsFromEnv(env, {
+        connect: async () => {
+          connected = true;
+          return {
+            query: async (text, values) => {
+              if (text.includes("WHERE name = $1")) {
+                return { rows: [{ name: values?.[0] }] };
+              }
+              return { rows: [] };
+            },
+            end: async () => {},
+          };
+        },
+      });
+      expect(connected).toBe(true);
+      expect(result.status).toBe("ok");
+    }
+
+    const connector: MigrationConnector = {
+      connect: async () => {
+        throw new Error("connect should not be called");
+      },
+    };
+    for (const env of [{ VERCEL_ENV: "production" }, {}]) {
+      const result = await runMigrationsFromEnv(env, connector);
+      expect(result).toEqual({
+        status: "skipped",
+        message: MIGRATION_SKIP_MESSAGE,
+      });
+    }
   });
 });
 

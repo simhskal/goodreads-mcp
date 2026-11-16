@@ -63,7 +63,9 @@ The same seven tools (`list_shelves`, `get_reading_list`,
    `GOODREADS_CSV_PATH` from the environment.
 2. **Vercel (single user)** — `api/server.ts` wraps `mcp-handler` and reuses
    `registerTools` and `readConfig` from `server-local`. Intended for one
-   Goodreads account, no OAuth.
+   Goodreads account, no OAuth. On the shared host, `/mcp` returns HTTP 308
+   to `/oauth/mcp` and keeps the query string. Self-hosted deployments still
+   serve header-based `/mcp`.
 3. **Vercel OAuth (multi-user)** — adds OAuth 2.1 with dynamic client
    registration, PKCE, refresh tokens, encrypted per-account Postgres storage, CSV upload, and
    `delete_account`.
@@ -80,7 +82,7 @@ pnpm install
 
 pnpm check       # format:check + typecheck + test — run this before every commit
 pnpm build       # runs db:migrate, then builds packages
-pnpm db:migrate  # apply hosted SQL migrations, or skip when no database URL is set
+pnpm db:migrate  # apply hosted SQL migrations; skip non-production Vercel builds, or when no database URL is set
 pnpm format     # prettier --write .
 pnpm test
 pnpm typecheck
@@ -127,8 +129,11 @@ repo separately through its Git integration.
   missing `dist/` types, run `pnpm build` once.
 - The OAuth Vercel endpoint stores data in Supabase Postgres through `pg`.
   `pnpm build` applies `migrations/*.sql` when `POSTGRES_URL_NON_POOLING` or
-  `DATABASE_URL` is set, and logs a skip line when neither is set (CI and
-  forks). Required environment: `DATABASE_URL`, `BETTER_AUTH_URL`,
+  `DATABASE_URL` is set and `VERCEL_ENV` is unset or `production`. It logs a
+  skip line and exits 0 when `VERCEL_ENV` is any other value, because Preview
+  and Production share the same Supabase database. It also logs a skip line
+  when neither database URL is set (CI and forks). Required environment:
+  `DATABASE_URL`, `BETTER_AUTH_URL`,
   `BETTER_AUTH_SECRET`, `GOODREADS_CREDENTIAL_KEY`, and `CRON_SECRET`.
   `middleware.ts` rate limits
   `/mcp`, `/oauth/mcp`, `/api/auth/*`, and `/connect`. The daily cron in

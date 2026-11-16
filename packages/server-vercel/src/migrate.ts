@@ -24,6 +24,21 @@ const CREATE_MIGRATIONS_TABLE_SQL = `CREATE TABLE IF NOT EXISTS schema_migration
 export const MIGRATION_SKIP_MESSAGE =
   "Skipping database migrations: neither POSTGRES_URL_NON_POOLING nor DATABASE_URL is set.";
 
+const VERCEL_ENV_LABEL = /^[A-Za-z0-9_-]{1,32}$/;
+
+// Preview and production on the hosted project share one Supabase database.
+// A preview build must not apply migrations to that database.
+export function vercelMigrationSkipMessage(
+  env: NodeJS.ProcessEnv,
+): string | undefined {
+  const vercelEnv = env.VERCEL_ENV;
+  if (vercelEnv === undefined || vercelEnv === "production") return undefined;
+  if (VERCEL_ENV_LABEL.test(vercelEnv)) {
+    return `Skipping database migrations: VERCEL_ENV is ${vercelEnv}, not production. Preview and production share the same database.`;
+  }
+  return "Skipping database migrations: VERCEL_ENV is set and is not production. Preview and production share the same database.";
+}
+
 export type MigrationSource = "POSTGRES_URL_NON_POOLING" | "DATABASE_URL";
 
 export interface MigrationFile {
@@ -150,6 +165,9 @@ export async function runMigrationsFromEnv(
   env: NodeJS.ProcessEnv = process.env,
   connector: MigrationConnector = pgConnector,
 ): Promise<MigrationRunResult> {
+  const vercelSkip = vercelMigrationSkipMessage(env);
+  if (vercelSkip) return { status: "skipped", message: vercelSkip };
+
   const target = selectMigrationTarget(env);
   if (!target) return { status: "skipped", message: MIGRATION_SKIP_MESSAGE };
 
