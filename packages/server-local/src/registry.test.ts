@@ -1,5 +1,7 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -58,5 +60,112 @@ describe("MCP registry metadata", () => {
         url: "https://goodreads-mcp-chi.vercel.app/oauth/mcp",
       },
     ]);
+  });
+
+  it("copies the package version into server.json from the changesets version script", () => {
+    const rootPackage = JSON.parse(
+      readFileSync(resolve(repoRoot, "package.json"), "utf8"),
+    ) as { scripts: { version: string } };
+    const releaseWorkflow = readFileSync(
+      resolve(repoRoot, ".github/workflows/release.yml"),
+      "utf8",
+    );
+
+    expect(rootPackage.scripts.version).toBe(
+      "changeset version && node scripts/sync-server-json.mjs",
+    );
+    expect(releaseWorkflow).toContain("version-script: pnpm run version");
+  });
+});
+
+describe("sync-server-json", () => {
+  const scriptPath = resolve(repoRoot, "scripts/sync-server-json.mjs");
+
+  function writeFixture(directory: string, version: string) {
+    const packageJsonPath = join(directory, "package.json");
+    const serverJsonPath = join(directory, "server.json");
+    writeFileSync(
+      packageJsonPath,
+      `${JSON.stringify({ name: "@organized-chaos/goodreads-mcp", version }, null, 2)}\n`,
+    );
+    writeFileSync(
+      serverJsonPath,
+      `${JSON.stringify(
+        {
+          name: "io.github.chaosorganized/goodreads-mcp",
+          description: "Kept while versions sync.",
+          version: "0.0.1",
+          packages: [
+            {
+              registryType: "npm",
+              identifier: "@organized-chaos/goodreads-mcp",
+              version: "0.0.1",
+            },
+            {
+              registryType: "oci",
+              identifier: "ghcr.io/example/goodreads-mcp",
+              version: "0.0.2",
+            },
+          ],
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return { packageJsonPath, serverJsonPath };
+  }
+
+  it("updates the manifest version and every package version", () => {
+    const directory = mkdtempSync(join(tmpdir(), "goodreads-mcp-registry-"));
+    try {
+      const { packageJsonPath, serverJsonPath } = writeFixture(
+        directory,
+        "0.2.1",
+      );
+      execFileSync(
+        process.execPath,
+        [scriptPath, "--package", packageJsonPath, "--server", serverJsonPath],
+        { encoding: "utf8" },
+      );
+      const synced = JSON.parse(readFileSync(serverJsonPath, "utf8")) as {
+        description: string;
+        version: string;
+        packages: Array<{ version: string }>;
+      };
+
+      expect(synced.version).toBe("0.2.1");
+      expect(synced.packages.map((entry) => entry.version)).toEqual([
+        "0.2.1",
+        "0.2.1",
+      ]);
+      expect(synced.description).toBe("Kept while versions sync.");
+
+      const formatted = readFileSync(serverJsonPath, "utf8");
+      execFileSync(
+        process.execPath,
+        [scriptPath, "--package", packageJsonPath, "--server", serverJsonPath],
+        { encoding: "utf8" },
+      );
+      expect(readFileSync(serverJsonPath, "utf8")).toBe(formatted);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("fails when the package version is missing", () => {
+    const directory = mkdtempSync(join(tmpdir(), "goodreads-mcp-registry-"));
+    try {
+      const { packageJsonPath, serverJsonPath } = writeFixture(directory, "");
+      const result = spawnSync(
+        process.execPath,
+        [scriptPath, "--package", packageJsonPath, "--server", serverJsonPath],
+        { encoding: "utf8" },
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("missing a version");
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });

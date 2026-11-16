@@ -26,9 +26,11 @@ pnpm release:verify
 
 ## MCP Registry
 
-npm publish does not list the server in the official MCP Registry. The version
-PR must set `version` and `packages[0].version` in `server.json` to the new
-`@organized-chaos/goodreads-mcp` version, or `pnpm check` fails. Run
-`mcp-publisher publish` only after that version is on npm and its `package.json`
-contains `mcpName`. The checklist is in
+npm publish does not list the server in the official MCP Registry. The release
+workflow's version step is `pnpm run version`: it runs `changeset version`,
+then copies the `@organized-chaos/goodreads-mcp` version into `server.json`
+(`version` and every `packages[].version`). Version PRs include that update.
+`pnpm check` fails when the files differ. Run `mcp-publisher publish` only
+after that version is on npm and its `package.json` contains `mcpName`. The
+checklist is in
 [CONTRIBUTING.md](CONTRIBUTING.md#list-the-server-in-directories).

@@ -29,9 +29,9 @@ Publishing steps:
 `0.2.0` was published before `mcpName` existed. Do not submit that version.
 
 1. Merge the Changesets version PR so npm publishes
-   `@organized-chaos/goodreads-mcp` with `mcpName`. In that same PR, set
-   `version` and `packages[0].version` in `server.json` to the new package
-   version. `pnpm check` fails when they differ.
+   `@organized-chaos/goodreads-mcp` with `mcpName`. That PR's version script
+   copies the new package version into `server.json` (`version` and every
+   `packages[].version`). `pnpm check` fails when they differ.
 2. Install `mcp-publisher` and sign in with a GitHub account that belongs to
    the `chaosorganized` organization: `mcp-publisher login github`. That login
    can publish the `io.github.chaosorganized/*` namespace
