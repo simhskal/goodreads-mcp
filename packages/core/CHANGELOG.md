@@ -1,5 +1,11 @@
 # @organized-chaos/goodreads-mcp-core
 
+## 0.2.1
+
+### Patch Changes
+
+- 919247f: Harden outbound RSS and Open Library fetches with timeouts, response size caps, and host-restricted redirects. Return stable public errors to MCP clients, bound shelf, search, user ID, and CSV inputs, and write Claude setup config without placing the RSS key on the process command line.
+
 ## 0.2.0
 
 ### Minor Changes
