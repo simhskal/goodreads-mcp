@@ -17,12 +17,22 @@ and the `main` branch workflow. npm requires a package to exist before its
 trusted publisher can be configured, so the first scoped release requires a
 one-time authenticated bootstrap; subsequent releases are automatic.
 
+After a real publish, the script runs `changeset git-tag`. That command reads
+`CHANGESETS_OUTPUT` and writes one `git-tag` event per untagged package, which
+the release workflow uses to push tags and open GitHub releases. A dry run
+does not create tags.
+
 Local validation:
 
 ```sh
 pnpm changeset status
 pnpm release:verify
+pnpm publish -r --dry-run --no-git-checks
 ```
+
+The `release-preview` CI job runs those last two commands on the
+`changeset-release/main` pull request and on any pull request that changes
+`server.json` or a workspace `package.json`.
 
 ## MCP Registry
 

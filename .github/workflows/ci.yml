@@ -23,3 +23,34 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm build
+
+  release-preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          RELEASE_HEAD_REF: ${{ github.head_ref }}
+          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          needed=$(git diff --name-only "$RELEASE_BASE_SHA" HEAD | node scripts/release-preview-needed.mjs)
+          echo "run=$needed" >> "$GITHUB_OUTPUT"
+      - if: steps.scope.outputs.run == 'true'
+        uses: pnpm/action-setup@v6.1.1
+        with:
+          version: 10.12.1
+      - if: steps.scope.outputs.run == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - if: steps.scope.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: steps.scope.outputs.run == 'true'
+        run: pnpm release:verify
+      - if: steps.scope.outputs.run == 'true'
+        run: pnpm publish -r --dry-run --no-git-checks
