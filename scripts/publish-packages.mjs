@@ -1,8 +1,8 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const coreName = "@organized-chaos/goodreads-mcp-core";
@@ -13,8 +13,6 @@ const packages = [
     name: "@organized-chaos/goodreads-mcp",
   },
 ];
-
-const outputDirectory = mkdtempSync(join(tmpdir(), "goodreads-mcp-release-"));
 
 function run(command, args, options = {}) {
   const output = execFileSync(command, args, {
@@ -31,7 +29,7 @@ function readPackageManifest(directory) {
   );
 }
 
-function pack(directory) {
+function pack(directory, outputDirectory) {
   const before = new Set(readdirSync(outputDirectory));
   run("pnpm", ["pack", "--pack-destination", outputDirectory], {
     cwd: join(root, directory),
@@ -67,7 +65,7 @@ function assertManifest(manifest, expectedName) {
   }
 }
 
-function isPublished(name, version) {
+function lookupPublished(name, version) {
   try {
     run("npm", ["view", `${name}@${version}`, "version", "--json"]);
     return true;
@@ -78,14 +76,59 @@ function isPublished(name, version) {
   }
 }
 
-try {
+// npm can accept a publish before `npm view` lists the new version.
+export function createReleaseRegistry({ lookup }) {
+  const publishedInThisRun = new Set();
+  return {
+    remember(name, version) {
+      publishedInThisRun.add(`${name}@${version}`);
+    },
+    isPublished(name, version) {
+      if (publishedInThisRun.has(`${name}@${version}`)) return true;
+      return lookup(name, version);
+    },
+  };
+}
+
+export function outputSaysAlreadyPublished(output) {
+  return /cannot publish over the previously published versions/i.test(output);
+}
+
+const registry = createReleaseRegistry({ lookup: lookupPublished });
+
+function publishTarball(tarball) {
+  const result = spawnSync("npm", ["publish", tarball, "--access", "public"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  if (result.status === 0) return { alreadyPublished: false };
+  const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  if (outputSaysAlreadyPublished(output)) return { alreadyPublished: true };
+  throw new Error(
+    result.error?.message ??
+      `npm publish failed with status ${result.status ?? "unknown"}.`,
+  );
+}
+
+function publishPackages() {
+  const outputDirectory = mkdtempSync(join(tmpdir(), "goodreads-mcp-release-"));
+  try {
+    publishPackedPackages(outputDirectory);
+  } finally {
+    rmSync(outputDirectory, { recursive: true, force: true });
+  }
+}
+
+function publishPackedPackages(outputDirectory) {
   for (const { directory, name } of packages) {
     const sourceManifest = readPackageManifest(directory);
     if (sourceManifest.name !== name) {
       throw new Error(`Source package ${directory} is not named ${name}.`);
     }
 
-    const tarball = pack(directory);
+    const tarball = pack(directory, outputDirectory);
     const packedManifest = readPackedManifest(tarball);
     assertManifest(packedManifest, name);
 
@@ -95,7 +138,7 @@ try {
         throw new Error("The CLI does not have a concrete core dependency.");
       }
       if (
-        !isPublished(coreName, coreVersion) &&
+        !registry.isPublished(coreName, coreVersion) &&
         process.env.RELEASE_DRY_RUN !== "1"
       ) {
         throw new Error(
@@ -108,7 +151,8 @@ try {
       }
     }
 
-    if (isPublished(name, packedManifest.version)) {
+    if (registry.isPublished(name, packedManifest.version)) {
+      registry.remember(name, packedManifest.version);
       console.log(
         `${name}@${packedManifest.version} already exists; skipping.`,
       );
@@ -117,13 +161,25 @@ try {
 
     if (process.env.RELEASE_DRY_RUN === "1") {
       console.log(`Dry run: would publish ${name}@${packedManifest.version}.`);
-    } else {
-      console.log(`Publishing ${name}@${packedManifest.version}...`);
-      run("npm", ["publish", tarball, "--access", "public"], {
-        stdio: "inherit",
-      });
+      continue;
+    }
+
+    console.log(`Publishing ${name}@${packedManifest.version}...`);
+    const publication = publishTarball(tarball);
+    registry.remember(name, packedManifest.version);
+    if (publication.alreadyPublished) {
+      console.log(
+        `${name}@${packedManifest.version} already exists; skipping.`,
+      );
     }
   }
-} finally {
-  rmSync(outputDirectory, { recursive: true, force: true });
+}
+
+function isDirectRun() {
+  const entry = process.argv[1];
+  return entry !== undefined && import.meta.url === pathToFileURL(entry).href;
+}
+
+if (isDirectRun()) {
+  publishPackages();
 }
