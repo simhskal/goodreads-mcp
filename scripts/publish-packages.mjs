@@ -65,7 +65,7 @@ function assertManifest(manifest, expectedName) {
   }
 }
 
-function isPublished(name, version) {
+function lookupPublished(name, version) {
   try {
     run("npm", ["view", `${name}@${version}`, "version", "--json"]);
     return true;
@@ -76,11 +76,47 @@ function isPublished(name, version) {
   }
 }
 
-// changesets/action reads CHANGESETS_OUTPUT. `changeset git-tag` appends
-// `{ type: "git-tag", tag, packageName }` events and creates the local tags.
+// npm can accept a publish before `npm view` lists the new version.
+export function createReleaseRegistry({ lookup }) {
+  const publishedInThisRun = new Set();
+  return {
+    remember(name, version) {
+      publishedInThisRun.add(`${name}@${version}`);
+    },
+    isPublished(name, version) {
+      if (publishedInThisRun.has(`${name}@${version}`)) return true;
+      return lookup(name, version);
+    },
+  };
+}
+
+export function outputSaysAlreadyPublished(output) {
+  return /cannot publish over the previously published versions/i.test(output);
+}
+
+// `changeset git-tag` reads CHANGESETS_OUTPUT and appends `{ type: "git-tag" }`
+// events. changesets/action uses that file to push tags and open GitHub releases.
 export function finishRelease({ dryRun, tag }) {
   if (dryRun) return;
   tag();
+}
+
+const registry = createReleaseRegistry({ lookup: lookupPublished });
+
+function publishTarball(tarball) {
+  const result = spawnSync("npm", ["publish", tarball, "--access", "public"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  if (result.status === 0) return { alreadyPublished: false };
+  const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  if (outputSaysAlreadyPublished(output)) return { alreadyPublished: true };
+  throw new Error(
+    result.error?.message ??
+      `npm publish failed with status ${result.status ?? "unknown"}.`,
+  );
 }
 
 function runChangesetGitTag() {
@@ -102,62 +138,67 @@ function runChangesetGitTag() {
 function publishPackages() {
   const outputDirectory = mkdtempSync(join(tmpdir(), "goodreads-mcp-release-"));
   try {
-    for (const { directory, name } of packages) {
-      const sourceManifest = readPackageManifest(directory);
-      if (sourceManifest.name !== name) {
-        throw new Error(`Source package ${directory} is not named ${name}.`);
-      }
-
-      const tarball = pack(directory, outputDirectory);
-      const packedManifest = readPackedManifest(tarball);
-      assertManifest(packedManifest, name);
-
-      if (name === "@organized-chaos/goodreads-mcp") {
-        const coreVersion = packedManifest.dependencies?.[coreName];
-        if (!coreVersion || coreVersion.startsWith("workspace:")) {
-          throw new Error("The CLI does not have a concrete core dependency.");
-        }
-        if (
-          !isPublished(coreName, coreVersion) &&
-          process.env.RELEASE_DRY_RUN !== "1"
-        ) {
-          throw new Error(
-            `${coreName}@${coreVersion} must publish before the CLI.`,
-          );
-        }
-        const bin = packedManifest.bin?.["goodreads-mcp"];
-        if (bin !== "dist/index.js") {
-          throw new Error(
-            "The CLI tarball is missing the goodreads-mcp binary.",
-          );
-        }
-      }
-
-      if (isPublished(name, packedManifest.version)) {
-        console.log(
-          `${name}@${packedManifest.version} already exists; skipping.`,
-        );
-        continue;
-      }
-
-      if (process.env.RELEASE_DRY_RUN === "1") {
-        console.log(
-          `Dry run: would publish ${name}@${packedManifest.version}.`,
-        );
-      } else {
-        console.log(`Publishing ${name}@${packedManifest.version}...`);
-        run("npm", ["publish", tarball, "--access", "public"], {
-          stdio: "inherit",
-        });
-      }
-    }
-
+    publishPackedPackages(outputDirectory);
     finishRelease({
       dryRun: process.env.RELEASE_DRY_RUN === "1",
       tag: runChangesetGitTag,
     });
   } finally {
     rmSync(outputDirectory, { recursive: true, force: true });
+  }
+}
+
+function publishPackedPackages(outputDirectory) {
+  for (const { directory, name } of packages) {
+    const sourceManifest = readPackageManifest(directory);
+    if (sourceManifest.name !== name) {
+      throw new Error(`Source package ${directory} is not named ${name}.`);
+    }
+
+    const tarball = pack(directory, outputDirectory);
+    const packedManifest = readPackedManifest(tarball);
+    assertManifest(packedManifest, name);
+
+    if (name === "@organized-chaos/goodreads-mcp") {
+      const coreVersion = packedManifest.dependencies?.[coreName];
+      if (!coreVersion || coreVersion.startsWith("workspace:")) {
+        throw new Error("The CLI does not have a concrete core dependency.");
+      }
+      if (
+        !registry.isPublished(coreName, coreVersion) &&
+        process.env.RELEASE_DRY_RUN !== "1"
+      ) {
+        throw new Error(
+          `${coreName}@${coreVersion} must publish before the CLI.`,
+        );
+      }
+      const bin = packedManifest.bin?.["goodreads-mcp"];
+      if (bin !== "dist/index.js") {
+        throw new Error("The CLI tarball is missing the goodreads-mcp binary.");
+      }
+    }
+
+    if (registry.isPublished(name, packedManifest.version)) {
+      registry.remember(name, packedManifest.version);
+      console.log(
+        `${name}@${packedManifest.version} already exists; skipping.`,
+      );
+      continue;
+    }
+
+    if (process.env.RELEASE_DRY_RUN === "1") {
+      console.log(`Dry run: would publish ${name}@${packedManifest.version}.`);
+      continue;
+    }
+
+    console.log(`Publishing ${name}@${packedManifest.version}...`);
+    const publication = publishTarball(tarball);
+    registry.remember(name, packedManifest.version);
+    if (publication.alreadyPublished) {
+      console.log(
+        `${name}@${packedManifest.version} already exists; skipping.`,
+      );
+    }
   }
 }
 

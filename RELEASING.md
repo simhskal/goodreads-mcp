@@ -17,10 +17,13 @@ and the `main` branch workflow. npm requires a package to exist before its
 trusted publisher can be configured, so the first scoped release requires a
 one-time authenticated bootstrap; subsequent releases are automatic.
 
-After a real publish, the script runs `changeset git-tag`. That command reads
-`CHANGESETS_OUTPUT` and writes one `git-tag` event per untagged package, which
-the release workflow uses to push tags and open GitHub releases. A dry run
-does not create tags.
+The publish script skips versions that are already on npm, including a version
+it published earlier in the same run before `npm view` can see it. A publish
+that npm rejects because that version is already published is treated as
+success, so a partial release can be retried. After a real publish, the script
+runs `changeset git-tag`. That command reads `CHANGESETS_OUTPUT` and writes one
+`git-tag` event per untagged package, which the release workflow uses to push
+tags and open GitHub releases. A dry run does not create tags.
 
 Local validation:
 
