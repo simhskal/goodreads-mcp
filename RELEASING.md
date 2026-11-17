@@ -18,9 +18,12 @@ trusted publisher can be configured, so the first scoped release requires a
 one-time authenticated bootstrap; subsequent releases are automatic.
 
 The publish script skips versions that are already on npm, including a version
-it published earlier in the same run before `npm view` can see it. After a
-real publish it runs `changeset git-tag`, which writes `CHANGESETS_OUTPUT` so
-the release workflow can push tags and open GitHub releases.
+it published earlier in the same run before `npm view` can see it. A publish
+that npm rejects because that version is already published is treated as
+success, so a partial release can be retried. After a real publish, the script
+runs `changeset git-tag`. That command reads `CHANGESETS_OUTPUT` and writes one
+`git-tag` event per untagged package, which the release workflow uses to push
+tags and open GitHub releases. A dry run does not create tags.
 
 Local validation:
 
@@ -30,8 +33,9 @@ pnpm release:verify
 pnpm publish -r --dry-run --no-git-checks
 ```
 
-Pull requests run those last two commands in the `release-preview` CI job
-before a version PR can merge.
+The `release-preview` CI job runs those last two commands on the
+`changeset-release/main` pull request and on any pull request that changes
+`server.json` or a workspace `package.json`.
 
 ## MCP Registry
 
