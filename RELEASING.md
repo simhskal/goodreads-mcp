@@ -17,12 +17,21 @@ and the `main` branch workflow. npm requires a package to exist before its
 trusted publisher can be configured, so the first scoped release requires a
 one-time authenticated bootstrap; subsequent releases are automatic.
 
+The publish script skips versions that are already on npm, including a version
+it published earlier in the same run before `npm view` can see it. After a
+real publish it runs `changeset git-tag`, which writes `CHANGESETS_OUTPUT` so
+the release workflow can push tags and open GitHub releases.
+
 Local validation:
 
 ```sh
 pnpm changeset status
 pnpm release:verify
+pnpm publish -r --dry-run --no-git-checks
 ```
+
+Pull requests run those last two commands in the `release-preview` CI job
+before a version PR can merge.
 
 ## MCP Registry
 

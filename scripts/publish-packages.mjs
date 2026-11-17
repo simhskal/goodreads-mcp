@@ -94,6 +94,13 @@ export function outputSaysAlreadyPublished(output) {
   return /cannot publish over the previously published versions/i.test(output);
 }
 
+// `changeset git-tag` reads CHANGESETS_OUTPUT and appends `{ type: "git-tag" }`
+// events. changesets/action uses that file to push tags and open GitHub releases.
+export function finishRelease({ dryRun, tag }) {
+  if (dryRun) return;
+  tag();
+}
+
 const registry = createReleaseRegistry({ lookup: lookupPublished });
 
 function publishTarball(tarball) {
@@ -112,10 +119,30 @@ function publishTarball(tarball) {
   );
 }
 
+function runChangesetGitTag() {
+  const result = spawnSync("pnpm", ["exec", "changeset", "git-tag"], {
+    cwd: root,
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  if (result.status !== 0) {
+    throw new Error(
+      result.error?.message ??
+        `changeset git-tag failed with status ${result.status ?? "unknown"}.`,
+    );
+  }
+}
+
 function publishPackages() {
   const outputDirectory = mkdtempSync(join(tmpdir(), "goodreads-mcp-release-"));
   try {
     publishPackedPackages(outputDirectory);
+    finishRelease({
+      dryRun: process.env.RELEASE_DRY_RUN === "1",
+      tag: runChangesetGitTag,
+    });
   } finally {
     rmSync(outputDirectory, { recursive: true, force: true });
   }
