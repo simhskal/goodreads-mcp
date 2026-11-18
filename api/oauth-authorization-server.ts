@@ -6,11 +6,7 @@ let metadata: ReturnType<typeof oauthProviderAuthServerMetadata> | undefined;
 export function GET(request: Request) {
   const ready = openAuth();
   if (!ready.ok) return ready.response;
-  metadata ??= oauthProviderAuthServerMetadata(
-    ready.auth as unknown as Parameters<
-      typeof oauthProviderAuthServerMetadata
-    >[0],
-  );
+  metadata ??= oauthProviderAuthServerMetadata(ready.auth);
   return metadata(request);
 }
 
