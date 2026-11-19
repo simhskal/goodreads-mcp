@@ -1,7 +1,7 @@
 import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
-import { betterAuth, type BetterAuthPlugin } from "better-auth";
+import { betterAuth } from "better-auth";
 import { anonymous, jwt } from "better-auth/plugins";
 import {
   authBasePath,
@@ -77,7 +77,7 @@ function createAuth() {
             return !profile;
           },
         },
-      }) as unknown as BetterAuthPlugin,
+      }),
       cimd({
         fetchClientMetadataResource,
         metadataProfile: "mcp-2026-07-28",

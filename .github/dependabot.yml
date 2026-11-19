@@ -9,6 +9,13 @@ updates:
         dependency-type: production
       development-dependencies:
         dependency-type: development
+    ignore:
+      # Better Auth 1.7 peers on better-call ~1.4.5. A 2.x install sits beside
+      # that copy, so OAuth APIError checks miss and requireMcpAuth cannot see
+      # the auth context used for DPoP replay.
+      - dependency-name: better-call
+        update-types:
+          - version-update:semver-major
   - package-ecosystem: github-actions
     directory: /
     schedule:
