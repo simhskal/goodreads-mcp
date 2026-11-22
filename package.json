@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "pnpm db:migrate && pnpm -r build",
+    "dev": "vite public --host 0.0.0.0",
     "db:migrate": "pnpm --filter @goodreads-mcp/server-vercel migrate",
     "check": "pnpm format:check && pnpm typecheck && pnpm test",
     "clean": "pnpm -r clean",
