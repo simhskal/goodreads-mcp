@@ -20,9 +20,9 @@
     "tsx": "^4.23.15"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.16",
+    "@electric-sql/pglite": "^0.5.17",
     "@types/pg": "^8.23.1",
     "typescript": "^7.0.2",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
